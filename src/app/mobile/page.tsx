@@ -51,7 +51,7 @@ export default async function MobileHome({ searchParams }: Props) {
             Produk Lokal Pondokrejo
           </div>
           <h1 className="text-4xl font-black text-white leading-tight tracking-tight mb-4">
-            Belanja Dari <span className="text-green-500">Tetangga</span>.
+            PAWON - <span className="text-green-500">pasar online</span> warga pondokrejo
           </h1>
           <p className="text-slate-300 text-sm font-medium mb-6 line-clamp-2">
             Pasar digital resmi Kalurahan Pondokrejo. Produk UMKM langsung dari warga.
