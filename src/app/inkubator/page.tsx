@@ -87,14 +87,21 @@ export default async function IncubatorPage() {
           {services.map((service) => {
             const Icon = iconMap[service.iconName] || Globe;
             return (
-              <div key={service._id} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl transition-all duration-500 group">
+              <div key={service._id} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl transition-all duration-500 group flex flex-col h-full">
                 <div className="bg-slate-50 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors duration-500">
                   <Icon className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-4 leading-tight">{service.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                <p className="text-slate-500 text-sm leading-relaxed font-medium mb-8 flex-grow">
                   {service.description}
                 </p>
+                <Link 
+                  href={`/inkubator/${service.slug}`}
+                  className="w-full bg-slate-50 text-slate-900 text-center font-black py-4 rounded-2xl hover:bg-green-600 hover:text-white transition-all active:scale-95 group/link flex items-center justify-center gap-2"
+                >
+                  Pelajari Detail
+                  <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                </Link>
               </div>
             );
           })}

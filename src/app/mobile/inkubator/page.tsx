@@ -13,7 +13,8 @@ import {
   Banknote, 
   Building,
   ChevronLeft,
-  MessageCircle
+  MessageCircle,
+  ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 
@@ -60,16 +61,16 @@ export default async function MobileIncubatorPage() {
             </div>
           )}
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 border border-green-500/30">
+            <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 border border-green-500/30">
               Program Desa
             </div>
-            <h2 className="text-4xl font-black mb-4 tracking-tighter leading-tight">Membangun Bisnis dari <span className="text-green-500">Desa</span>.</h2>
+            <h2 className="text-4xl font-black mb-4 tracking-tighter leading-tight">Membangun Bisnis dari <span className="text-green-500">Kalurahan</span>.</h2>
             <p className="text-slate-400 text-sm font-medium mb-8 leading-relaxed">Dukungan penuh Kalurahan Pondokrejo untuk memajukan usaha warga.</p>
             <a
               href="https://wa.me/081234567890"
               className="w-full flex items-center justify-center gap-3 bg-green-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-green-600/20 active:scale-95 transition-all"
             >
-              Daftar Sekarang
+              Konsultasi Sekarang
             </a>
           </div>
           <div className="absolute top-0 right-0 w-48 h-48 bg-green-500/10 blur-[80px] rounded-full -mr-24 -mt-24"></div>
@@ -81,17 +82,24 @@ export default async function MobileIncubatorPage() {
             {services.map((service) => {
               const Icon = iconMap[service.iconName] || Globe;
               return (
-                <div key={service._id} className="bg-white p-6 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-100 flex gap-6 items-start">
+                <Link 
+                  key={service._id} 
+                  href={`/inkubator/${service.slug}`}
+                  className="bg-white p-6 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-100 flex gap-6 items-start active:scale-[0.98] transition-all"
+                >
                   <div className="bg-slate-50 p-4 rounded-2xl text-green-600 flex-shrink-0">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 mb-2 leading-tight">{service.title}</h3>
-                    <p className="text-slate-500 text-xs leading-relaxed font-medium">
+                  <div className="flex-grow">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <h3 className="text-lg font-black text-slate-900 leading-tight">{service.title}</h3>
+                      <ArrowRight className="w-4 h-4 text-slate-300" />
+                    </div>
+                    <p className="text-slate-500 text-xs leading-relaxed font-medium line-clamp-2">
                       {service.description}
                     </p>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

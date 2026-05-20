@@ -258,6 +258,17 @@ export const INCUBATOR_SERVICES_QUERY = defineQuery(`
   }
 `)
 
+export const INCUBATOR_SERVICE_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "incubatorService" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    description,
+    iconName,
+    order
+  }
+`)
+
 export const INCUBATOR_SETTINGS_QUERY = defineQuery(`
   *[_type == "article" && title == "Aset Visual Inkubator UMKM"][0] {
     image
