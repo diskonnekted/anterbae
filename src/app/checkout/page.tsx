@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
 import { createOrder } from '@/app/actions/order'
+import { getOrCreateCustomer, getCustomerById } from '@/app/actions/customer'
 import { useRouter } from 'next/navigation'
-import { Loader2, CheckCircle } from 'lucide-react'
+import { Loader2, CheckCircle, UserCheck } from 'lucide-react'
 import { OrderFormData } from '@/types'
 
 export default function CheckoutPage() {
@@ -13,6 +14,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [orderInfo, setOrderInfo] = useState<{ orderNumber: string } | null>(null)
+  const [isNewUser, setIsNewUser] = useState(true)
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
@@ -20,11 +22,40 @@ export default function CheckoutPage() {
     address: '',
   })
 
+  // Load existing profile
+  useEffect(() => {
+    const savedId = localStorage.getItem('pawon-customerId')
+    if (savedId) {
+      getCustomerById(savedId).then((res) => {
+        if (res.success && res.data) {
+          setFormData({
+            name: res.data.name,
+            phone: res.data.phone,
+            address: res.data.address
+          })
+          setIsNewUser(false)
+        }
+      })
+    }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    const result = await createOrder(formData, items, grandTotal, shippingFee)
+    // 1. Get or Create Customer Document
+    const customerRes = await getOrCreateCustomer(formData)
+    if (!customerRes.success || !customerRes.customerId) {
+      alert(customerRes.error)
+      setLoading(false)
+      return
+    }
+
+    // 2. Save ID to LocalStorage
+    localStorage.setItem('pawon-customerId', customerRes.customerId)
+
+    // 3. Create Order linked to Customer
+    const result = await createOrder(formData, items, grandTotal, shippingFee, customerRes.customerId)
 
     if (result.success && result.orderNumber) {
       setOrderInfo({ orderNumber: result.orderNumber })

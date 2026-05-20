@@ -28,6 +28,13 @@ export const orderType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'customer',
+      title: 'Profil Warga (Pembeli)',
+      type: 'reference',
+      to: [{ type: 'customer' }],
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'items',
       type: 'array',
       of: [
