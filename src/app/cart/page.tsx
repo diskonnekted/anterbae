@@ -94,7 +94,7 @@ export default function CartPage() {
                   <span className="text-white">Rp{totalPrice.toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex justify-between text-slate-400 font-bold uppercase tracking-widest text-xs">
-                  <span>Ongkos Kirim Desa</span>
+                  <span>Ongkos Kirim Kalurahan</span>
                   <span className="text-white">Rp{shippingFee.toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex justify-between items-end border-t border-white/10 pt-6">
@@ -122,7 +122,7 @@ export default function CartPage() {
               </Link>
               
               <p className="text-center text-slate-500 text-[10px] mt-6 font-bold uppercase tracking-[0.2em]">
-                Kurir Desa Pondokrejo
+                Kurir Kalurahan Pondokrejo
               </p>
             </div>
           </div>

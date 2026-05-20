@@ -96,7 +96,7 @@ export default function MobileCheckoutPage() {
             </li>
             <li className="flex gap-3 text-sm font-medium text-slate-600">
               <span className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
-              Kurir Desa hubungi via WhatsApp.
+              Kurir Kalurahan hubungi via WhatsApp.
             </li>
             <li className="flex gap-3 text-sm font-medium text-slate-600">
               <span className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">3</span>

@@ -20,12 +20,12 @@ Aplikasi ini menghubungkan produk UMKM, hasil bumi, dan layanan jasa profesional
 *   **PWA Ready**: Dapat diinstal langsung di layar utama HP tanpa melalui Play Store.
 *   **Deteksi Otomatis**: Sistem secara cerdas menyajikan layout terbaik berdasarkan perangkat yang digunakan.
 
-### 📰 Kabar Kalurahan (Info Desa)
-*   **Pusat Informasi**: Update resmi mengenai pelatihan UMKM, bantuan modal BUMDes, dan panduan resmi desa.
-*   **Dukungan Pemerintah**: Pengumuman kegiatan yang bertujuan meningkatkan kapasitas pelaku usaha desa.
+### 📰 Kabar Kalurahan (Info)
+*   **Pusat Informasi**: Update resmi mengenai pelatihan UMKM, bantuan modal BUMKal, dan panduan resmi kalurahan.
+*   **Dukungan Pemerintah**: Pengumuman kegiatan yang bertujuan meningkatkan kapasitas pelaku usaha kalurahan.
 
 ### 🚚 Logistik & Tracking
-*   **Kurir Desa**: Pengiriman barang ditangani oleh tenaga kurir resmi desa.
+*   **Kurir Kalurahan**: Pengiriman barang ditangani oleh tenaga kurir resmi kalurahan.
 *   **Lacak Pesanan**: Fitur real-time untuk memantau status pengiriman paket.
 
 ## 🛠️ Tech Stack
@@ -85,5 +85,5 @@ Jika Anda menggunakan **Ubuntu** dengan **CloudPanel**:
 Aplikasi ini dikembangkan untuk kemajuan warga Kalurahan Pondokrejo. Saran dan masukan sangat kami harapkan untuk pengembangan fitur ke depannya.
 
 ---
-**PAWON** - *Membangun Desa dari Tetangga.*
+**PAWON** - *Membangun Kalurahan dari Tetangga.*
 © 2026 Pemerintah Kalurahan Pondokrejo.

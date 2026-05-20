@@ -57,7 +57,7 @@ export default async function ArticleDetailPage({ params }: Props) {
         className="inline-flex items-center gap-2 text-slate-400 font-black text-xs uppercase tracking-widest mb-8 hover:text-green-600 transition-colors"
       >
         <ChevronLeft className="w-4 h-4" />
-        Kembali ke Info Desa
+        Kembali ke Info Kalurahan
       </Link>
 
       <div className="flex items-center gap-3 mb-6">

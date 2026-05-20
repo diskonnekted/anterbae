@@ -59,7 +59,7 @@ export default function MobileRegisterCourierPage() {
           </div>
           <h2 className="text-2xl font-black text-slate-900 mb-3">Gabung Tim Kurir</h2>
           <p className="text-slate-500 text-sm font-medium px-4">
-            Bantu pengiriman produk warga dan dapatkan penghasilan tambahan di desa kita.
+            Bantu pengiriman produk warga dan dapatkan penghasilan tambahan di kalurahan kita.
           </p>
         </div>
 

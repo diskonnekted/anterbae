@@ -61,7 +61,7 @@ export default async function MobileVendorsPage() {
               </div>
               
               <p className="text-slate-500 text-xs leading-relaxed mb-6 line-clamp-2 font-medium">
-                {vendor.description || 'UMKM terpercaya di desa Pondokrejo.'}
+                {vendor.description || 'UMKM terpercaya di kalurahan Pondokrejo.'}
               </p>
 
               <Link 

@@ -85,7 +85,7 @@ export default function CheckoutPage() {
             <p className="font-bold mb-1">Selanjutnya apa?</p>
             <ul className="list-disc ml-4 space-y-1">
               <li>Penjual akan mengonfirmasi pesanan Anda.</li>
-              <li>Kurir Desa akan menghubungi via WhatsApp untuk pengantaran.</li>
+              <li>Kurir Kalurahan akan menghubungi via WhatsApp untuk pengantaran.</li>
               <li>Siapkan uang tunai sesuai total belanja untuk pembayaran COD.</li>
             </ul>
           </div>

@@ -21,7 +21,7 @@ export default function MobileTrackLandingPage() {
           Cek Status <span className="text-green-600">Paketmu</span>.
         </h2>
         <p className="text-slate-500 mb-12 text-sm font-medium leading-relaxed">
-          Masukkan nomor pesanan untuk melihat posisi paket dari Kurir Desa.
+          Masukkan nomor pesanan untuk melihat posisi paket dari Kurir Kalurahan.
         </p>
         
         <div className="w-full max-w-sm mx-auto">

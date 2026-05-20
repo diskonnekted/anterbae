@@ -3,7 +3,7 @@ import { RocketIcon } from '@sanity/icons'
 
 export const courierType = defineType({
   name: 'courier',
-  title: 'Kurir Desa',
+  title: 'Kurir Kalurahan',
   type: 'document',
   icon: RocketIcon,
   fields: [

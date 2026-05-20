@@ -73,7 +73,7 @@ export const structure: StructureResolver = (S) =>
             ])
         ),
       S.listItem()
-        .title('Kurir Desa')
+        .title('Kurir Kalurahan')
         .icon(RocketIcon)
         .child(S.documentTypeList('courier').title('Tim Kurir')),
       

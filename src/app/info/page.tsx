@@ -18,7 +18,7 @@ export default async function InfoPage() {
           Info & <span className="text-green-600">Pengumuman</span>.
         </h1>
         <p className="text-slate-500 font-medium max-w-2xl mx-auto">
-          Dapatkan informasi terbaru mengenai pelatihan UMKM, panduan penggunaan aplikasi PAWON, dan dukungan dari Pemerintah Desa Pondokrejo.
+          Dapatkan informasi terbaru mengenai pelatihan UMKM, panduan penggunaan aplikasi PAWON, dan dukungan dari Pemerintah Kalurahan Pondokrejo.
         </p>
       </div>
 

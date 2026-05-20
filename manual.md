@@ -22,7 +22,7 @@ Untuk mencegah pesanan fiktif (fake order) pada sistem COD, PAWON menggunakan si
 ### Alur Kerja Pesanan:
 1.  **Status: Menunggu Konfirmasi**: Admin memverifikasi profil pembeli dan stok UMKM.
 2.  **Status: Diproses Penjual**: UMKM mulai menyiapkan barang.
-3.  **Penunjukan Kurir**: Admin memilih kurir dan mengisi instruksi tambahan.
+3.  **Penunjukan Kurir**: Admin memilih kurir kalurahan dan mengisi instruksi tambahan.
 4.  **Status: Sedang Diantar**: Kurir membawa barang ke alamat.
 5.  **Status: Selesai (COD)**: **Admin memperbarui angka "Total COD Berhasil"** di profil pembeli setelah kurir menyetorkan uang.
 
@@ -37,7 +37,7 @@ Untuk mencegah pesanan fiktif (fake order) pada sistem COD, PAWON menggunakan si
 
 ### Mendaftarkan Kurir Baru:
 *   Warga mendaftar melalui website di menu **"Daftar Jadi Kurir"** (Footer).
-*   Data masuk ke menu **"Kurir Desa"** dengan status `Inactive`.
+*   Data masuk ke menu **"Kurir Kalurahan"** dengan status `Inactive`.
 *   **Admin:** Verifikasi identitas, lalu ubah status menjadi **"Aktif"**.
 
 ---
@@ -54,7 +54,7 @@ Untuk mencegah pesanan fiktif (fake order) pada sistem COD, PAWON menggunakan si
 
 ---
 
-## 4. Informasi Desa (Kabar Kalurahan)
+## 4. Informasi Kalurahan (Kabar Kalurahan)
 
 *   Gunakan menu **"Info & Pengumuman"** untuk memposting berita, undangan pelatihan, atau panduan resmi bagi warga.
 

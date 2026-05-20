@@ -57,7 +57,7 @@ export default async function MobileProductsPage({ searchParams }: Props) {
             <input
               name="q"
               defaultValue={search}
-              placeholder="Cari produk desa..."
+              placeholder="Cari produk kalurahan..."
               className="w-full bg-slate-50 border-none rounded-2xl py-3 pl-10 pr-4 text-sm font-bold focus:ring-2 focus:ring-green-600 outline-none"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />

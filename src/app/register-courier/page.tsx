@@ -58,7 +58,7 @@ export default function RegisterCourierPage() {
           <div className="bg-green-100 w-20 h-20 rounded-[2rem] flex items-center justify-center mb-6 shadow-lg shadow-green-100/50">
             <Truck className="w-10 h-10 text-green-700" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">Gabung Jadi <span className="text-green-600">Kurir Desa</span>.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">Gabung Jadi <span className="text-green-600">Kurir Kalurahan</span>.</h1>
           <p className="text-slate-500 font-medium">Bantu pengantaran produk warga dan dapatkan penghasilan tambahan melalui ekosistem PAWON.</p>
         </div>
 

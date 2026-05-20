@@ -30,7 +30,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const isLoaded = useRef(false)
-  const shippingFee = items.length > 0 ? 5000 : 0 // Tarif flat Rp 5.000 untuk pengiriman desa
+  const shippingFee = items.length > 0 ? 5000 : 0 // Tarif flat Rp 5.000 untuk pengiriman kalurahan
 
   // Load from localStorage
   useEffect(() => {
