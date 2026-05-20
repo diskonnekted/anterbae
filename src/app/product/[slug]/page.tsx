@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageCircle, MapPin } from "lucide-react";
-import AddToCartButton from "@/components/AddToCartButton";
+import AddToCartButton from "@/components/Cart/AddToCartButton";
 import { Product } from "@/types";
 
 interface Props {
