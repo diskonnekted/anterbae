@@ -106,8 +106,13 @@ export default async function RootLayout({
                       <li>
                         <Link href="/info" className="text-slate-500 hover:text-green-600 transition-colors">Info & Pengumuman</Link>
                       </li>
-                      <li>
-                        <Link href="/inkubator" className="text-slate-500 hover:text-green-600 transition-colors">Inkubator UMKM</Link>
+                      <li className="pt-4">
+                        <Link 
+                          href="/inkubator" 
+                          className="inline-block bg-slate-900 text-white font-black px-6 py-3 rounded-xl hover:bg-green-600 transition-all shadow-lg active:scale-95 text-xs"
+                        >
+                          Program Inkubator UMKM &rarr;
+                        </Link>
                       </li>
                     </ul>
                   </div>
