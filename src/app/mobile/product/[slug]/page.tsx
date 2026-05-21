@@ -107,10 +107,10 @@ export default async function MobileProductPage({ params }: Props) {
       </div>
 
       {/* Fixed Bottom Actions */}
-      <div className="fixed bottom-20 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 p-4 flex gap-3 z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 p-4 pb-8 flex gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <a
           href={`https://wa.me/${product.vendor.phone}?text=Halo, saya ingin bertanya tentang ${product.name}`}
-          className="p-4 bg-slate-100 rounded-2xl active:scale-90 transition-all"
+          className="p-4 bg-slate-100 rounded-2xl active:scale-90 transition-all flex items-center justify-center"
         >
           <MessageCircle className="w-6 h-6 text-slate-700" />
         </a>

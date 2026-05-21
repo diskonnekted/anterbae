@@ -9,8 +9,15 @@ export default function BottomNav() {
   const pathname = usePathname();
   const { totalItems } = useCart();
 
-  // Sembunyikan BottomNav di halaman checkout agar tidak menutupi tombol utama
-  if (pathname === '/checkout') return null;
+  // Sembunyikan BottomNav di halaman detail & checkout agar tidak menutupi tombol utama (CTA)
+  const isDetailPage = 
+    pathname === '/checkout' || 
+    pathname.startsWith('/product/') || 
+    pathname.startsWith('/service/') || 
+    pathname.startsWith('/inkubator/') ||
+    pathname.startsWith('/order/');
+
+  if (isDetailPage) return null;
   
   const navItems = [
     { name: 'Beranda', icon: Home, href: '/' },
