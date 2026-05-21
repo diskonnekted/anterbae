@@ -5,7 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { createOrder } from '@/app/actions/order'
 import { getOrCreateCustomer, getCustomerById } from '@/app/actions/customer'
 import { useRouter } from 'next/navigation'
-import { Loader2, CheckCircle, ChevronLeft, MapPin, Phone, User, Info, ShoppingBag, UserCheck } from 'lucide-react'
+import { Loader2, CheckCircle, ChevronLeft, User, Info, ShoppingBag, MessageCircle } from 'lucide-react'
 import { OrderFormData } from '@/types'
 import Link from 'next/link'
 
@@ -15,7 +15,6 @@ export default function MobileCheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [orderInfo, setOrderInfo] = useState<{ orderNumber: string } | null>(null)
-  const [isNewUser, setIsNewUser] = useState(true)
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
@@ -34,7 +33,6 @@ export default function MobileCheckoutPage() {
             phone: res.data.phone,
             address: res.data.address
           })
-          setIsNewUser(false)
         }
       })
     }
@@ -59,7 +57,9 @@ export default function MobileCheckoutPage() {
     const result = await createOrder(formData, items, grandTotal, shippingFee, customerRes.customerId)
 
     if (result.success && result.orderNumber) {
-      setOrderInfo({ orderNumber: result.orderNumber })
+      setOrderInfo({ 
+        orderNumber: result.orderNumber
+      })
       setSuccess(true)
       clearCart()
     } else {
@@ -84,25 +84,14 @@ export default function MobileCheckoutPage() {
           Pesanan <span className="font-black text-slate-900">{orderInfo.orderNumber}</span> telah diterima.
         </p>
         
-        <div className="bg-slate-50 p-6 rounded-[2.5rem] mb-10 text-left w-full max-w-sm">
-          <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-            <Info className="w-4 h-4 text-green-600" />
-            Langkah Selanjutnya
+        <div className="bg-green-50 p-6 rounded-[2.5rem] mb-10 text-left w-full max-w-sm border border-green-100">
+          <h4 className="text-sm font-black uppercase tracking-widest text-green-700 mb-3 flex items-center gap-2">
+            <MessageCircle className="w-4 h-4" />
+            NOTIFIKASI TERKIRIM
           </h4>
-          <ul className="space-y-4">
-            <li className="flex gap-3 text-sm font-medium text-slate-600">
-              <span className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
-              Penjual mengonfirmasi produk.
-            </li>
-            <li className="flex gap-3 text-sm font-medium text-slate-600">
-              <span className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
-              Kurir Kalurahan hubungi via WhatsApp.
-            </li>
-            <li className="flex gap-3 text-sm font-medium text-slate-600">
-              <span className="bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">3</span>
-              Bayar COD saat barang tiba.
-            </li>
-          </ul>
+          <p className="text-xs font-bold text-green-800 leading-relaxed">
+            Kami telah mengirimkan detail pesanan ke WhatsApp Anda. Admin Kalurahan akan segera memproses pesanan ini.
+          </p>
         </div>
 
         <button 

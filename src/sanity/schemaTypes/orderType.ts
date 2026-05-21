@@ -77,11 +77,14 @@ export const orderType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Menunggu Konfirmasi', value: 'pending' },
+          { title: 'Menunggu Konfirmasi Admin', value: 'pending' },
+          { title: 'Order Diterima Kurir', value: 'accepted' },
           { title: 'Diproses Penjual', value: 'processing' },
-          { title: 'Sedang Diantar Kurir', value: 'delivering' },
-          { title: 'Selesai (COD)', value: 'completed' },
+          { title: 'Diserahkan ke Kurir', value: 'shipped' },
+          { title: 'Dalam Pengiriman', value: 'delivering' },
+          { title: 'Selesai (Diterima)', value: 'completed' },
           { title: 'Dibatalkan', value: 'cancelled' },
+          { title: 'Ada Masalah', value: 'problem' },
         ],
       },
       initialValue: 'pending',

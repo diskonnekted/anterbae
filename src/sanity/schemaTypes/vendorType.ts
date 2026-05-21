@@ -34,8 +34,29 @@ export const vendorType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'pin',
+      title: 'PIN Akses Portal',
+      type: 'string',
+      description: 'PIN rahasia (4-6 digit) untuk login ke portal penjual.',
+      validation: (rule) => rule.min(4).max(6),
+    }),
+    defineField({
       name: 'address',
       type: 'string',
+    }),
+    defineField({
+      name: 'isOpen',
+      title: 'Status Toko Buka',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Matikan ini jika toko sedang tutup atau libur.',
+    }),
+    defineField({
+      name: 'closingMessage',
+      title: 'Pesan Saat Tutup',
+      type: 'string',
+      description: 'Contoh: "Maaf, kami sedang libur Lebaran, buka kembali tanggal 10 Mei."',
+      hidden: ({ document }) => document?.isOpen,
     }),
     defineField({
       name: 'isVerified',

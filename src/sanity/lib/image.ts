@@ -6,5 +6,5 @@ import { client } from './client'
 const builder = createImageUrlBuilder(client)
 
 export function urlFor(source: Image) {
-  return builder.image(source)
+  return builder.image(source).auto('format').format('webp')
 }

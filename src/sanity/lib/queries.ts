@@ -37,7 +37,9 @@ export const BEST_SELLERS_QUERY = defineQuery(`
     "vendor": vendor->{
       name,
       "slug": slug.current,
-      isVerified
+      isVerified,
+      isOpen,
+      closingMessage
     }
   }
 `)
@@ -56,7 +58,9 @@ export const PROMO_PRODUCTS_QUERY = defineQuery(`
     "vendor": vendor->{
       name,
       "slug": slug.current,
-      isVerified
+      isVerified,
+      isOpen,
+      closingMessage
     }
   }
 `)
@@ -97,7 +101,9 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(`
       phone,
       address,
       "slug": slug.current,
-      isVerified
+      isVerified,
+      isOpen,
+      closingMessage
     }
   }
 `)
@@ -141,7 +147,9 @@ export const PRODUCTS_BY_VENDOR_QUERY = defineQuery(`
     "vendor": vendor->{
       name,
       "slug": slug.current,
-      isVerified
+      isVerified,
+      isOpen,
+      closingMessage
     }
   }
 `)
@@ -186,7 +194,9 @@ export const SERVICE_BY_SLUG_QUERY = defineQuery(`
       phone,
       address,
       "slug": slug.current,
-      isVerified
+      isVerified,
+      isOpen,
+      closingMessage
     }
   }
 `)
@@ -205,7 +215,9 @@ export const SERVICES_BY_VENDOR_QUERY = defineQuery(`
     "vendor": vendor->{
       name,
       "slug": slug.current,
-      isVerified
+      isVerified,
+      isOpen,
+      closingMessage
     }
   }
 `)

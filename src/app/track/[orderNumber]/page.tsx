@@ -8,12 +8,15 @@ interface Props {
   params: Promise<{ orderNumber: string }>;
 }
 
-const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  pending: { label: "Menunggu Konfirmasi", color: "text-yellow-700", bg: "bg-yellow-50" },
-  processing: { label: "Diproses Penjual", color: "text-blue-700", bg: "bg-blue-50" },
-  delivering: { label: "Sedang Diantar Kurir", color: "text-purple-700", bg: "bg-purple-50" },
-  completed: { label: "Selesai (COD)", color: "text-green-700", bg: "bg-green-50" },
-  cancelled: { label: "Dibatalkan", color: "text-red-700", bg: "bg-red-50" },
+const statusConfig: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  pending: { label: "Menunggu Konfirmasi Admin", color: "text-yellow-700", bg: "bg-yellow-50", icon: "🕒" },
+  accepted: { label: "Order Diterima Kurir", color: "text-blue-700", bg: "bg-blue-50", icon: "👍" },
+  processing: { label: "Sedang Disiapkan Penjual", color: "text-orange-700", bg: "bg-orange-50", icon: "🍳" },
+  shipped: { label: "Barang Diambil Kurir", color: "text-indigo-700", bg: "bg-indigo-50", icon: "📦" },
+  delivering: { label: "Kurir Menuju Alamat Anda", color: "text-purple-700", bg: "bg-purple-50", icon: "🚚" },
+  completed: { label: "Pesanan Selesai", color: "text-green-700", bg: "bg-green-50", icon: "✅" },
+  cancelled: { label: "Pesanan Dibatalkan", color: "text-red-700", bg: "bg-red-50", icon: "❌" },
+  problem: { label: "Ada Kendala", color: "text-rose-700", bg: "bg-rose-50", icon: "⚠️" },
 };
 
 export default async function OrderResultPage({ params }: Props) {
@@ -27,7 +30,7 @@ export default async function OrderResultPage({ params }: Props) {
     notFound();
   }
 
-  const currentStatus = statusConfig[order.status] || { label: order.status, color: "text-gray-700", bg: "bg-gray-50" };
+  const currentStatus = statusConfig[order.status] || { label: order.status, color: "text-gray-700", bg: "bg-gray-50", icon: "•" };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -37,19 +40,41 @@ export default async function OrderResultPage({ params }: Props) {
         </Link>
         
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header */}
-          <div className={`p-8 ${currentStatus.bg} border-b flex items-center justify-between`}>
-            <div>
-              <p className="text-sm font-bold opacity-70 uppercase tracking-widest mb-1">Nomor Pesanan</p>
-              <h1 className="text-2xl font-black text-gray-900 font-mono">{order.orderNumber}</h1>
-            </div>
-            <div className={`px-4 py-2 rounded-full font-bold text-sm border shadow-sm ${currentStatus.bg} ${currentStatus.color}`}>
-              {currentStatus.label}
-            </div>
+          {/* Status Banner */}
+          <div className={`p-10 ${currentStatus.bg} border-b text-center`}>
+            <div className="text-5xl mb-4">{currentStatus.icon}</div>
+            <p className="text-sm font-bold opacity-70 uppercase tracking-widest mb-1">Status Pesanan {order.orderNumber}</p>
+            <h1 className={`text-3xl font-black ${currentStatus.color}`}>{currentStatus.label}</h1>
           </div>
 
           <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {/* Real-time Timeline (Simple) */}
+            <div className="mb-12">
+              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">Riwayat Perjalanan</h3>
+              <div className="space-y-8">
+                {Object.keys(statusConfig).filter(k => {
+                  const orderStatuses = ['pending', 'accepted', 'processing', 'shipped', 'delivering', 'completed'];
+                  const currentIndex = orderStatuses.indexOf(order.status);
+                  const statusIndex = orderStatuses.indexOf(k);
+                  return statusIndex !== -1 && statusIndex <= currentIndex;
+                }).reverse().map((statusKey, idx) => (
+                  <div key={statusKey} className="flex gap-4 items-start relative">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-sm flex-shrink-0 z-10 ${idx === 0 ? 'bg-green-600 shadow-green-200' : 'bg-slate-100'}`}>
+                      {idx === 0 ? '✨' : statusConfig[statusKey].icon}
+                    </div>
+                    {idx < 2 && <div className="absolute left-5 top-10 bottom-[-2rem] w-0.5 bg-slate-100"></div>}
+                    <div>
+                      <p className={`font-black ${idx === 0 ? 'text-slate-900 text-lg' : 'text-slate-400'}`}>
+                        {statusConfig[statusKey].label}
+                      </p>
+                      {idx === 0 && <p className="text-xs font-bold text-green-600 uppercase tracking-widest">Update Terbaru</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 bg-slate-50 p-6 rounded-[2.5rem]">
               <div className="space-y-6">
                 <div>
                   <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">

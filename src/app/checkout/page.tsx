@@ -5,7 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { createOrder } from '@/app/actions/order'
 import { getOrCreateCustomer, getCustomerById } from '@/app/actions/customer'
 import { useRouter } from 'next/navigation'
-import { Loader2, CheckCircle, UserCheck } from 'lucide-react'
+import { Loader2, CheckCircle, MessageCircle } from 'lucide-react'
 import { OrderFormData } from '@/types'
 
 export default function CheckoutPage() {
@@ -14,7 +14,6 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [orderInfo, setOrderInfo] = useState<{ orderNumber: string } | null>(null)
-  const [isNewUser, setIsNewUser] = useState(true)
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
@@ -33,7 +32,6 @@ export default function CheckoutPage() {
             phone: res.data.phone,
             address: res.data.address
           })
-          setIsNewUser(false)
         }
       })
     }
@@ -58,7 +56,9 @@ export default function CheckoutPage() {
     const result = await createOrder(formData, items, grandTotal, shippingFee, customerRes.customerId)
 
     if (result.success && result.orderNumber) {
-      setOrderInfo({ orderNumber: result.orderNumber })
+      setOrderInfo({ 
+        orderNumber: result.orderNumber
+      })
       setSuccess(true)
       clearCart()
     } else {
@@ -81,14 +81,17 @@ export default function CheckoutPage() {
           <p className="text-gray-600 mb-6">
             Terima kasih, <strong>{formData.name}</strong>. Pesanan Anda <span className="font-mono bg-gray-100 px-2 py-1 rounded">{orderInfo.orderNumber}</span> telah kami terima.
           </p>
-          <div className="bg-green-50 p-4 rounded-2xl mb-8 text-left text-sm text-green-800">
-            <p className="font-bold mb-1">Selanjutnya apa?</p>
-            <ul className="list-disc ml-4 space-y-1">
-              <li>Penjual akan mengonfirmasi pesanan Anda.</li>
-              <li>Kurir Kalurahan akan menghubungi via WhatsApp untuk pengantaran.</li>
-              <li>Siapkan uang tunai sesuai total belanja untuk pembayaran COD.</li>
-            </ul>
+          
+          <div className="bg-green-50 p-6 rounded-2xl mb-8 text-left text-sm text-green-800">
+            <p className="font-bold mb-3 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              Notifikasi Terkirim
+            </p>
+            <p className="mb-0 text-xs leading-relaxed">
+              Kami telah mengirimkan detail pesanan ke WhatsApp Anda. Admin Kalurahan akan segera memproses pesanan ini.
+            </p>
           </div>
+
           <button 
             onClick={() => router.push('/')}
             className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-colors"
