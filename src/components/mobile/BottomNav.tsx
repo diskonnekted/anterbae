@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ShoppingBag, ShoppingCart, User, Grid, Store, Briefcase } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { totalItems } = useCart();
 
   // On mobile, the pathname will actually start with /mobile due to rewrite
   // but usePathname returns the URL path as seen by the browser (original path)
@@ -23,15 +25,24 @@ export default function BottomNav() {
       <div className="flex justify-between items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const isCart = item.name === 'Keranjang';
+          
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex flex-col items-center gap-1 transition-all ${
+              className={`flex flex-col items-center gap-1 transition-all relative ${
                 isActive ? 'text-green-600 scale-110' : 'text-slate-400'
               }`}
             >
               <item.icon className={`w-6 h-6 ${isActive ? 'fill-green-600/10' : ''}`} />
+              
+              {isCart && totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-white animate-bounce">
+                  {totalItems}
+                </span>
+              )}
+              
               <span className="text-[10px] font-black uppercase tracking-widest">
                 {item.name}
               </span>

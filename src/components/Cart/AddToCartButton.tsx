@@ -1,12 +1,20 @@
 'use client'
 
-import { ShoppingCart, Store } from 'lucide-react'
+import { useState } from 'react'
+import { ShoppingCart, Store, CheckCircle2 } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { Product } from '@/types'
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const { addItem } = useCart()
+  const [added, setAdded] = useState(false)
   const isVendorClosed = product.vendor?.isOpen === false
+
+  const handleAdd = () => {
+    addItem(product)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
 
   if (isVendorClosed) {
     return (
@@ -30,11 +38,24 @@ export default function AddToCartButton({ product }: { product: Product }) {
 
   return (
     <button 
-      onClick={() => addItem(product)}
-      className="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-3xl transition-all active:scale-95 shadow-xl shadow-green-600/30 w-full group"
+      onClick={handleAdd}
+      className={`flex items-center justify-center gap-3 font-black py-4 px-8 rounded-3xl transition-all active:scale-95 shadow-xl w-full group ${
+        added 
+          ? 'bg-amber-500 text-white shadow-amber-500/30' 
+          : 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30'
+      }`}
     >
-      <ShoppingCart className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
-      <span>Tambah ke Keranjang</span>
+      {added ? (
+        <>
+          <CheckCircle2 className="w-6 h-6 animate-in zoom-in duration-300" />
+          <span>Berhasil Ditambahkan!</span>
+        </>
+      ) : (
+        <>
+          <ShoppingCart className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
+          <span>Tambah ke Keranjang</span>
+        </>
+      )}
     </button>
   )
 }

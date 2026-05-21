@@ -13,6 +13,15 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart()
+  const [added, setAdded] = useState(false)
+
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addItem(product)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
 
   const originalPrice = product.isPromo && product.promoDiscount 
     ? Math.round(product.price / (1 - product.promoDiscount / 100))
@@ -80,10 +89,18 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
           <button 
-            onClick={() => addItem(product)}
-            className="bg-green-600 hover:bg-green-700 text-white p-2 sm:p-4 rounded-lg sm:rounded-2xl transition-all active:scale-90 shadow-lg shadow-green-600/30 group/btn"
+            onClick={handleAdd}
+            className={`p-2 sm:p-4 rounded-lg sm:rounded-2xl transition-all active:scale-90 shadow-lg group/btn ${
+              added 
+                ? 'bg-amber-500 text-white shadow-amber-500/30' 
+                : 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30'
+            }`}
           >
-            <ShoppingCart className="w-3.5 h-3.5 sm:w-5 sm:h-5 group-hover/btn:scale-110 transition-transform" />
+            {added ? (
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 animate-in zoom-in duration-300" />
+            ) : (
+              <ShoppingCart className="w-3.5 h-3.5 sm:w-5 sm:h-5 group-hover/btn:scale-110 transition-transform" />
+            )}
           </button>
         </div>
       </div>
