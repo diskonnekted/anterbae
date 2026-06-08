@@ -37,28 +37,37 @@ export default async function MobileServicesPage({ searchParams }: Props) {
     }
   `;
 
-  const [{ data: allServices }] = await Promise.all([
+  const [{ data: allServices }, { data: categories }] = await Promise.all([
     sanityFetch({ 
       query: ENHANCED_SERVICES_QUERY,
       params: { 
         search: search || null
       } 
-    }) as Promise<{ data: Service[] }>
+    }) as Promise<{ data: Service[] }>,
+    sanityFetch({ query: CATEGORIES_QUERY }) as Promise<{ data: Category[] }>
   ]);
 
-  const serviceCategories = [
-    { _id: '1', name: 'Instalasi Internet', slug: 'instalasi-internet' },
-    { _id: '2', name: 'Servis Mobil', slug: 'servis-mobil' },
-    { _id: '3', name: 'Servis Motor', slug: 'servis-motor' },
-    { _id: '4', name: 'Tambal Ban', slug: 'tambal-ban' },
-    { _id: '5', name: 'Servis Mesin Cuci', slug: 'servis-mesin-cuci' },
-    { _id: '6', name: 'Servis Listrik', slug: 'servis-listrik' },
-    { _id: '7', name: 'Servis HP', slug: 'servis-hp' },
-    { _id: '8', name: 'Servis AC', slug: 'servis-ac' },
-    { _id: '9', name: 'Fotografer', slug: 'fotografer' },
-    { _id: '10', name: 'Video Shooting', slug: 'video-shooting' },
-    { _id: '11', name: 'Jasa Lainnya', slug: 'jasa-lainnya' },
+  const sanityServiceCategories = categories.filter(c => c.serviceCount !== undefined && c.serviceCount > 0);
+
+  const predefinedCategories = [
+    { _id: 'pre-1', name: 'Instalasi Internet', slug: 'instalasi-internet' },
+    { _id: 'pre-2', name: 'Servis Mobil', slug: 'servis-mobil' },
+    { _id: 'pre-3', name: 'Servis Motor', slug: 'servis-motor' },
+    { _id: 'pre-4', name: 'Tambal Ban', slug: 'tambal-ban' },
+    { _id: 'pre-5', name: 'Servis Mesin Cuci', slug: 'servis-mesin-cuci' },
+    { _id: 'pre-6', name: 'Servis Listrik', slug: 'servis-listrik' },
+    { _id: 'pre-7', name: 'Servis HP', slug: 'servis-hp' },
+    { _id: 'pre-8', name: 'Servis AC', slug: 'servis-ac' },
+    { _id: 'pre-9', name: 'Fotografer', slug: 'fotografer' },
+    { _id: 'pre-10', name: 'Video Shooting', slug: 'video-shooting' },
   ];
+
+  const serviceCategories = [...sanityServiceCategories];
+  for (const pc of predefinedCategories) {
+    if (!serviceCategories.some(c => c.slug === pc.slug)) {
+      serviceCategories.push(pc as any);
+    }
+  }
 
   function getCategoryForService(serviceName: string) {
     const name = serviceName.toLowerCase();
@@ -72,11 +81,12 @@ export default async function MobileServicesPage({ searchParams }: Props) {
     if (name.includes('ac')) return 'servis-ac';
     if (name.includes('foto') || name.includes('kamera')) return 'fotografer';
     if (name.includes('video')) return 'video-shooting';
-    return 'jasa-lainnya';
+    return null;
   }
 
   const services = allServices.filter(service => {
     if (!category) return true;
+    if (service.categories?.some(c => c.slug === category)) return true;
     return getCategoryForService(service.name) === category;
   });
 
