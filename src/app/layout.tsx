@@ -50,16 +50,6 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-gray-50">
-        <Script id="pushalert-script" strategy="afterInteractive">
-          {`
-            (function(d, t) {
-                var g = d.createElement(t),
-                s = d.getElementsByTagName(t)[0];
-                g.src = "https://cdn.pushalert.co/unified_a1424bc518ca92c9485112c7e2c81e22.js";
-                s.parentNode.insertBefore(g, s);
-            }(document, "script"));
-          `}
-        </Script>
         <CartProvider>
           {!isMobile && <Navbar />}
           <main className="flex-grow">
