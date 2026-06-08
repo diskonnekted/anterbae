@@ -27,8 +27,8 @@ export async function registerVendor(formData: { name: string, phone: string, ad
 
     const result = await writeClient.create(doc)
     return { success: true, vendorId: result._id }
-  } catch (error) {
-    console.error('Vendor registration failed:', error)
-    return { success: false, error: 'Gagal mengirim pendaftaran.' }
+  } catch (error: any) {
+    console.error('Vendor registration failed (FULL ERROR):', error, error.message, JSON.stringify(error))
+    return { success: false, error: `Gagal mengirim pendaftaran. Detail: ${error.message}` }
   }
 }
