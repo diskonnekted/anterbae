@@ -117,6 +117,9 @@ export default async function RootLayout({
                       <li>
                         <Link href="/info" className="text-slate-500 hover:text-green-600 transition-colors">Info & Pengumuman</Link>
                       </li>
+                      <li>
+                        <Link href="/studio" className="text-slate-500 hover:text-green-600 transition-colors font-bold text-slate-800">Portal Admin Desa</Link>
+                      </li>
                       <li className="pt-4">
                         <Link 
                           href="/inkubator" 

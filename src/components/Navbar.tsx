@@ -47,7 +47,7 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          <Link href="/studio" className="p-3 hover:bg-slate-100 rounded-2xl transition-colors flex items-center gap-2 border border-slate-100">
+          <Link href="/track" className="p-3 hover:bg-slate-100 rounded-2xl transition-colors flex items-center gap-2 border border-slate-100">
             <User className="w-5 h-5 text-slate-700" />
             <span className="hidden lg:inline text-xs font-bold text-slate-700">LOGIN</span>
           </Link>
