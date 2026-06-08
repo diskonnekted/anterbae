@@ -5,7 +5,7 @@ import { getVendorProducts, createVendorProduct, uploadImageToSanity, deleteVend
 import { Package, Plus, Trash2, Image as ImageIcon, Loader2, X, CheckCircle2, DollarSign, Database, Tags } from 'lucide-react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
-import { sanityFetch } from '@/sanity/lib/live'
+import { client } from '@/sanity/lib/client'
 import { CATEGORIES_QUERY } from '@/sanity/lib/queries'
 
 export default function VendorProductManager({ vendorId }: { vendorId: string }) {
@@ -37,8 +37,12 @@ export default function VendorProductManager({ vendorId }: { vendorId: string })
   }
 
   const fetchCategories = async () => {
-    const { data } = await sanityFetch({ query: CATEGORIES_QUERY }) as { data: any[] }
-    if (data) setCategories(data)
+    try {
+      const data = await client.fetch(CATEGORIES_QUERY)
+      if (data) setCategories(data)
+    } catch (err) {
+      console.error('Failed to fetch categories:', err)
+    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
