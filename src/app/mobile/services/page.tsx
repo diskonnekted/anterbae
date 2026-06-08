@@ -19,7 +19,6 @@ export default async function MobileServicesPage({ searchParams }: Props) {
   const ENHANCED_SERVICES_QUERY = `
     *[_type == "service" 
       && (!defined($search) || name match $search + "*")
-      && (!defined($category) || categories[]->slug.current match $category)
     ] | order(_createdAt desc) [0...20] {
       _id,
       name,
@@ -34,24 +33,52 @@ export default async function MobileServicesPage({ searchParams }: Props) {
         name,
         "slug": slug.current,
         isVerified
-      },
-      "categories": categories[]->{
-        name,
-        "slug": slug.current
       }
     }
   `;
 
-  const [{ data: services }, { data: categories }] = await Promise.all([
+  const [{ data: allServices }] = await Promise.all([
     sanityFetch({ 
       query: ENHANCED_SERVICES_QUERY,
       params: { 
-        search: search || null,
-        category: category || null
+        search: search || null
       } 
-    }) as Promise<{ data: Service[] }>,
-    sanityFetch({ query: CATEGORIES_QUERY }) as Promise<{ data: Category[] }>
+    }) as Promise<{ data: Service[] }>
   ]);
+
+  const serviceCategories = [
+    { _id: '1', name: 'Instalasi Internet', slug: 'instalasi-internet' },
+    { _id: '2', name: 'Servis Mobil', slug: 'servis-mobil' },
+    { _id: '3', name: 'Servis Motor', slug: 'servis-motor' },
+    { _id: '4', name: 'Tambal Ban', slug: 'tambal-ban' },
+    { _id: '5', name: 'Servis Mesin Cuci', slug: 'servis-mesin-cuci' },
+    { _id: '6', name: 'Servis Listrik', slug: 'servis-listrik' },
+    { _id: '7', name: 'Servis HP', slug: 'servis-hp' },
+    { _id: '8', name: 'Servis AC', slug: 'servis-ac' },
+    { _id: '9', name: 'Fotografer', slug: 'fotografer' },
+    { _id: '10', name: 'Video Shooting', slug: 'video-shooting' },
+    { _id: '11', name: 'Jasa Lainnya', slug: 'jasa-lainnya' },
+  ];
+
+  function getCategoryForService(serviceName: string) {
+    const name = serviceName.toLowerCase();
+    if (name.includes('internet') || name.includes('wifi')) return 'instalasi-internet';
+    if (name.includes('mobil')) return 'servis-mobil';
+    if (name.includes('motor')) return 'servis-motor';
+    if (name.includes('ban')) return 'tambal-ban';
+    if (name.includes('mesin cuci')) return 'servis-mesin-cuci';
+    if (name.includes('listrik')) return 'servis-listrik';
+    if (name.includes('hp') || name.includes('handphone') || name.includes('ponsel')) return 'servis-hp';
+    if (name.includes('ac')) return 'servis-ac';
+    if (name.includes('foto') || name.includes('kamera')) return 'fotografer';
+    if (name.includes('video')) return 'video-shooting';
+    return 'jasa-lainnya';
+  }
+
+  const services = allServices.filter(service => {
+    if (!category) return true;
+    return getCategoryForService(service.name) === category;
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -84,7 +111,7 @@ export default async function MobileServicesPage({ searchParams }: Props) {
           >
             Semua Jasa
           </Link>
-          {categories.map((cat) => (
+          {serviceCategories.map((cat) => (
             <Link
               key={cat._id}
               href={`/services?category=${cat.slug}${search ? `&q=${search}` : ''}`}

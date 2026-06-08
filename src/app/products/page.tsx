@@ -77,7 +77,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                   >
                     Semua Produk
                   </Link>
-                  {categories.map((cat) => (
+                  {categories.filter((cat) => !cat.name.toLowerCase().includes('jasa')).map((cat) => (
                     <Link
                       key={cat._id}
                       href={`/products?${new URLSearchParams({ 
