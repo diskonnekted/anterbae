@@ -23,7 +23,7 @@ export default function TrackOrderForm() {
         <input
           type="text"
           required
-          className="flex-grow p-4 bg-white border-2 border-gray-100 rounded-2xl focus:border-green-500 outline-none transition-all uppercase font-mono"
+          className="flex-grow p-4 bg-white border-2 border-gray-100 rounded-2xl focus:border-green-500 outline-none transition-all uppercase font-mono text-slate-900 placeholder:text-slate-400"
           placeholder="Masukkan No. Pesanan (Contoh: ORD-ABC123)"
           value={orderNumber}
           onChange={(e) => setOrderNumber(e.target.value)}
