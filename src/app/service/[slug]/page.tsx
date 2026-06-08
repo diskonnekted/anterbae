@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageCircle, MapPin, BadgeCheck, Clock, ShieldCheck, ChevronRight } from "lucide-react";
+import ServiceBookingForm from "@/components/ServiceBookingForm";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -115,30 +116,16 @@ export default async function ServiceDetailPage({ params }: Props) {
             </p>
           </div>
 
-          {/* Booking Card */}
-          <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-green-900/20 relative overflow-hidden">
-            <div className="relative z-10">
-              <h3 className="text-2xl font-black mb-4">Pesan Sekarang</h3>
-              <p className="text-slate-400 mb-8 font-medium">Konsultasikan kebutuhan Anda langsung dengan penyedia jasa via WhatsApp.</p>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a
-                  href={`https://wa.me/${service.vendor.phone}?text=Halo, saya ingin memesan jasa ${service.name} di Pasar Pondokrejo.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-grow flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-black py-5 px-8 rounded-[2rem] transition-all active:scale-95 shadow-xl shadow-green-600/30"
-                >
-                  <MessageCircle className="w-6 h-6" />
-                  <span>Hubungi via WhatsApp</span>
-                </a>
-              </div>
-            </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-green-600/10 blur-[100px] rounded-full -mr-32 -mt-32"></div>
-          </div>
+          {/* Booking Form */}
+          <ServiceBookingForm 
+            serviceId={service._id} 
+            serviceName={service.name} 
+            vendorPhone={service.vendor.phone} 
+          />
 
           <div className="mt-12 flex items-center gap-4 text-slate-400 text-sm font-bold bg-slate-50 p-6 rounded-3xl">
             <MapPin className="w-5 h-5 text-green-600" />
-            <span>Lokasi Layanan: {service.vendor.address || 'Seluruh Pondokrejo'}</span>
+            <span>Lokasi Vendor: {service.vendor.address || 'Pondokrejo'}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { getVendorByPhone } from '@/app/actions/vendor-portal'
 import { Store, Phone, ArrowRight, Loader2, Lock } from 'lucide-react'
 import VendorDashboard from './_components/VendorDashboard'
@@ -38,7 +39,10 @@ export default function VendorLoginPage() {
             <Store className="w-10 h-10 text-green-600" />
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Portal Penjual</h1>
-          <p className="text-slate-400 font-bold mt-2 text-sm uppercase tracking-widest">Warga Pondokrejo</p>
+          <p className="text-slate-400 font-bold mt-2 text-sm uppercase tracking-widest mb-4">Warga Pondokrejo</p>
+          <Link href="/manual/penjual" className="inline-block text-xs font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-100 transition-colors">
+            📖 Baca Panduan Penjual
+          </Link>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">

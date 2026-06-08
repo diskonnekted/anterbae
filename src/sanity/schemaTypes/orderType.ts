@@ -36,8 +36,34 @@ export const orderType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'orderCategory',
+      title: 'Kategori Pesanan',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Produk Barang', value: 'product' },
+          { title: 'Pemesanan Jasa', value: 'service' },
+        ],
+      },
+      initialValue: 'product',
+    }),
+    defineField({
+      name: 'serviceItem',
+      title: 'Layanan Jasa yang Dipesan',
+      type: 'reference',
+      to: [{ type: 'service' }],
+      hidden: ({ document }) => document?.orderCategory !== 'service',
+    }),
+    defineField({
+      name: 'serviceDate',
+      title: 'Jadwal Pelaksanaan Jasa',
+      type: 'datetime',
+      hidden: ({ document }) => document?.orderCategory !== 'service',
+    }),
+    defineField({
       name: 'items',
       type: 'array',
+      hidden: ({ document }) => document?.orderCategory === 'service',
       of: [
         {
           type: 'object',
@@ -72,6 +98,7 @@ export const orderType = defineType({
       name: 'shippingFee',
       title: 'Ongkos Kirim',
       type: 'number',
+      hidden: ({ document }) => document?.orderCategory === 'service',
     }),
     defineField({
       name: 'paymentMethod',
@@ -103,12 +130,12 @@ export const orderType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Menunggu Konfirmasi Admin', value: 'pending' },
-          { title: 'Order Diterima Kurir', value: 'accepted' },
-          { title: 'Diproses Penjual', value: 'processing' },
-          { title: 'Diserahkan ke Kurir', value: 'shipped' },
-          { title: 'Dalam Pengiriman', value: 'delivering' },
-          { title: 'Selesai (Diterima)', value: 'completed' },
+          { title: 'Menunggu Konfirmasi', value: 'pending' },
+          { title: 'Diterima / Sanggup (Jasa)', value: 'accepted' },
+          { title: 'Diproses Penjual (Barang)', value: 'processing' },
+          { title: 'Diserahkan ke Kurir (Barang)', value: 'shipped' },
+          { title: 'Dalam Perjalanan (Barang/Jasa)', value: 'delivering' },
+          { title: 'Selesai', value: 'completed' },
           { title: 'Dibatalkan', value: 'cancelled' },
           { title: 'Ada Masalah', value: 'problem' },
         ],

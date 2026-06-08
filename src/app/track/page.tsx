@@ -96,22 +96,24 @@ export default function TrackLandingPage() {
     setLoadingPin(false)
   }
 
-  const getStatusText = (status: string, paymentMethod: string, paymentStatus: string) => {
+  const getStatusText = (status: string, paymentMethod: string, paymentStatus: string, category: string) => {
     if (status === 'completed') return 'Selesai'
     if (status === 'cancelled') return 'Batal'
     if (status === 'problem') return 'Bermasalah'
     if (paymentMethod === 'qris' && paymentStatus === 'unpaid') return 'Menunggu QRIS'
-    if (status === 'pending') return 'Menunggu Admin'
-    if (status === 'delivering') return 'Diantar Kurir'
+    if (status === 'pending') return category === 'service' ? 'Menunggu Penjual' : 'Menunggu Admin'
+    if (status === 'delivering') return category === 'service' ? 'Bekerja / Menuju Lokasi' : 'Diantar Kurir'
+    if (status === 'accepted' && category === 'service') return 'Penjual Sanggup'
     return 'Diproses Penjual'
   }
 
-  const getStatusColor = (status: string, paymentMethod: string, paymentStatus: string) => {
+  const getStatusColor = (status: string, paymentMethod: string, paymentStatus: string, category: string) => {
     if (status === 'completed') return 'bg-green-100 text-green-700'
     if (status === 'cancelled' || status === 'problem') return 'bg-red-100 text-red-700'
     if (paymentMethod === 'qris' && paymentStatus === 'unpaid') return 'bg-yellow-100 text-yellow-800'
     if (status === 'pending') return 'bg-yellow-50 text-yellow-700'
-    if (status === 'delivering') return 'bg-blue-100 text-blue-700'
+    if (status === 'delivering') return 'bg-purple-100 text-purple-700'
+    if (status === 'accepted' && category === 'service') return 'bg-blue-100 text-blue-700'
     return 'bg-orange-100 text-orange-700'
   }
 
@@ -208,9 +210,13 @@ export default function TrackLandingPage() {
                     </span>
                   </div>
                   <ul className="text-sm font-bold text-slate-700 space-y-1 mb-4">
-                    {order.items?.map((item: any, i: number) => (
-                      <li key={i}>{item.product?.name} <span className="text-slate-400">(x{item.quantity})</span></li>
-                    ))}
+                    {order.orderCategory === 'service' && order.serviceItem ? (
+                      <li>{order.serviceItem.name} <span className="text-slate-400">(Jasa)</span></li>
+                    ) : (
+                      order.items?.map((item: any, i: number) => (
+                        <li key={i}>{item.product?.name} <span className="text-slate-400">(x{item.quantity})</span></li>
+                      ))
+                    )}
                   </ul>
                   <div className="text-lg font-black text-slate-900">
                     Rp{order.totalAmount.toLocaleString('id-ID')}
@@ -218,8 +224,8 @@ export default function TrackLandingPage() {
                 </div>
                 
                 <div className="flex flex-col justify-between items-start md:items-end gap-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 min-w-[200px]">
-                  <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${getStatusColor(order.status, order.paymentMethod, order.paymentStatus)}`}>
-                    {getStatusText(order.status, order.paymentMethod, order.paymentStatus)}
+                  <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${getStatusColor(order.status, order.paymentMethod, order.paymentStatus, order.orderCategory)}`}>
+                    {getStatusText(order.status, order.paymentMethod, order.paymentStatus, order.orderCategory)}
                   </div>
                   
                   <Link 
@@ -246,7 +252,10 @@ export default function TrackLandingPage() {
             <User className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 mb-2">Dasbor Pembeli</h1>
-          <p className="text-slate-500 font-bold mb-8 text-sm">Masuk untuk melihat riwayat pesanan Anda.</p>
+          <p className="text-slate-500 font-bold mb-4 text-sm">Masuk untuk melihat riwayat pesanan Anda.</p>
+          <Link href="/manual/pembeli" className="inline-block text-xs font-black text-green-600 bg-green-50 px-4 py-2 rounded-xl hover:bg-green-100 transition-colors mb-8">
+            📖 Baca Panduan Pembeli
+          </Link>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <input

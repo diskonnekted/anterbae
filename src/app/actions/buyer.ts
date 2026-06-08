@@ -62,6 +62,7 @@ export async function getBuyerOrders(phone: string) {
     const query = `*[_type == "order" && customerPhone == $phone] | order(_createdAt desc) {
       _id,
       orderNumber,
+      orderCategory,
       _createdAt,
       totalAmount,
       status,
@@ -70,7 +71,8 @@ export async function getBuyerOrders(phone: string) {
       items[]{
         quantity,
         product->{name}
-      }
+      },
+      serviceItem->{name}
     }`
     const orders = await writeClient.fetch(query, { phone })
     return { success: true, data: orders }

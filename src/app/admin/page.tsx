@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { fetchAllOrders } from '@/app/actions/admin'
 import { Loader2, RefreshCw, LogOut, Package, User, MapPin, CreditCard, ChevronRight, CheckCircle, Clock, Truck, AlertTriangle, Printer } from 'lucide-react'
 
@@ -94,7 +95,10 @@ export default function AdminDashboardPage() {
             <Package className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 mb-2">Dasbor Admin</h1>
-          <p className="text-slate-500 font-bold mb-8">Masukkan PIN untuk masuk</p>
+          <p className="text-slate-500 font-bold mb-4">Masukkan PIN untuk masuk</p>
+          <Link href="/manual/admin" className="inline-block text-xs font-black text-slate-600 bg-slate-100 px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors mb-8">
+            📖 Baca Buku Panduan Admin
+          </Link>
           
           <input
             type="password"
