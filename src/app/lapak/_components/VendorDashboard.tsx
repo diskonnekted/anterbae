@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { updateVendorProfile } from '@/app/actions/vendor-portal'
-import { Save, Power, LogOut, CheckCircle2, MessageSquare, AlignLeft, Loader2, Package, User } from 'lucide-react'
+import { Save, Power, LogOut, CheckCircle2, MessageSquare, AlignLeft, Loader2, Package, User, Presentation } from 'lucide-react'
 import VendorProductManager from './VendorProductManager'
+import VendorServiceManager from './VendorServiceManager'
 
 interface Props {
   initialData: any
@@ -64,8 +65,11 @@ export default function VendorDashboard({ initialData, onLogout }: Props) {
             onClick={() => setActiveTab('products')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'products' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
           >
-            <Package className="w-4 h-4" />
-            Kelola Produk
+            {initialData.businessType === 'service' ? (
+              <><Presentation className="w-4 h-4" /> Kelola Jasa</>
+            ) : (
+              <><Package className="w-4 h-4" /> Kelola Produk</>
+            )}
           </button>
         </div>
 
@@ -90,8 +94,8 @@ export default function VendorDashboard({ initialData, onLogout }: Props) {
 
               <p className="text-sm text-slate-500 font-medium mb-6">
                 {isOpen 
-                  ? 'Toko Anda saat ini BUKA dan dapat menerima pesanan dari warga.' 
-                  : 'Toko Anda saat ini TUTUP. Produk akan tetap tampil namun tidak bisa dibeli.'}
+                  ? 'Usaha Anda saat ini BUKA dan dapat menerima pesanan dari warga.' 
+                  : 'Usaha Anda saat ini TUTUP. Profil akan tetap tampil namun tidak bisa dipesan.'}
               </p>
 
               {!isOpen && (
@@ -116,14 +120,14 @@ export default function VendorDashboard({ initialData, onLogout }: Props) {
                 <div className="p-2 bg-blue-100 rounded-xl">
                   <AlignLeft className="w-5 h-5 text-blue-600" />
                 </div>
-                <h3 className="font-black text-slate-800">Profil Toko</h3>
+                <h3 className="font-black text-slate-800">Profil Usaha</h3>
               </div>
 
               <div className="space-y-3">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Deskripsi Lapak</label>
                 <textarea
                   rows={4}
-                  placeholder="Ceritakan tentang toko atau produk unggulan Anda..."
+                  placeholder="Ceritakan tentang usaha Anda..."
                   className="w-full p-5 bg-slate-50 border-none rounded-3xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 text-sm leading-relaxed"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -131,7 +135,7 @@ export default function VendorDashboard({ initialData, onLogout }: Props) {
               </div>
             </div>
 
-            {/* Save Button (Hanya tampil di tab profil) */}
+            {/* Save Button */}
             <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-md border-t border-slate-100 z-40">
               <div className="max-w-2xl mx-auto">
                 <button
@@ -157,7 +161,11 @@ export default function VendorDashboard({ initialData, onLogout }: Props) {
             </div>
           </div>
         ) : (
-          <VendorProductManager vendorId={initialData._id} />
+          initialData.businessType === 'service' ? (
+            <VendorServiceManager vendorId={initialData._id} />
+          ) : (
+            <VendorProductManager vendorId={initialData._id} />
+          )
         )}
       </div>
     </div>

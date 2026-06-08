@@ -59,6 +59,20 @@ export const vendorType = defineType({
       hidden: ({ document }) => !!document?.isOpen,
     }),
     defineField({
+      name: 'businessType',
+      title: 'Jenis Usaha',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Produk Barang', value: 'product' },
+          { title: 'Jasa & Layanan', value: 'service' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'product',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'isVerified',
       title: 'Status Verifikasi',
       type: 'boolean',

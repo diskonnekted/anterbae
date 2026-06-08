@@ -23,6 +23,7 @@ export async function getVendorByPhone(phone: string, pin: string) {
       description,
       isOpen,
       closingMessage,
+      businessType,
       "slug": slug.current
     }`
     const vendor = await writeClient.fetch(query, { phone })

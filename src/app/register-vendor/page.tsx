@@ -2,42 +2,60 @@
 
 import { useState } from 'react'
 import { registerVendor } from '@/app/actions/vendor'
-import { CheckCircle, Loader2, Store } from 'lucide-react'
+import { Store, Loader2, CheckCircle2, ChevronRight, Upload, Briefcase } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function RegisterVendorPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    description: '',
-  })
+  const [errorMsg, setErrorMsg] = useState('')
+  
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setLogoFile(file)
+      setLogoPreview(URL.createObjectURL(file))
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-    const result = await registerVendor(formData)
-    if (result.success) {
+    setErrorMsg('')
+    
+    const formData = new FormData(e.currentTarget)
+    if (logoFile) {
+      formData.set('logo', logoFile)
+    }
+
+    const res = await registerVendor(formData)
+    
+    if (res.success) {
       setSuccess(true)
     } else {
-      alert(result.error)
+      setErrorMsg(res.error || 'Terjadi kesalahan')
     }
+    
     setLoading(false)
   }
 
   if (success) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <div className="bg-white rounded-3xl p-12 shadow-sm inline-block max-w-md">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Pendaftaran Terkirim!</h1>
-          <p className="text-gray-600 mb-8">
-            Terima kasih telah mendaftar. Admin Kalurahan akan memverifikasi data UMKM Anda. Kami akan menghubungi Anda melalui WhatsApp jika sudah aktif.
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-[3rem] p-10 text-center shadow-xl border border-slate-100 animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <div className="w-24 h-24 bg-green-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+            <CheckCircle2 className="w-12 h-12 text-green-600" />
+          </div>
+          <h1 className="text-3xl font-black text-slate-900 mb-4 leading-tight">Pendaftaran<br/>Berhasil!</h1>
+          <p className="text-slate-500 mb-8 font-medium">
+            Data usaha Anda telah masuk ke sistem. Silakan tunggu Admin Kalurahan Pondokrejo untuk melakukan verifikasi.
           </p>
-          <Link href="/" className="bg-green-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-green-700 transition-colors inline-block w-full">
-            Kembali ke Beranda
+          <Link href="/" className="inline-flex items-center gap-2 text-green-600 font-black hover:text-green-700 transition-colors">
+            Kembali ke Beranda <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
       </div>
@@ -45,87 +63,125 @@ export default function RegisterVendorPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div>
-          <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
-            <Store className="w-8 h-8 text-green-700" />
+    <div className="min-h-screen bg-slate-50 py-20 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="w-20 h-20 bg-green-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100/50">
+            <Store className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-4xl font-black text-gray-900 mb-6">Buka Toko Online UMKM Anda</h1>
-          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-            Daftarkan UMKM Anda di PAWON untuk menjangkau lebih banyak pembeli di wilayah kalurahan kita. Nikmati fasilitas pengiriman kurir kalurahan dan sistem pembayaran COD yang aman.
+          <h1 className="text-4xl font-black text-slate-900 mb-4">Daftar Mitra UMKM</h1>
+          <p className="text-slate-500 text-lg font-medium max-w-lg mx-auto">
+            Ayo majukan ekonomi Kalurahan Pondokrejo dengan mendaftarkan usaha Anda secara digital.
           </p>
-          <div className="space-y-4">
-            <div className="flex gap-4 items-start">
-              <div className="bg-green-600 text-white w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1">1</div>
-              <p className="text-gray-700 font-medium">Isi formulir pendaftaran dengan lengkap.</p>
-            </div>
-            <div className="flex gap-4 items-start">
-              <div className="bg-green-600 text-white w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1">2</div>
-              <p className="text-gray-700 font-medium">Tunggu verifikasi identitas dari Admin Kalurahan.</p>
-            </div>
-            <div className="flex gap-4 items-start">
-              <div className="bg-green-600 text-white w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1">3</div>
-              <p className="text-gray-700 font-medium">Setelah aktif, Anda bisa mulai mengunggah produk UMKM Anda.</p>
-            </div>
-          </div>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold mb-6">Formulir Pendaftaran UMKM</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="bg-white rounded-[3rem] p-8 sm:p-12 shadow-xl shadow-slate-200/50 border border-slate-100">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            {/* Logo Upload */}
+            <div className="flex flex-col items-center mb-8">
+              <label className="text-sm font-black text-slate-900 mb-3 block w-full text-center">Logo Usaha (Opsional)</label>
+              <div 
+                onClick={() => document.getElementById('logo-upload')?.click()}
+                className="w-32 h-32 rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer overflow-hidden group hover:bg-slate-100 transition-all relative"
+              >
+                {logoPreview ? (
+                  <>
+                    <Image src={logoPreview} alt="Logo" fill className="object-cover" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-white text-xs font-bold">Ubah</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-slate-300 mb-2 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Upload</span>
+                  </>
+                )}
+                <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+              </div>
+            </div>
+
+            {/* Business Type */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Nama UMKM / Toko</label>
-              <input
+              <label className="text-sm font-black text-slate-900 mb-3 block">Jenis Usaha</label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="cursor-pointer">
+                  <input type="radio" name="businessType" value="product" className="peer hidden" defaultChecked />
+                  <div className="p-4 border-2 border-slate-100 rounded-2xl text-center peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <Store className="w-6 h-6 mx-auto mb-2 text-slate-400 peer-checked:text-green-600" />
+                    <span className="font-bold text-slate-700 peer-checked:text-green-700">Jual Produk</span>
+                  </div>
+                </label>
+                <label className="cursor-pointer">
+                  <input type="radio" name="businessType" value="service" className="peer hidden" />
+                  <div className="p-4 border-2 border-slate-100 rounded-2xl text-center peer-checked:border-purple-600 peer-checked:bg-purple-50 transition-all">
+                    <Briefcase className="w-6 h-6 mx-auto mb-2 text-slate-400 peer-checked:text-purple-600" />
+                    <span className="font-bold text-slate-700 peer-checked:text-purple-700">Tawarkan Jasa</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-black text-slate-900 mb-3 block">Nama Usaha / Toko</label>
+              <input 
                 required
-                type="text"
-                className="w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                placeholder="Contoh: Keripik Tempe Mak Mur"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                name="name"
+                type="text" 
+                placeholder="Contoh: Warung Bu Tejo" 
+                className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-green-600 focus:bg-white outline-none transition-all font-medium"
               />
             </div>
+            
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Nomor WhatsApp</label>
-              <input
+              <label className="text-sm font-black text-slate-900 mb-3 block">Nomor WhatsApp Aktif</label>
+              <input 
                 required
-                type="tel"
-                className="w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                placeholder="Contoh: 081234567890"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Alamat di Pondokrejo</label>
-              <input
-                required
-                type="text"
-                className="w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                placeholder="Dusun, RT, RW"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Deskripsi Produk (Singkat)</label>
-              <textarea
-                required
-                rows={3}
-                className="w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                placeholder="Jelaskan apa yang Anda jual..."
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                name="phone"
+                type="tel" 
+                placeholder="081234567890" 
+                className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-green-600 focus:bg-white outline-none transition-all font-medium"
               />
             </div>
 
-            <button
+            <div>
+              <label className="text-sm font-black text-slate-900 mb-3 block">Alamat Lengkap</label>
+              <textarea 
+                required
+                name="address"
+                rows={3}
+                placeholder="Nama jalan, RT/RW, pedukuhan..." 
+                className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-green-600 focus:bg-white outline-none transition-all font-medium resize-none"
+              ></textarea>
+            </div>
+
+            <div>
+              <label className="text-sm font-black text-slate-900 mb-3 block">Deskripsi Singkat (Opsional)</label>
+              <textarea 
+                name="description"
+                rows={2}
+                placeholder="Jual makanan ringan, sayuran, dll..." 
+                className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-green-600 focus:bg-white outline-none transition-all font-medium resize-none"
+              ></textarea>
+            </div>
+
+            {errorMsg && (
+              <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-bold border border-red-100">
+                {errorMsg}
+              </div>
+            )}
+
+            <button 
               disabled={loading}
-              type="submit"
-              className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-colors shadow-lg shadow-green-100 flex items-center justify-center gap-2"
+              type="submit" 
+              className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Kirim Pendaftaran UMKM'}
+              {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Kirim Pendaftaran'}
             </button>
+            <p className="text-center text-xs text-slate-400 font-bold mt-6">
+              Dengan mendaftar, Anda setuju untuk mematuhi aturan Kalurahan Pondokrejo.
+            </p>
           </form>
         </div>
       </div>
