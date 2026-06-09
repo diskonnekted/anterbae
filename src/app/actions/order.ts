@@ -175,7 +175,7 @@ async function notifySellerAndCourier(orderNumber: string, customerName: string,
 
   // 4. Kirim ke Kurir
   console.log('Sending to Courier...', courierPhone)
-  const courierLinks = `\n\n*UPDATE STATUS KURIR:*\n👍 Terima Order: ${baseUrl}/order/${orderNumber}/action?role=courier&status=accepted&label=Terima+Tugas+Pengantaran\n📦 Ambil dari Seller: ${baseUrl}/order/${orderNumber}/action?role=courier&status=shipped&label=Ambil+Barang+dari+Seller\n🚚 Mulai Kirim: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivering&label=Mulai+Pengiriman\n🏁 Selesai (Diterima): ${baseUrl}/order/${orderNumber}/action?role=courier&status=completed&label=Pesanan+Diterima+Warga\n⚠️ Ada Masalah: ${baseUrl}/order/${orderNumber}/action?role=courier&status=problem&label=Lapor+Masalah+Pengiriman`
+  const courierLinks = `\n\n*UPDATE STATUS KURIR:*\n👍 Terima Order: ${baseUrl}/order/${orderNumber}/action?role=courier&status=accepted&label=Terima+Tugas+Pengantaran\n📦 Ambil dari Seller: ${baseUrl}/order/${orderNumber}/action?role=courier&status=shipped&label=Ambil+Barang+dari+Seller\n🚚 Mulai Kirim: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivering&label=Mulai+Pengiriman\n⚠️ Ada Masalah: ${baseUrl}/order/${orderNumber}/action?role=courier&status=problem&label=Lapor+Masalah+Pengiriman`
   const courierMessage = `🚚 *TUGAS PENGANTARAN BARU* 🚚\n\nHalo Kurir PAWON,\nAda tugas pengantaran baru.\n\n📍 *Alamat Tujuan:* ${deliveryAddress}\n👤 *Penerima:* ${customerName}\n🆔 *No. Pesanan:* ${orderNumber}\n💰 *Tagihan:* Rp${totalAmount.toLocaleString('id-ID')} (Cek apakah COD atau QRIS)${courierLinks}`
   await sendWhatsAppNotification(courierPhone, courierMessage)
 }
@@ -183,7 +183,7 @@ async function notifySellerAndCourier(orderNumber: string, customerName: string,
 export async function updateOrderStatus(orderNumber: string, newStatus: string, note?: string, courierId?: string) {
   try {
     const query = `*[_type == "order" && orderNumber == $orderNumber][0]{
-      _id, customerName, customerPhone, deliveryAddress, totalAmount, paymentMethod, paymentStatus, status,
+      _id, customerName, customerPhone, deliveryAddress, totalAmount, paymentMethod, paymentStatus, status, courier->{phone},
       items[]{ quantity, product->{name, vendor->{phone}} }
     }`
     const order = await writeClient.fetch(query, { orderNumber })
@@ -287,6 +287,23 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
       const settings = await writeClient.fetch(APP_SETTINGS_QUERY)
       const adminPhone = settings?.adminPhone || '081328128315'
       await sendWhatsAppNotification(adminPhone, `🚚 *PESANAN DIKIRIM*\nPesanan ${orderNumber} sedang diantar oleh kurir ke pembeli.`)
+
+      // Timeout 1 menit untuk mengirim link Selesai ke Kurir
+      const cPhone = order.courier?.phone || '628156605634' // Fallback to hardcoded courier if not resolved
+      if (cPhone) {
+        setTimeout(async () => {
+          try {
+            // Cek apakah pesanan masih delivering (belum diklik selesai oleh pembeli)
+            const checkOrder = await writeClient.fetch(`*[_id == $id][0]{status}`, { id: order._id })
+            if (checkOrder && checkOrder.status === 'delivering') {
+              const courierFinishLink = `${baseUrl}/order/${orderNumber}/action?role=courier&status=completed&label=Pesanan+Diterima+Warga`
+              await sendWhatsAppNotification(cPhone, `🚚 *UPDATE PENGANTARAN: ${orderNumber}*\n\nApakah barang sudah berhasil diserahkan kepada warga?\n\nJika warga lupa atau kesulitan menekan tombol konfirmasi di HP-nya, silakan Anda bantu menyelesaikannya dengan menekan tombol di bawah ini:\n\n🏁 Selesai (Diterima): ${courierFinishLink}`)
+            }
+          } catch (e) {
+            console.error('Failed in courier delayed notification', e)
+          }
+        }, 60000)
+      }
 
       return { success: true }
     }
