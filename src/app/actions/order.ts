@@ -150,7 +150,7 @@ async function notifySellerAndCourier(orderNumber: string, customerName: string,
   console.log('Sending to Courier...')
   const courierLinks = `\n\n*UPDATE STATUS KURIR:*\n👍 Terima Order: ${baseUrl}/order/${orderNumber}/action?role=courier&status=accepted&label=Terima+Tugas+Pengantaran\n📦 Ambil dari Seller: ${baseUrl}/order/${orderNumber}/action?role=courier&status=shipped&label=Ambil+Barang+dari+Seller\n🚚 Mulai Kirim: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivering&label=Mulai+Pengiriman\n🏁 Selesai (Diterima): ${baseUrl}/order/${orderNumber}/action?role=courier&status=completed&label=Pesanan+Diterima+Warga\n⚠️ Ada Masalah: ${baseUrl}/order/${orderNumber}/action?role=courier&status=problem&label=Lapor+Masalah+Pengiriman`
   const courierMessage = `🚚 *TUGAS PENGANTARAN BARU* 🚚\n\nHalo Kurir PAWON,\nAda tugas pengantaran baru.\n\n📍 *Alamat Tujuan:* ${deliveryAddress}\n👤 *Penerima:* ${customerName}\n🆔 *No. Pesanan:* ${orderNumber}\n💰 *Tagihan:* Rp${totalAmount.toLocaleString('id-ID')} (Cek apakah COD atau QRIS)${courierLinks}`
-  await sendWhatsAppNotification('082223863537', courierMessage)
+  await sendWhatsAppNotification('628156605634', courierMessage)
 }
 
 export async function updateOrderStatus(orderNumber: string, newStatus: string, note?: string) {
