@@ -211,7 +211,8 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
       // Dapatkan nomor kurir yang dipilih
       let courierPhone = '628156605634'
       if (courierId) {
-        const c = await writeClient.fetch(`*[_type == "courier" && _id == $courierId][0]{phone}`, { courierId })
+        // Gunakan match untuk mengantisipasi ID berawalan drafts.
+        const c = await writeClient.fetch(`*[_type == "courier" && _id match $courierId][0]{phone}`, { courierId })
         if (c?.phone) courierPhone = c.phone
       }
 
@@ -251,7 +252,8 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
       // Dapatkan nomor kurir yang dipilih
       let courierPhone = '628156605634'
       if (courierId) {
-        const c = await writeClient.fetch(`*[_type == "courier" && _id == $courierId][0]{phone}`, { courierId })
+        // Gunakan match untuk mengantisipasi ID berawalan drafts.
+        const c = await writeClient.fetch(`*[_type == "courier" && _id match $courierId][0]{phone}`, { courierId })
         if (c?.phone) courierPhone = c.phone
       }
 
