@@ -184,7 +184,7 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         orderNumber, 
         order.customerName, 
         order.deliveryAddress, 
-        order.items.map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
+        (order.items || []).map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
         order.totalAmount
       )
 
@@ -210,7 +210,7 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         orderNumber, 
         order.customerName, 
         order.deliveryAddress, 
-        order.items.map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
+        (order.items || []).map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
         order.totalAmount
       )
 
