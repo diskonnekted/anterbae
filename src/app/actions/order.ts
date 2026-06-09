@@ -109,7 +109,7 @@ export async function createOrder(formData: OrderFormData, items: CartItem[], to
       // 1. Kirim ke Admin
       console.log('Sending to Admin:', adminPhone)
       
-      const couriers = await writeClient.fetch(`*[_type == "courier" && isActive == true]{_id, name}`)
+      const couriers = await writeClient.fetch(`*[_type == "courier" && (isActive == true || status == "active")]{_id, name}`)
       let courierSelectionCod = ''
       let courierSelectionQris = ''
       
