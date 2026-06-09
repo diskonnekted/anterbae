@@ -153,14 +153,25 @@ export async function createOrder(formData: OrderFormData, items: CartItem[], to
   }
 }
 
-async function notifySellerAndCourier(orderNumber: string, customerName: string, deliveryAddress: string, items: {name: string, quantity: number}[], totalAmount: number, courierPhone: string = '628156605634') {
+async function notifySellerAndCourier(orderNumber: string, customerName: string, deliveryAddress: string, items: {name: string, quantity: number}[], totalAmount: number, courierPhone: string = '628156605634', sellerPhones: string[] = []) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon.pondokrejo.id'
   
   // 3. Kirim ke Penjual
-  console.log('Sending to Seller...')
+  console.log('Sending to Seller(s)...', sellerPhones)
   const sellerLinks = `\n\n*UPDATE STATUS PENJUAL:*\n📦 Serahkan ke Kurir: ${baseUrl}/order/${orderNumber}/action?role=seller&status=shipped&label=Serahkan+Barang+ke+Kurir\n✅ Selesai: ${baseUrl}/order/${orderNumber}/action?role=seller&status=completed&label=Transaksi+Selesai\n⚠️ Masalah: ${baseUrl}/order/${orderNumber}/action?role=seller&status=problem&label=Transaksi+Bermasalah`
   const sellerMessage = `🔔 *PESANAN BARU UNTUK SELLER* 🔔\n\nHalo Seller,\nAda pesanan masuk yang perlu disiapkan segera.\n\n👤 *Pemesan:* ${customerName}\n🆔 *No. Pesanan:* ${orderNumber}\n\n🛍️ *Item yang dipesan:* \n${items.map(i => `- ${i.name} (x${i.quantity})`).join('\n')}${sellerLinks}`
-  await sendWhatsAppNotification('0895360396984', sellerMessage) // Todo: Fetch seller phones if applicable
+  
+  if (sellerPhones.length > 0) {
+    for (let phone of sellerPhones) {
+      // Ensure phone starts with 62 for Fonnte
+      let cleanPhone = phone.replace(/\D/g, '')
+      if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1)
+      await sendWhatsAppNotification(cleanPhone, sellerMessage)
+    }
+  } else {
+    // Fallback if no vendor phone found
+    await sendWhatsAppNotification('62895360396984', sellerMessage)
+  }
 
   // 4. Kirim ke Kurir
   console.log('Sending to Courier...', courierPhone)
@@ -173,7 +184,7 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
   try {
     const query = `*[_type == "order" && orderNumber == $orderNumber][0]{
       _id, customerName, customerPhone, deliveryAddress, totalAmount, paymentMethod, paymentStatus, status,
-      items[]{ quantity, product->{name} }
+      items[]{ quantity, product->{name, vendor->{phone}} }
     }`
     const order = await writeClient.fetch(query, { orderNumber })
 
@@ -201,6 +212,12 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         if (c?.phone) courierPhone = c.phone
       }
 
+      // Kumpulkan nomor telepon penjual (uniques)
+      const sellerPhones = Array.from(new Set((order.items || [])
+        .map((i: any) => i.product?.vendor?.phone)
+        .filter(Boolean)
+      )) as string[]
+
       // Lanjutkan notifikasi ke Seller & Courier
       await notifySellerAndCourier(
         orderNumber, 
@@ -208,7 +225,8 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         order.deliveryAddress, 
         (order.items || []).map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
         order.totalAmount,
-        courierPhone
+        courierPhone,
+        sellerPhones
       )
 
       return { success: true }
@@ -234,6 +252,12 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         if (c?.phone) courierPhone = c.phone
       }
 
+      // Kumpulkan nomor telepon penjual (uniques)
+      const sellerPhones = Array.from(new Set((order.items || [])
+        .map((i: any) => i.product?.vendor?.phone)
+        .filter(Boolean)
+      )) as string[]
+
       // Lanjutkan notifikasi ke Seller & Courier
       await notifySellerAndCourier(
         orderNumber, 
@@ -241,7 +265,8 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         order.deliveryAddress, 
         (order.items || []).map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
         order.totalAmount,
-        courierPhone
+        courierPhone,
+        sellerPhones
       )
 
       return { success: true }
