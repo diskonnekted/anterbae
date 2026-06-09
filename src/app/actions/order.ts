@@ -175,9 +175,7 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         .commit()
 
       // Beri tahu pembeli bahwa pembayaran berhasil
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon-Pondokrejo.vercel.app'
-      const buyerLinks = `\n\n*KONFIRMASI PENERIMAAN:*\n✅ Barang Diterima: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=completed&label=Barang+Sudah+Diterima\n❌ Barang Bermasalah: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=problem&label=Lapor+Barang+Bermasalah`
-      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPembayaran QRIS Anda untuk pesanan *${orderNumber}* sudah diterima oleh Admin Desa.\n\nBarang pesanan Anda saat ini sedang disiapkan oleh Penjual dan akan segera dikirim oleh Kurir ke alamat Anda.${buyerLinks}`)
+      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPembayaran QRIS Anda untuk pesanan *${orderNumber}* sudah diterima oleh Admin Desa.\n\nBarang pesanan Anda saat ini sedang disiapkan oleh Penjual dan akan segera dikirim oleh Kurir ke alamat Anda.`)
 
       // Lanjutkan notifikasi ke Seller & Courier
       await notifySellerAndCourier(
@@ -201,9 +199,7 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         .commit()
 
       // Beri tahu pembeli bahwa pesanan diproses
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon-Pondokrejo.vercel.app'
-      const buyerLinks = `\n\n*KONFIRMASI PENERIMAAN:*\n✅ Barang Diterima: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=completed&label=Barang+Sudah+Diterima\n❌ Barang Bermasalah: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=problem&label=Lapor+Barang+Bermasalah`
-      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPesanan COD Anda (*${orderNumber}*) sudah dikonfirmasi oleh Admin Desa.\n\nBarang pesanan Anda saat ini sedang disiapkan oleh Penjual dan akan segera dikirim oleh Kurir ke alamat Anda.${buyerLinks}`)
+      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPesanan COD Anda (*${orderNumber}*) sudah dikonfirmasi oleh Admin Desa.\n\nBarang pesanan Anda saat ini sedang disiapkan oleh Penjual dan akan segera dikirim oleh Kurir ke alamat Anda.`)
 
       // Lanjutkan notifikasi ke Seller & Courier
       await notifySellerAndCourier(
@@ -213,6 +209,25 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         (order.items || []).map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
         order.totalAmount
       )
+
+      return { success: true }
+    }
+
+    // Jika Kurir mulai mengirim
+    if (newStatus === 'delivering') {
+      await writeClient
+        .patch(order._id)
+        .set({ status: 'delivering' })
+        .commit()
+
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon-Pondokrejo.vercel.app'
+      const buyerLinks = `\n\n*KONFIRMASI PENERIMAAN:*\n✅ Barang Diterima: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=completed&label=Barang+Sudah+Diterima\n❌ Barang Bermasalah: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=problem&label=Lapor+Barang+Bermasalah`
+      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPesanan Anda (*${orderNumber}*) saat ini *SEDANG DALAM PERJALANAN* menuju alamat Anda oleh Kurir kami.\n\nHarap siapkan uang tunai sebesar *Rp${order.totalAmount.toLocaleString('id-ID')}* (jika menggunakan COD).\n\nJika barang sudah Anda terima dengan baik, mohon klik link konfirmasi di bawah ini:${buyerLinks}`)
+
+      // Notifikasi ke Admin
+      const settings = await writeClient.fetch(APP_SETTINGS_QUERY)
+      const adminPhone = settings?.adminPhone || '081328128315'
+      await sendWhatsAppNotification(adminPhone, `🚚 *PESANAN DIKIRIM*\nPesanan ${orderNumber} sedang diantar oleh kurir ke pembeli.`)
 
       return { success: true }
     }
