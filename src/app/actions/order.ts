@@ -175,7 +175,7 @@ async function notifySellerAndCourier(orderNumber: string, customerName: string,
 
   // 4. Kirim ke Kurir
   console.log('Sending to Courier...', courierPhone)
-  const courierLinks = `\n\n*UPDATE STATUS KURIR:*\n👍 Terima Order: ${baseUrl}/order/${orderNumber}/action?role=courier&status=accepted&label=Terima+Tugas+Pengantaran\n📦 Ambil dari Seller: ${baseUrl}/order/${orderNumber}/action?role=courier&status=shipped&label=Ambil+Barang+dari+Seller\n🚚 Mulai Kirim: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivering&label=Mulai+Pengiriman\n⚠️ Ada Masalah: ${baseUrl}/order/${orderNumber}/action?role=courier&status=problem&label=Lapor+Masalah+Pengiriman`
+  const courierLinks = `\n\n*UPDATE STATUS KURIR:*\n👍 Terima Order: ${baseUrl}/order/${orderNumber}/action?role=courier&status=accepted&label=Terima+Tugas+Pengantaran\n📦 Ambil dari Seller: ${baseUrl}/order/${orderNumber}/action?role=courier&status=shipped&label=Ambil+Barang+dari+Seller\n🚚 Mulai Kirim: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivering&label=Mulai+Pengiriman\n🏁 Barang Diserahkan: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivered&label=Barang+Telah+Diserahkan\n⚠️ Ada Masalah: ${baseUrl}/order/${orderNumber}/action?role=courier&status=problem&label=Lapor+Masalah+Pengiriman`
   const courierMessage = `🚚 *TUGAS PENGANTARAN BARU* 🚚\n\nHalo Kurir PAWON,\nAda tugas pengantaran baru.\n\n📍 *Alamat Tujuan:* ${deliveryAddress}\n👤 *Penerima:* ${customerName}\n🆔 *No. Pesanan:* ${orderNumber}\n💰 *Tagihan:* Rp${totalAmount.toLocaleString('id-ID')} (Cek apakah COD atau QRIS)${courierLinks}`
   await sendWhatsAppNotification(courierPhone, courierMessage)
 }
@@ -279,31 +279,43 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         .set({ status: 'delivering' })
         .commit()
 
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon.pondokrejo.id'
-      const buyerLinks = `\n\n*KONFIRMASI PENERIMAAN:*\n✅ Barang Diterima: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=completed&label=Barang+Sudah+Diterima\n❌ Barang Bermasalah: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=problem&label=Lapor+Barang+Bermasalah`
-      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPesanan Anda (*${orderNumber}*) saat ini *SEDANG DALAM PERJALANAN* menuju alamat Anda oleh Kurir kami.\n\nHarap siapkan uang tunai sebesar *Rp${order.totalAmount.toLocaleString('id-ID')}* (jika menggunakan COD).\n\nJika barang sudah Anda terima dengan baik, mohon klik link konfirmasi di bawah ini:${buyerLinks}`)
+      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPesanan Anda (*${orderNumber}*) saat ini *SEDANG DALAM PERJALANAN* menuju alamat Anda oleh Kurir kami.\n\nHarap siapkan uang tunai sebesar *Rp${order.totalAmount.toLocaleString('id-ID')}* (jika menggunakan COD).\n\nKurir akan segera sampai dan menghubungi Anda.`)
 
       // Notifikasi ke Admin
       const settings = await writeClient.fetch(APP_SETTINGS_QUERY)
       const adminPhone = settings?.adminPhone || '081328128315'
       await sendWhatsAppNotification(adminPhone, `🚚 *PESANAN DIKIRIM*\nPesanan ${orderNumber} sedang diantar oleh kurir ke pembeli.`)
 
-      // Timeout 1 menit untuk mengirim link Selesai ke Kurir
-      const cPhone = order.courier?.phone || '628156605634' // Fallback to hardcoded courier if not resolved
-      if (cPhone) {
-        setTimeout(async () => {
-          try {
-            // Cek apakah pesanan masih delivering (belum diklik selesai oleh pembeli)
-            const checkOrder = await writeClient.fetch(`*[_id == $id][0]{status}`, { id: order._id })
-            if (checkOrder && checkOrder.status === 'delivering') {
-              const courierFinishLink = `${baseUrl}/order/${orderNumber}/action?role=courier&status=completed&label=Pesanan+Diterima+Warga`
-              await sendWhatsAppNotification(cPhone, `🚚 *UPDATE PENGANTARAN: ${orderNumber}*\n\nApakah barang sudah berhasil diserahkan kepada warga?\n\nJika warga lupa atau kesulitan menekan tombol konfirmasi di HP-nya, silakan Anda bantu menyelesaikannya dengan menekan tombol di bawah ini:\n\n🏁 Selesai (Diterima): ${courierFinishLink}`)
-            }
-          } catch (e) {
-            console.error('Failed in courier delayed notification', e)
+      return { success: true }
+    }
+
+    // Jika Kurir menyatakan barang telah diserahkan
+    if (newStatus === 'delivered') {
+      await writeClient
+        .patch(order._id)
+        .set({ status: 'delivered' })
+        .commit()
+
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon.pondokrejo.id'
+      const buyerLinks = `\n\n*KONFIRMASI PENERIMAAN:*\n✅ Barang Diterima: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=completed&label=Barang+Sudah+Diterima\n❌ Barang Bermasalah: ${baseUrl}/order/${orderNumber}/action?role=buyer&status=problem&label=Lapor+Barang+Bermasalah`
+      await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nKurir kami melaporkan bahwa pesanan (*${orderNumber}*) *TELAH DISERAHKAN* kepada Anda.\n\nJika barang sudah Anda terima dengan baik, mohon **KLIK TOMBOL KONFIRMASI** di bawah ini agar kami dapat menutup transaksi:${buyerLinks}`)
+
+      // Mulai hitung mundur 5 menit untuk Admin
+      const settings = await writeClient.fetch(APP_SETTINGS_QUERY)
+      const adminPhone = settings?.adminPhone || '081328128315'
+      
+      setTimeout(async () => {
+        try {
+          const checkOrder = await writeClient.fetch(`*[_id == $id][0]{status}`, { id: order._id })
+          // Jika pembeli belum klik selesai (status masih delivered)
+          if (checkOrder && checkOrder.status === 'delivered') {
+            const adminFinishLink = `${baseUrl}/order/${orderNumber}/action?role=admin&status=completed&label=Selesaikan+Pesanan+Manual`
+            await sendWhatsAppNotification(adminPhone, `⚠️ *PERHATIAN ADMIN* ⚠️\n\nKurir melaporkan bahwa pesanan ${orderNumber} telah diserahkan sejak 5 menit yang lalu, namun pembeli belum mengklik tombol konfirmasi terima.\n\nSilakan telepon pembeli di nomor ${order.customerPhone} untuk memastikan barang benar-benar sudah diterima.\n\nJika sudah dikonfirmasi secara lisan, silakan klik link di bawah ini untuk menutup pesanan:\n\n🏁 Tutup Pesanan: ${adminFinishLink}`)
           }
-        }, 60000)
-      }
+        } catch (e) {
+          console.error('Failed in admin delayed notification', e)
+        }
+      }, 300000) // 5 minutes
 
       return { success: true }
     }

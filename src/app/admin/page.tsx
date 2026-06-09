@@ -17,7 +17,7 @@ type Order = {
   shippingFee: number
   paymentMethod: 'cod' | 'qris'
   paymentStatus: 'unpaid' | 'paid'
-  status: 'pending' | 'accepted' | 'processing' | 'shipped' | 'delivering' | 'completed' | 'cancelled' | 'problem'
+  status: 'pending' | 'accepted' | 'processing' | 'shipped' | 'delivering' | 'delivered' | 'completed' | 'cancelled' | 'problem'
   items: { quantity: number; price: number; product: { name: string; vendorName: string } }[]
   courier?: { name: string; phone: string }
 }
@@ -136,6 +136,7 @@ export default function AdminDashboardPage() {
     
     if (status === 'pending') return 'bg-yellow-50 text-yellow-700 border-yellow-200'
     if (status === 'delivering') return 'bg-blue-100 text-blue-700 border-blue-200'
+    if (status === 'delivered') return 'bg-purple-100 text-purple-700 border-purple-200'
     
     // accepted, processing, shipped are in "Penjual/Siap" stage
     return 'bg-orange-100 text-orange-700 border-orange-200'
@@ -148,6 +149,7 @@ export default function AdminDashboardPage() {
     if (paymentMethod === 'qris' && paymentStatus === 'unpaid') return 'Menunggu Mutasi QRIS'
     if (status === 'pending') return 'Menunggu Admin (COD)'
     if (status === 'delivering') return 'Sedang Diantar Kurir'
+    if (status === 'delivered') return 'Tunggu Konfirmasi Warga'
     return 'Diproses Penjual'
   }
 
@@ -155,6 +157,7 @@ export default function AdminDashboardPage() {
     if (status === 'completed') return <CheckCircle className="w-5 h-5" />
     if (status === 'cancelled' || status === 'problem') return <AlertTriangle className="w-5 h-5" />
     if (status === 'delivering') return <Truck className="w-5 h-5" />
+    if (status === 'delivered') return <User className="w-5 h-5" />
     if (status === 'pending') return <Clock className="w-5 h-5" />
     return <Package className="w-5 h-5" />
   }
@@ -217,7 +220,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
             <p className="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">Diantar</p>
             <p className="text-3xl font-black text-blue-600">
-              {orders.filter(o => o.status === 'delivering').length}
+              {orders.filter(o => o.status === 'delivering' || o.status === 'delivered').length}
             </p>
           </div>
           <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">

@@ -136,6 +136,7 @@ export const orderType = defineType({
           { title: 'Diproses Penjual (Barang)', value: 'processing' },
           { title: 'Diserahkan ke Kurir (Barang)', value: 'shipped' },
           { title: 'Dalam Perjalanan / Proses Jasa', value: 'delivering' },
+          { title: 'Telah Sampai (Menunggu Konfirmasi Pembeli)', value: 'delivered' },
           { title: 'Selesai', value: 'completed' },
           { title: 'Dibatalkan', value: 'cancelled' },
           { title: 'Ada Masalah', value: 'problem' },
