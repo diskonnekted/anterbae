@@ -109,7 +109,11 @@ export async function createOrder(formData: OrderFormData, items: CartItem[], to
       // 1. Kirim ke Admin
       console.log('Sending to Admin:', adminPhone)
       
-      const couriers = await writeClient.fetch(`*[_type == "courier"]{_id, name, phone, isActive, status}`)
+      const couriers = await writeClient.fetch(
+        `*[_type == "courier"]{_id, name, phone, isActive, status}`,
+        {},
+        { cache: 'no-store' }
+      )
       let courierSelectionCod = ''
       let courierSelectionQris = ''
       
@@ -154,7 +158,7 @@ export async function createOrder(formData: OrderFormData, items: CartItem[], to
   }
 }
 
-async function notifySellerAndCourier(orderNumber: string, customerName: string, deliveryAddress: string, items: {name: string, quantity: number}[], totalAmount: number, courierPhone: string = '6282241593592', sellerPhones: string[] = []) {
+async function notifySellerAndCourier(orderNumber: string, customerName: string, deliveryAddress: string, items: {name: string, quantity: number}[], totalAmount: number, courierPhone: string = '6282241593592', sellerPhones: string[] = [], fallbackWarning: string = '') {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon.pondokrejo.id'
   
   // 3. Kirim ke Penjual
@@ -180,7 +184,7 @@ async function notifySellerAndCourier(orderNumber: string, customerName: string,
   console.log('Sending to Courier...', cleanCourierPhone)
 
   const courierLinks = `\n\n*UPDATE STATUS KURIR:*\n👍 Terima Order: ${baseUrl}/order/${orderNumber}/action?role=courier&status=accepted&label=Terima+Tugas+Pengantaran\n📦 Ambil dari Seller: ${baseUrl}/order/${orderNumber}/action?role=courier&status=shipped&label=Ambil+Barang+dari+Seller\n🚚 Mulai Kirim: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivering&label=Mulai+Pengiriman\n🏁 Barang Diserahkan: ${baseUrl}/order/${orderNumber}/action?role=courier&status=delivered&label=Barang+Telah+Diserahkan\n⚠️ Ada Masalah: ${baseUrl}/order/${orderNumber}/action?role=courier&status=problem&label=Lapor+Masalah+Pengiriman`
-  const courierMessage = `🚚 *TUGAS PENGANTARAN BARU* 🚚\n\nHalo Kurir PAWON,\nAda tugas pengantaran baru.\n\n📍 *Alamat Tujuan:* ${deliveryAddress}\n👤 *Penerima:* ${customerName}\n🆔 *No. Pesanan:* ${orderNumber}\n💰 *Tagihan:* Rp${totalAmount.toLocaleString('id-ID')} (Cek apakah COD atau QRIS)${courierLinks}`
+  const courierMessage = `🚚 *TUGAS PENGANTARAN BARU* 🚚${fallbackWarning}\n\nHalo Kurir PAWON,\nAda tugas pengantaran baru.\n\n📍 *Alamat Tujuan:* ${deliveryAddress}\n👤 *Penerima:* ${customerName}\n🆔 *No. Pesanan:* ${orderNumber}\n💰 *Tagihan:* Rp${totalAmount.toLocaleString('id-ID')} (Cek apakah COD atau QRIS)${courierLinks}`
   await sendWhatsAppNotification(cleanCourierPhone, courierMessage)
 }
 
@@ -210,12 +214,19 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
       await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPembayaran QRIS Anda untuk pesanan *${orderNumber}* sudah diterima oleh Admin Desa.\n\nBarang pesanan Anda saat ini sedang disiapkan oleh Penjual dan akan segera dikirim oleh Kurir ke alamat Anda.`)
 
       // Dapatkan nomor kurir yang dipilih
-      let courierPhone = courierPhoneParam || '6282241593592'
+      let courierPhone = courierPhoneParam
+      let fallbackWarning = ''
+      
       if (courierId && !courierPhoneParam) {
-        // Fetch semua kurir lalu filter di JS agar kebal terhadap isu ID Drafts Sanity
-        const allCouriers = await writeClient.fetch(`*[_type == "courier"]{_id, phone}`)
+        // Fetch tanpa cache agar data real-time
+        const allCouriers = await writeClient.fetch(`*[_type == "courier"]{_id, phone}`, {}, { cache: 'no-store' })
         const matchedCourier = allCouriers.find((c: any) => c._id === courierId || c._id === `drafts.${courierId}` || `drafts.${c._id}` === courierId)
         if (matchedCourier?.phone) courierPhone = matchedCourier.phone
+      }
+      
+      if (!courierPhone) {
+        courierPhone = '6282241593592'
+        fallbackWarning = `\n\n*(Sistem melempar tugas ini ke Septian karena gagal menemukan nomor HP kurir di URL WA atau Database Cache)*`
       }
 
       // Kumpulkan nomor telepon penjual (uniques)
@@ -232,7 +243,8 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
         (order.items || []).map((i: any) => ({ name: i.product?.name || 'Produk', quantity: i.quantity })), 
         order.totalAmount,
         courierPhone,
-        sellerPhones
+        sellerPhones,
+        fallbackWarning
       )
 
       return { success: true }
@@ -252,12 +264,19 @@ export async function updateOrderStatus(orderNumber: string, newStatus: string, 
       await sendWhatsAppNotification(order.customerPhone, `Halo *${order.customerName}*,\n\nPesanan COD Anda (*${orderNumber}*) sudah dikonfirmasi oleh Admin Desa.\n\nBarang pesanan Anda saat ini sedang disiapkan oleh Penjual dan akan segera dikirim oleh Kurir ke alamat Anda.`)
 
       // Dapatkan nomor kurir yang dipilih
-      let courierPhone = courierPhoneParam || '6282241593592'
+      let courierPhone = courierPhoneParam
+      let fallbackWarning = ''
+      
       if (courierId && !courierPhoneParam) {
-        // Fetch semua kurir lalu filter di JS agar kebal terhadap isu ID Drafts Sanity
-        const allCouriers = await writeClient.fetch(`*[_type == "courier"]{_id, phone}`)
+        // Fetch tanpa cache agar data real-time
+        const allCouriers = await writeClient.fetch(`*[_type == "courier"]{_id, phone}`, {}, { cache: 'no-store' })
         const matchedCourier = allCouriers.find((c: any) => c._id === courierId || c._id === `drafts.${courierId}` || `drafts.${c._id}` === courierId)
         if (matchedCourier?.phone) courierPhone = matchedCourier.phone
+      }
+      
+      if (!courierPhone) {
+        courierPhone = '6282241593592'
+        fallbackWarning = `\n\n*(Sistem melempar tugas ini ke Septian karena gagal menemukan nomor HP kurir di URL WA atau Database Cache)*`
       }
 
       // Kumpulkan nomor telepon penjual (uniques)
