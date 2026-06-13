@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
-import { createOrder } from '@/app/actions/order'
-import { getOrCreateCustomer, getCustomerById } from '@/app/actions/customer'
+import { createDeliveryOrder } from '@/app/actions/delivery-order'
 import { useRouter } from 'next/navigation'
 import { Loader2, CheckCircle, MessageCircle } from 'lucide-react'
 import { OrderFormData } from '@/types'
@@ -14,6 +13,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [orderInfo, setOrderInfo] = useState<{ orderNumber: string } | null>(null)
+  
+  // Settings untuk link wa
+  const [adminPhone, setAdminPhone] = useState('6281234567890') // Default
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
@@ -22,45 +24,65 @@ export default function CheckoutPage() {
     paymentMethod: 'cod',
   })
 
-  // Load existing profile
   useEffect(() => {
-    const savedId = localStorage.getItem('pawon-customerId')
-    if (savedId) {
-      getCustomerById(savedId).then((res) => {
-        if (res.success && res.data) {
-          setFormData({
-            name: res.data.name,
-            phone: res.data.phone,
-            address: res.data.address
-          })
-        }
-      })
-    }
+    // Load existing profile from localStorage
+    const savedName = localStorage.getItem('anterbae-customer-name')
+    const savedPhone = localStorage.getItem('anterbae-customer-phone')
+    const savedAddress = localStorage.getItem('anterbae-customer-address')
+    
+    if (savedName) setFormData(prev => ({ ...prev, name: savedName }))
+    if (savedPhone) setFormData(prev => ({ ...prev, phone: savedPhone }))
+    if (savedAddress) setFormData(prev => ({ ...prev, address: savedAddress }))
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    // 1. Get or Create Customer Document
-    const customerRes = await getOrCreateCustomer(formData)
-    if (!customerRes.success || !customerRes.customerId) {
-      alert(customerRes.error)
-      setLoading(false)
-      return
-    }
+    // Save profile
+    localStorage.setItem('anterbae-customer-name', formData.name)
+    localStorage.setItem('anterbae-customer-phone', formData.phone)
+    localStorage.setItem('anterbae-customer-address', formData.address)
 
-    // 2. Save ID to LocalStorage
-    localStorage.setItem('pawon-customerId', customerRes.customerId)
+    const itemsString = items.map(i => `${i.quantity}x ${i.name} (Rp ${i.price.toLocaleString('id-ID')})`).join('\n')
+    const merchantNames = Array.from(new Set(items.map(i => i.merchant?.name || 'Toko'))).join(', ')
 
-    // 3. Create Order linked to Customer
-    const result = await createOrder(formData, items, grandTotal, shippingFee, customerRes.customerId)
+    // 1. Create Anterbae Delivery Order
+    const result = await createDeliveryOrder({
+      customerName: formData.name,
+      customerPhone: formData.phone,
+      orderType: 'food',
+      merchantName: merchantNames,
+      items: itemsString,
+      pickupAddress: merchantNames,
+      deliveryAddress: formData.address,
+      paymentMethod: formData.paymentMethod === 'cod' ? 'cod' : 'transfer'
+    })
 
-    if (result.success && result.orderNumber) {
-      setOrderInfo({ 
-        orderNumber: result.orderNumber
-      })
+    if (result.success && result.data?.orderNumber) {
+      setOrderInfo({ orderNumber: result.data.orderNumber })
       setSuccess(true)
+      
+      const adminTargetPhone = result.data.adminPhone || adminPhone
+      
+      // 2. Redirect to WA
+      let text = `Halo Admin *Anterbae* 🛵,\n\n`
+      text += `Saya ingin memesan dari marketplace:\n\n`
+      text += `*Kode Pesanan:* ${result.data.orderNumber}\n`
+      text += `*Nama:* ${formData.name}\n`
+      text += `*No. WA:* ${formData.phone}\n`
+      text += `*Alamat Pengiriman:* ${formData.address}\n\n`
+      text += `*Detail Pesanan:*\n${itemsString}\n\n`
+      text += `*Subtotal:* Rp ${totalPrice.toLocaleString('id-ID')}\n`
+      text += `*Estimasi Ongkir:* Rp ${shippingFee.toLocaleString('id-ID')}\n`
+      text += `*Total Pembayaran:* Rp ${grandTotal.toLocaleString('id-ID')}\n`
+      text += `*Metode Pembayaran:* ${formData.paymentMethod === 'cod' ? 'Bayar di Tempat (COD)' : 'Transfer/QRIS'}\n\n`
+      text += `Mohon segera diproses dan dicarikan kurir. Terima kasih!`
+
+      const waLink = `https://wa.me/${adminTargetPhone.replace(/^0/, '62').replace(/\D/g, '')}?text=${encodeURIComponent(text)}`
+      
+      // Buka tab WA
+      window.open(waLink, '_blank')
       clearCart()
     } else {
       alert(result.error || 'Terjadi kesalahan.')
@@ -78,28 +100,26 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-20 text-center">
         <div className="bg-white rounded-3xl p-12 shadow-sm inline-block max-w-md">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Pesanan Berhasil!</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Pesanan Dibuat!</h1>
           <p className="text-gray-600 mb-6">
-            Terima kasih, <strong>{formData.name}</strong>. Pesanan Anda <span className="font-mono bg-gray-100 px-2 py-1 rounded">{orderInfo.orderNumber}</span> telah kami terima.
+            Terima kasih, <strong>{formData.name}</strong>. Pesanan <span className="font-mono bg-gray-100 px-2 py-1 rounded">{orderInfo.orderNumber}</span> telah direkam ke sistem.
           </p>
           
           <div className="bg-green-50 p-6 rounded-2xl mb-8 text-left text-sm text-green-800">
             <p className="font-bold mb-3 flex items-center gap-2">
               <MessageCircle className="w-5 h-5" />
-              Notifikasi Terkirim
+              Lanjutkan di WhatsApp
             </p>
             <p className="mb-0 text-xs leading-relaxed">
-              {formData.paymentMethod === 'qris' 
-                ? 'Kami telah mengirimkan detail pesanan ke WhatsApp Anda. Admin Desa sedang memverifikasi pembayaran Anda.'
-                : 'Kami telah mengirimkan detail pesanan ke WhatsApp Anda. Admin Desa akan segera memproses pesanan ini.'}
+              Pesanan Anda akan segera diproses setelah Anda mengirimkan pesan ke WhatsApp Admin Anterbae.
             </p>
           </div>
 
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/track')}
             className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-colors"
           >
-            Kembali ke Beranda
+            Lacak Pesanan Saya
           </button>
         </div>
       </div>
@@ -138,12 +158,12 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Alamat Lengkap (Pondokrejo)</label>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Alamat Lengkap</label>
               <textarea
                 required
                 rows={3}
                 className="w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                placeholder="Contoh: Dusun Glagahmalang RT 01 RW 02"
+                placeholder="Alamat pengiriman di area Banjarnegara"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               />
@@ -157,7 +177,7 @@ export default function CheckoutPage() {
                   onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })}
                   className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${formData.paymentMethod === 'cod' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200'}`}
                 >
-                  <span className="font-bold">Bayar di Tempat</span>
+                  <span className="font-bold text-center">Bayar di Tempat</span>
                   <span className="text-xs opacity-70">Tunai ke Kurir (COD)</span>
                 </button>
                 <button
@@ -165,8 +185,8 @@ export default function CheckoutPage() {
                   onClick={() => setFormData({ ...formData, paymentMethod: 'qris' })}
                   className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${formData.paymentMethod === 'qris' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200'}`}
                 >
-                  <span className="font-bold">Bayar Pakai QRIS</span>
-                  <span className="text-xs opacity-70">Aman & Terpantau</span>
+                  <span className="font-bold text-center">Transfer / QRIS</span>
+                  <span className="text-xs opacity-70 text-center">Instruksi via WA</span>
                 </button>
               </div>
             </div>
@@ -176,7 +196,7 @@ export default function CheckoutPage() {
               type="submit"
               className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-colors shadow-lg shadow-green-100 flex items-center justify-center gap-2"
             >
-              {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : formData.paymentMethod === 'qris' ? 'Buat Pesanan & Saya Sudah Bayar' : 'Buat Pesanan Sekarang (COD)'}
+              {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Pesan via WhatsApp'}
             </button>
           </form>
         </div>
@@ -200,7 +220,7 @@ export default function CheckoutPage() {
                 <span className="font-bold text-gray-900">Rp {totalPrice.toLocaleString('id-ID')}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500 font-bold">Ongkos Kirim</span>
+                <span className="text-gray-500 font-bold">Estimasi Ongkos Kirim</span>
                 <span className="font-bold text-gray-900">Rp {shippingFee.toLocaleString('id-ID')}</span>
               </div>
             </div>
@@ -211,27 +231,12 @@ export default function CheckoutPage() {
             <div className="bg-yellow-50 p-4 rounded-2xl text-xs text-yellow-800 flex items-start gap-2">
               <span className="font-bold text-lg leading-none">!</span>
               <p>
-                {formData.paymentMethod === 'qris'
-                  ? 'Silakan selesaikan pembayaran dengan scan QRIS dan klik "Buat Pesanan" untuk mengirim bukti bayar ke Admin Desa.'
-                  : 'Anda akan membayar pesanan ini secara tunai (COD) saat barang diantar oleh kurir ke alamat Anda.'}
+                Admin Anterbae akan mengonfirmasi total biaya termasuk ongkos kirim pasti melalui pesan WhatsApp.
               </p>
             </div>
-            {formData.paymentMethod === 'qris' && (
-              <div className="border-t pt-6 mt-4 text-center">
-                <h3 className="font-bold text-gray-800 mb-4">Scan QRIS Berikut:</h3>
-                <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 inline-block">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/qris.webp" alt="QRIS Desa Pondokrejo" className="w-48 h-48 object-contain mx-auto" />
-                </div>
-                <p className="text-xs text-gray-500 mt-4">
-                  a.n. <strong>Desa Pondokrejo</strong>
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>
     </div>
   )
 }
-

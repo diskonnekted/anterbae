@@ -3,7 +3,7 @@ import { UserIcon } from '@sanity/icons'
 
 export const customerType = defineType({
   name: 'customer',
-  title: 'Data Warga (Pembeli)',
+  title: 'Data Pelanggan',
   type: 'document',
   icon: UserIcon,
   fields: [
@@ -38,7 +38,7 @@ export const customerType = defineType({
       title: 'Sudah Diverifikasi Kalurahan?',
       type: 'boolean',
       initialValue: false,
-      description: 'Centang jika warga ini sudah terbukti nyata dan terpercaya.',
+      description: 'Centang jika pelanggan ini sudah terverifikasi.',
     }),
     defineField({
       name: 'successfulOrders',

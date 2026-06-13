@@ -1,85 +1,83 @@
 'use server'
 
-import { createClient } from 'next-sanity'
+import { client } from '@/sanity/lib/client'
 
-const writeClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  apiVersion: '2026-02-01',
-  useCdn: false,
-  token: process.env.SANITY_API_WRITE_TOKEN,
-})
-
-/**
- * Mencari kurir berdasarkan nomor WhatsApp dan PIN untuk keperluan login portal.
- */
 export async function getCourierByPhone(phone: string, pin: string) {
   try {
-    const query = `*[_type == "courier" && phone == $phone][0]{
-      _id,
-      name,
-      phone,
-      pin,
-      isActive,
-      statusMessage
-    }`
-    const courier = await writeClient.fetch(query, { phone })
-    
+    const courier = await client.fetch(
+      `*[_type == "courier" && phone == $phone][0]`,
+      { phone }
+    )
+
     if (!courier) {
-      return { success: false, error: 'Nomor WhatsApp tidak terdaftar sebagai kurir.' }
+      return { success: false, error: 'Nomor tidak terdaftar sebagai kurir Anterbae.' }
     }
 
-    if (courier.pin !== pin) {
-      return { success: false, error: 'PIN yang Anda masukkan salah.' }
+    if (courier.pin && courier.pin !== pin) {
+      return { success: false, error: 'PIN salah. Silakan coba lagi.' }
     }
 
-    delete courier.pin
-    return { success: true, data: courier }
-  } catch (error) {
-    console.error('Fetch courier failed:', error)
-    return { success: false, error: 'Terjadi kesalahan sistem.' }
+    if (!courier.isActive || courier.status === 'inactive') {
+      return { success: false, error: `Akun kurir tidak aktif. ${courier.statusMessage || ''}` }
+    }
+
+    // Fetch assigned orders
+    const orders = await client.fetch(
+      `*[_type == "deliveryOrder" && courier._ref == $id && status != "completed" && status != "cancelled"] | order(_createdAt desc) {
+        _id,
+        orderNumber,
+        customerName,
+        customerPhone,
+        orderType,
+        items,
+        pickupAddress,
+        deliveryAddress,
+        deliveryArea,
+        status,
+        totalAmount,
+        shippingFee,
+        paymentMethod,
+        courierNotes,
+        estimatedTime,
+        _createdAt,
+        "merchant": merchant->{ name, phone }
+      }`,
+      { id: courier._id }
+    )
+
+    return { success: true, data: { courier, orders } }
+  } catch (e) {
+    return { success: false, error: 'Terjadi kesalahan server.' }
   }
 }
 
-/**
- * Update status operasional kurir
- */
-export async function updateCourierStatus(courierId: string, data: { isActive: boolean, statusMessage?: string }) {
+export async function updateOrderStatus(orderId: string, status: string) {
   try {
-    await writeClient
-      .patch(courierId)
-      .set({
-        isActive: data.isActive,
-        statusMessage: data.statusMessage || ''
-      })
-      .commit()
-
+    await client.patch(orderId).set({ status }).commit()
     return { success: true }
-  } catch (error) {
-    console.error('Update courier failed:', error)
-    return { success: false, error: 'Gagal memperbarui status kurir.' }
+  } catch {
+    return { success: false, error: 'Gagal update status.' }
   }
 }
 
-/**
- * Mengambil daftar pesanan yang ditugaskan ke kurir ini
- */
-export async function getCourierOrders(courierId: string) {
+export async function submitCourierApplication(data: {
+  name: string
+  phone: string
+  address: string
+  area: string
+  vehicleType: string
+  vehiclePlate: string
+  ktpNumber: string
+  motivation: string
+}) {
   try {
-    const query = `*[_type == "order" && courier._ref == $courierId && status != "completed" && status != "cancelled"] | order(_createdAt desc) {
-      _id,
-      orderNumber,
-      customerName,
-      customerPhone,
-      deliveryAddress,
-      totalAmount,
-      status,
-      _createdAt
-    }`
-    const orders = await writeClient.fetch(query, { courierId })
-    return { success: true, data: orders }
-  } catch (error) {
-    console.error('Fetch courier orders failed:', error)
-    return { success: false, error: 'Gagal memuat tugas pengantaran.' }
+    await client.create({
+      _type: 'courierApplication',
+      ...data,
+      applicationStatus: 'pending',
+    })
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Gagal menyimpan data.' }
   }
 }

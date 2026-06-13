@@ -1,46 +1,42 @@
 import { buildLegacyTheme } from 'sanity'
 
 const props = {
-  '--my-white': '#fff',
-  '--my-black': '#1a1a1a',
-  '--my-brand': '#16a34a', // Tailwind green-600
-  '--my-brand-secondary': '#15803d', // Tailwind green-700
+  '--my-white': '#ffffff',
+  '--my-black': '#0f172a',
+  '--my-brand': '#dc2626',        // Red - Anterbae primary
+  '--my-brand-secondary': '#b91c1c', // Red dark
+  '--my-green': '#16a34a',        // Green - Anterbae secondary (AB logo)
   '--my-red': '#dc2626',
-  '--my-yellow': '#eab308',
-  '--my-green': '#16a34a',
+  '--my-orange': '#f97316',
 }
 
 export const myTheme = buildLegacyTheme({
-  /* Base theme colors */
   '--black': props['--my-black'],
   '--white': props['--my-white'],
 
-  '--gray': '#666',
-  '--gray-base': '#666',
+  '--gray': '#64748b',
+  '--gray-base': '#64748b',
 
   '--component-bg': props['--my-white'],
   '--component-text-color': props['--my-black'],
 
-  /* Brand */
+  /* Brand - Red for Anterbae */
   '--brand-primary': props['--my-brand'],
 
-  /* Default button */
-  '--default-button-color': '#666',
+  '--default-button-color': '#64748b',
   '--default-button-primary-color': props['--my-brand'],
   '--default-button-success-color': props['--my-green'],
-  '--default-button-warning-color': props['--my-yellow'],
+  '--default-button-warning-color': props['--my-orange'],
   '--default-button-danger-color': props['--my-red'],
 
-  /* State */
   '--state-info-color': props['--my-brand'],
   '--state-success-color': props['--my-green'],
-  '--state-warning-color': props['--my-yellow'],
+  '--state-warning-color': props['--my-orange'],
   '--state-danger-color': props['--my-red'],
 
-  /* Navbar */
+  /* Navbar - Dark like the logo background */
   '--main-navigation-color': props['--my-black'],
   '--main-navigation-color--inverted': props['--my-white'],
 
   '--focus-color': props['--my-brand'],
 })
-

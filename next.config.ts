@@ -1,11 +1,7 @@
 import type { NextConfig } from "next";
-import withPWAInit from "@ducanh2912/next-pwa";
 
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-});
+// PWA disabled due to compatibility issue with @ducanh2912/next-pwa + Node.js
+// The PWA manifest.json is still served from /public for browser installation support
 
 const nextConfig: NextConfig = {
   turbopack: {},
@@ -18,6 +14,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Redirect old PAWON paths
+  async redirects() {
+    return [
+      { source: '/vendors', destination: '/mitra', permanent: false },
+      { source: '/vendors/:path*', destination: '/mitra', permanent: false },
+      { source: '/services', destination: '/', permanent: false },
+      { source: '/services/:path*', destination: '/', permanent: false },
+      { source: '/inkubator', destination: '/register-courier', permanent: false },
+      { source: '/inkubator/:path*', destination: '/register-courier', permanent: false },
+      { source: '/lapak', destination: '/mitra', permanent: false },
+      { source: '/lapak/:path*', destination: '/mitra', permanent: false },
+    ]
+  },
 };
 
-export default withPWA(nextConfig);
+export default nextConfig;
+// Trigger config reload

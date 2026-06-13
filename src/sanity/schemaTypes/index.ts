@@ -1,28 +1,27 @@
-import { type SchemaTypeDefinition } from 'sanity'
-import { vendorType } from './vendorType'
-import { productType } from './productType'
+// Anterbae Delivery Service - Schema Types
 import { courierType } from './courierType'
-import { orderType } from './orderType'
-import { categoryType } from './categoryType'
-import { bannerType } from './bannerType'
-import { serviceType } from './serviceType'
-import { articleType } from './articleType'
-import { customerType } from './customerType'
-import { incubatorServiceType } from './incubatorServiceType'
-import { incubatorSettingsType } from './incubatorSettingsType'
+import { deliveryOrderType } from './deliveryOrderType'
+import { merchantType } from './merchantType'
 import { appSettingsType } from './appSettingsType'
+import { courierApplicationType } from './courierApplicationType'
+import { articleType } from './articleType'
+import { bannerType } from './bannerType'
+import { customerType } from './customerType'
 
-export const schemaTypes: SchemaTypeDefinition[] = [
-  appSettingsType,
-  vendorType,
-  productType,
+import { productType } from './productType'
+import { categoryType } from './categoryType'
+
+export const schemaTypes = [
+  // Core business
+  deliveryOrderType,
   courierType,
-  orderType,
+  merchantType,
+  productType,
   categoryType,
-  bannerType,
-  serviceType,
-  articleType,
+  courierApplicationType,
+  // Supporting
   customerType,
-  incubatorServiceType,
-  incubatorSettingsType,
+  articleType,
+  bannerType,
+  appSettingsType,
 ]

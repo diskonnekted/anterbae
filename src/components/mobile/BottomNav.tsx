@@ -2,55 +2,51 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ShoppingBag, ShoppingCart, User, Grid, Store, Briefcase } from 'lucide-react';
+import { Home, Package, MapPin, Truck, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
+
+  // Hide on studio and kurir portal (they have their own UI)
+  if (pathname.startsWith('/studio') || pathname.startsWith('/kurir')) return null;
+
   const { totalItems } = useCart();
 
-  // Sembunyikan BottomNav di halaman detail & checkout agar tidak menutupi tombol utama (CTA)
-  const isDetailPage = 
-    pathname === '/checkout' || 
-    pathname.startsWith('/product/') || 
-    pathname.startsWith('/service/') || 
-    pathname.startsWith('/inkubator/') ||
-    pathname.startsWith('/order/');
-
-  if (isDetailPage) return null;
-  
   const navItems = [
     { name: 'Beranda', icon: Home, href: '/' },
-    { name: 'Produk', icon: ShoppingBag, href: '/products' },
-    { name: 'Jasa', icon: Briefcase, href: '/services' },
-    { name: 'Toko', icon: Store, href: '/vendors' },
-    { name: 'Bayar', icon: ShoppingCart, href: '/cart' },
+    { name: 'Pesan', icon: Truck, href: '/pesan' },
+    { name: 'Lacak', icon: MapPin, href: '/track' },
+    { name: 'Mitra', icon: Package, href: '/mitra' },
+    { name: 'Cart', icon: ShoppingCart, href: '/cart' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 px-6 py-3 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-100 px-2 py-2 z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
       <div className="flex justify-between items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
-          const isCart = item.name === 'Bayar';
+          const isMain = item.name === 'Pesan';
           
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex flex-col items-center gap-1 transition-all relative ${
-                isActive ? 'text-green-600 scale-110' : 'text-slate-400'
+              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-2xl transition-all relative ${
+                isMain
+                  ? 'bg-red-600 text-white -mt-4 px-5 py-3 shadow-xl shadow-red-300'
+                  : isActive
+                  ? 'text-red-600'
+                  : 'text-slate-400'
               }`}
             >
-              <item.icon className={`w-6 h-6 ${isActive ? 'fill-green-600/10' : ''}`} />
-              
-              {isCart && totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-white animate-bounce">
-                  {totalItems}
+              <item.icon className={`${isMain ? 'w-6 h-6' : 'w-5 h-5'}`} />
+              {item.name === 'Cart' && totalItems > 0 && (
+                <span className="absolute top-0 right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white shadow-sm">
+                  {totalItems > 99 ? '99+' : totalItems}
                 </span>
               )}
-              
-              <span className="text-[10px] font-black uppercase tracking-widest">
+              <span className={`font-black uppercase tracking-widest ${isMain ? 'text-[9px]' : 'text-[9px]'}`}>
                 {item.name}
               </span>
             </Link>

@@ -5,6 +5,8 @@ import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import Link from "next/link";
 
+export const revalidate = 60;
+
 export default async function CategoriesPage() {
   const { data: categories } = await sanityFetch({ query: CATEGORIES_QUERY }) as { data: Category[] };
 
@@ -15,7 +17,7 @@ export default async function CategoriesPage() {
           Kategori <span className="text-green-600">Pilihan</span>.
         </h1>
         <p className="text-slate-500 font-medium max-w-2xl mx-auto">
-          Temukan berbagai produk unggulan dari Pondokrejo berdasarkan kategori favorit Anda.
+          Temukan berbagai produk unggulan dari merchant-merchant di Banjarnegara berdasarkan kategori favorit Anda.
         </p>
       </div>
 
@@ -23,7 +25,7 @@ export default async function CategoriesPage() {
         {categories.map((category) => (
           <Link 
             key={category._id}
-            href={category.serviceCount! > 0 && category.productCount === 0 ? `/services?category=${category.slug}` : `/products?category=${category.slug}`}
+            href={`/products?category=${category.slug}`}
             className="group relative h-80 rounded-[3rem] overflow-hidden shadow-2xl shadow-slate-200 hover:scale-[1.02] transition-all duration-500"
           >
             {category.image ? (

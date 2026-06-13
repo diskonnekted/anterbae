@@ -19,10 +19,10 @@ export const productType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'vendor',
-      title: 'Penjual',
+      name: 'merchant',
+      title: 'Merchant/Toko',
       type: 'reference',
-      to: [{ type: 'vendor' }],
+      to: [{ type: 'merchant' }],
       validation: (rule) => rule.required(),
     }),
     defineField({

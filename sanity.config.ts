@@ -6,8 +6,8 @@ import { structure } from './src/sanity/structure'
 import { myTheme } from './src/sanity/theme'
 
 export default defineConfig({
-  name: 'default',
-  title: 'Pondokrejo Marketplace',
+  name: 'anterbae',
+  title: 'Anterbae Delivery Service',
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,

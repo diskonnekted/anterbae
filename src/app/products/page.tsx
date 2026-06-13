@@ -5,35 +5,43 @@ import { Product, Category } from "@/types";
 import Link from "next/link";
 import { Suspense } from "react";
 
+export const revalidate = 60;
+
 interface Props {
   searchParams: Promise<{ 
     q?: string;
     category?: string;
+    merchant?: string;
     minPrice?: string;
     maxPrice?: string;
   }>;
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { q: search, category, minPrice, maxPrice } = await searchParams;
+  const { q: search, category, merchant, minPrice, maxPrice } = await searchParams;
 
-  // Enhance query to support category and price range filters
+  // Enhance query to support category, merchant, and price range filters
   const ENHANCED_PRODUCTS_QUERY = `
     *[_type == "product" 
       && (!defined($search) || name match $search + "*")
       && (!defined($category) || categories[]->slug.current match $category)
+      && (!defined($merchant) || merchant->slug.current == $merchant)
       && (!defined($minPrice) || price >= $minPrice)
       && (!defined($maxPrice) || price <= $maxPrice)
-    ] | order(_createdAt desc) [0...16] {
+    ] | order(_createdAt desc) [0...24] {
       _id,
       name,
       "slug": slug.current,
       price,
       stock,
       image,
-      "vendor": vendor->{
+      isPromo,
+      promoDiscount,
+      isBestSeller,
+      "merchant": merchant->{
         name,
-        "slug": slug.current
+        "slug": slug.current,
+        isVerified
       },
       "categories": categories[]->{
         name,
@@ -42,17 +50,19 @@ export default async function ProductsPage({ searchParams }: Props) {
     }
   `;
 
-  const [{ data: products }, { data: categories }] = await Promise.all([
+  const [{ data: products }, { data: categories }, { data: merchants }] = await Promise.all([
     sanityFetch({ 
       query: ENHANCED_PRODUCTS_QUERY,
       params: { 
         search: search || null,
         category: category || null,
+        merchant: merchant || null,
         minPrice: minPrice ? parseInt(minPrice) : null,
         maxPrice: maxPrice ? parseInt(maxPrice) : null
       } 
     }) as Promise<{ data: Product[] }>,
-    sanityFetch({ query: CATEGORIES_QUERY }) as Promise<{ data: Category[] }>
+    sanityFetch({ query: CATEGORIES_QUERY }) as Promise<{ data: Category[] }>,
+    sanityFetch({ query: `*[_type == "merchant" && isVerified == true] | order(name asc) { _id, name, "slug": slug.current }` }) as Promise<{ data: any[] }>
   ]);
 
   return (
@@ -67,6 +77,21 @@ export default async function ProductsPage({ searchParams }: Props) {
             </h2>
             
             <div className="space-y-8">
+              {/* Search Filter */}
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Pencarian</h3>
+                <form action="/products" method="GET" className="relative">
+                  {category && <input type="hidden" name="category" value={category} />}
+                  {merchant && <input type="hidden" name="merchant" value={merchant} />}
+                  <input 
+                    type="text" 
+                    name="q"
+                    defaultValue={search || ''}
+                    placeholder="Cari produk..." 
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all font-medium text-sm"
+                  />
+                </form>
+              </div>
               {/* Category Filter */}
               <div>
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Kategori</h3>
@@ -94,6 +119,39 @@ export default async function ProductsPage({ searchParams }: Props) {
                 </div>
               </div>
 
+              {/* Merchant Filter */}
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Toko / Merchant</h3>
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                  <Link 
+                    href={`/products?${new URLSearchParams({ 
+                      ...(search && { q: search }),
+                      ...(category && { category }),
+                      ...(minPrice && { minPrice }),
+                      ...(maxPrice && { maxPrice })
+                    }).toString()}`}
+                    className={`px-4 py-2.5 rounded-xl font-bold transition-all text-sm ${!merchant ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'}`}
+                  >
+                    Semua Toko
+                  </Link>
+                  {merchants.map((merch) => (
+                    <Link
+                      key={merch._id}
+                      href={`/products?${new URLSearchParams({ 
+                        ...(search && { q: search }),
+                        ...(category && { category }),
+                        merchant: merch.slug,
+                        ...(minPrice && { minPrice }),
+                        ...(maxPrice && { maxPrice })
+                      }).toString()}`}
+                      className={`px-4 py-2.5 rounded-xl font-bold transition-all text-sm ${merchant === merch.slug ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'}`}
+                    >
+                      {merch.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
               {/* Price Filter (Simplified as links for now) */}
               <div>
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Rentang Harga</h3>
@@ -108,10 +166,11 @@ export default async function ProductsPage({ searchParams }: Props) {
                       href={`/products?${new URLSearchParams({ 
                         ...(search && { q: search }),
                         ...(category && { category }),
+                        ...(merchant && { merchant }),
                         minPrice: range.min.toString(),
                         maxPrice: range.max.toString()
                       }).toString()}`}
-                      className={`px-4 py-2.5 rounded-xl font-bold transition-all ${minPrice === range.min.toString() && maxPrice === range.max.toString() ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'}`}
+                      className={`px-4 py-2.5 rounded-xl font-bold transition-all text-sm ${minPrice === range.min.toString() && maxPrice === range.max.toString() ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'}`}
                     >
                       {range.label}
                     </Link>

@@ -1,312 +1,254 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import TrackOrderForm from '@/components/TrackOrderForm'
-import { Package, User, LogOut, Loader2, KeyRound, CheckCircle, AlertTriangle, Truck, Clock, CreditCard, Edit3 } from 'lucide-react'
-import { loginBuyer, getBuyerOrders, changeBuyerPin } from '@/app/actions/buyer'
-import Link from 'next/link'
+import { useState } from 'react'
+import { Package, MapPin, Phone, Clock, Truck, ChevronRight, Loader2, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
+import { getOrderByNumber } from '@/app/actions/delivery-order'
 
-export default function TrackLandingPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [buyerInfo, setBuyerInfo] = useState<{name: string, phone: string} | null>(null)
-  
-  const [phoneInput, setPhoneInput] = useState('')
-  const [pinInput, setPinInput] = useState('')
-  const [errorLogin, setErrorLogin] = useState('')
-  const [loadingLogin, setLoadingLogin] = useState(false)
+const STATUS_MAP: Record<string, { label: string; color: string; icon: string; step: number }> = {
+  pending: { label: 'Menunggu Konfirmasi', color: 'bg-yellow-100 text-yellow-800', icon: '⏳', step: 1 },
+  accepted: { label: 'Dikonfirmasi', color: 'bg-blue-100 text-blue-800', icon: '✅', step: 2 },
+  picking_up: { label: 'Kurir Menuju Pickup', color: 'bg-purple-100 text-purple-800', icon: '🛵', step: 3 },
+  picked_up: { label: 'Barang Dijemput', color: 'bg-indigo-100 text-indigo-800', icon: '📦', step: 4 },
+  delivering: { label: 'Dalam Pengiriman', color: 'bg-orange-100 text-orange-800', icon: '🚀', step: 5 },
+  delivered: { label: 'Telah Sampai', color: 'bg-green-100 text-green-800', icon: '🏠', step: 6 },
+  completed: { label: 'Selesai', color: 'bg-green-200 text-green-900', icon: '✔️', step: 7 },
+  cancelled: { label: 'Dibatalkan', color: 'bg-red-100 text-red-800', icon: '❌', step: 0 },
+  problem: { label: 'Ada Masalah', color: 'bg-red-100 text-red-800', icon: '⚠️', step: 0 },
+}
 
-  const [orders, setOrders] = useState<any[]>([])
-  const [loadingOrders, setLoadingOrders] = useState(false)
+const ORDER_TYPES: Record<string, string> = {
+  food: '🍔 Pesan Antar Makanan',
+  parcel: '📦 Antar Paket',
+  jastip: '🛒 Jastip',
+}
 
-  const [isChangingPin, setIsChangingPin] = useState(false)
-  const [oldPin, setOldPin] = useState('')
-  const [newPin, setNewPin] = useState('')
-  const [pinError, setPinError] = useState('')
-  const [pinSuccess, setPinSuccess] = useState('')
-  const [loadingPin, setLoadingPin] = useState(false)
+export default function TrackPage() {
+  const [orderNumber, setOrderNumber] = useState('')
+  const [order, setOrder] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    const savedAuth = sessionStorage.getItem('pawon_buyer_auth')
-    const savedName = sessionStorage.getItem('pawon_buyer_name')
-    if (savedAuth) {
-      setIsAuthenticated(true)
-      setBuyerInfo({ phone: savedAuth, name: savedName || 'Warga' })
-      loadOrders(savedAuth)
-    }
-  }, [])
-
-  const loadOrders = async (phone: string) => {
-    setLoadingOrders(true)
-    const res = await getBuyerOrders(phone)
-    if (res.success && res.data) {
-      setOrders(res.data)
-    }
-    setLoadingOrders(false)
-  }
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!phoneInput || !pinInput) return
-    
-    setLoadingLogin(true)
-    setErrorLogin('')
-    
-    const res = await loginBuyer(phoneInput, pinInput)
+    if (!orderNumber.trim()) return
+    setLoading(true)
+    setError('')
+    setOrder(null)
+
+    const res = await getOrderByNumber(orderNumber.trim().toUpperCase())
     if (res.success && res.data) {
-      sessionStorage.setItem('pawon_buyer_auth', res.data.phone)
-      sessionStorage.setItem('pawon_buyer_name', res.data.name)
-      setIsAuthenticated(true)
-      setBuyerInfo({ phone: res.data.phone, name: res.data.name })
-      loadOrders(res.data.phone)
+      setOrder(res.data)
     } else {
-      setErrorLogin(res.error || 'Login gagal.')
+      setError(res.error || 'Pesanan tidak ditemukan.')
     }
-    setLoadingLogin(false)
+    setLoading(false)
   }
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('pawon_buyer_auth')
-    sessionStorage.removeItem('pawon_buyer_name')
-    setIsAuthenticated(false)
-    setBuyerInfo(null)
-    setOrders([])
-    setPhoneInput('')
-    setPinInput('')
-    setIsChangingPin(false)
-  }
-
-  const handleChangePin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!oldPin || !newPin) return
-    if (!buyerInfo) return
-
-    setLoadingPin(true)
-    setPinError('')
-    setPinSuccess('')
-
-    const res = await changeBuyerPin(buyerInfo.phone, oldPin, newPin)
-    if (res.success) {
-      setPinSuccess('PIN berhasil diubah!')
-      setOldPin('')
-      setNewPin('')
-      setTimeout(() => setIsChangingPin(false), 2000)
-    } else {
-      setPinError(res.error || 'Gagal mengubah PIN.')
-    }
-    setLoadingPin(false)
-  }
-
-  const getStatusText = (status: string, paymentMethod: string, paymentStatus: string, category: string) => {
-    if (status === 'completed') return 'Selesai'
-    if (status === 'cancelled') return 'Batal'
-    if (status === 'problem') return 'Bermasalah'
-    if (paymentMethod === 'qris' && paymentStatus === 'unpaid') return 'Menunggu QRIS'
-    if (status === 'pending') return category === 'service' ? 'Menunggu Penjual' : 'Menunggu Admin'
-    if (status === 'delivering') return category === 'service' ? 'Bekerja / Menuju Lokasi' : 'Diantar Kurir'
-    if (status === 'accepted' && category === 'service') return 'Penjual Sanggup'
-    return 'Diproses Penjual'
-  }
-
-  const getStatusColor = (status: string, paymentMethod: string, paymentStatus: string, category: string) => {
-    if (status === 'completed') return 'bg-green-100 text-green-700'
-    if (status === 'cancelled' || status === 'problem') return 'bg-red-100 text-red-700'
-    if (paymentMethod === 'qris' && paymentStatus === 'unpaid') return 'bg-yellow-100 text-yellow-800'
-    if (status === 'pending') return 'bg-yellow-50 text-yellow-700'
-    if (status === 'delivering') return 'bg-purple-100 text-purple-700'
-    if (status === 'accepted' && category === 'service') return 'bg-blue-100 text-blue-700'
-    return 'bg-orange-100 text-orange-700'
-  }
-
-  if (isAuthenticated && buyerInfo) {
-    return (
-      <div className="container mx-auto px-4 py-10 max-w-4xl">
-        <div className="bg-white rounded-[3rem] p-8 shadow-xl border border-slate-100 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-6 text-center md:text-left">
-            <div className="w-20 h-20 bg-green-100 rounded-[2rem] flex items-center justify-center text-green-600">
-              <User className="w-10 h-10" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">Halo, {buyerInfo.name}!</h1>
-              <p className="text-slate-500 font-bold">{buyerInfo.phone}</p>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button 
-              onClick={() => setIsChangingPin(!isChangingPin)}
-              className="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-2xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
-            >
-              <KeyRound className="w-4 h-4" />
-              Ganti PIN
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="px-6 py-3 bg-red-50 text-red-600 font-bold rounded-2xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Keluar
-            </button>
-          </div>
-        </div>
-
-        {isChangingPin && (
-          <div className="bg-white rounded-[2rem] p-6 shadow-md border border-slate-100 mb-8">
-            <h2 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-slate-400" />
-              Ganti PIN Keamanan
-            </h2>
-            <form onSubmit={handleChangePin} className="flex flex-col md:flex-row gap-4 items-start">
-              <input 
-                type="password" 
-                placeholder="PIN Lama" 
-                value={oldPin}
-                onChange={e => setOldPin(e.target.value)}
-                required
-                className="w-full md:w-auto p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-green-500 outline-none"
-              />
-              <input 
-                type="password" 
-                placeholder="PIN Baru" 
-                value={newPin}
-                onChange={e => setNewPin(e.target.value)}
-                required
-                className="w-full md:w-auto p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-green-500 outline-none"
-              />
-              <button 
-                type="submit" 
-                disabled={loadingPin}
-                className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-colors disabled:opacity-50"
-              >
-                {loadingPin ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Simpan PIN'}
-              </button>
-            </form>
-            {pinError && <p className="text-red-500 text-sm font-bold mt-3">{pinError}</p>}
-            {pinSuccess && <p className="text-green-500 text-sm font-bold mt-3">{pinSuccess}</p>}
-          </div>
-        )}
-
-        <h2 className="text-xl font-black text-slate-900 mb-6 px-2">Riwayat Pesanan Saya</h2>
-        
-        {loadingOrders ? (
-          <div className="text-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin text-slate-300 mx-auto" />
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="bg-white rounded-[2rem] p-12 text-center border border-slate-100 shadow-sm">
-            <Package className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-            <h3 className="text-lg font-black text-slate-800">Belum Ada Pesanan</h3>
-            <p className="text-slate-500 font-bold mt-2">Anda belum pernah melakukan pesanan dengan nomor ini.</p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {orders.map(order => (
-              <div key={order._id} className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between gap-6 hover:shadow-md transition-shadow">
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-lg text-xs font-black tracking-widest">
-                      {order.orderNumber}
-                    </span>
-                    <span className="text-slate-400 text-xs font-bold">
-                      {new Date(order._createdAt).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
-                    </span>
-                  </div>
-                  <ul className="text-sm font-bold text-slate-700 space-y-1 mb-4">
-                    {order.orderCategory === 'service' && order.serviceItem ? (
-                      <li>{order.serviceItem.name} <span className="text-slate-400">(Jasa)</span></li>
-                    ) : (
-                      order.items?.map((item: any, i: number) => (
-                        <li key={i}>{item.product?.name} <span className="text-slate-400">(x{item.quantity})</span></li>
-                      ))
-                    )}
-                  </ul>
-                  <div className="text-lg font-black text-slate-900">
-                    Rp{order.totalAmount.toLocaleString('id-ID')}
-                  </div>
-                </div>
-                
-                <div className="flex flex-col justify-between items-start md:items-end gap-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 min-w-[200px]">
-                  <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${getStatusColor(order.status, order.paymentMethod, order.paymentStatus, order.orderCategory)}`}>
-                    {getStatusText(order.status, order.paymentMethod, order.paymentStatus, order.orderCategory)}
-                  </div>
-                  
-                  <Link 
-                    href={`/track/${order.orderNumber}`}
-                    className="w-full md:w-auto px-6 py-3 bg-green-50 text-green-700 font-black rounded-xl hover:bg-green-100 transition-colors text-center text-sm"
-                  >
-                    Lacak Detail
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
+  const statusInfo = order ? (STATUS_MAP[order.status] || STATUS_MAP.pending) : null
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Kiri: Login Dasbor */}
-      <div className="w-full md:w-1/2 p-6 md:p-12 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-200">
-        <div className="w-full max-w-sm bg-white p-10 rounded-[3rem] shadow-xl text-center">
-          <div className="w-16 h-16 bg-slate-900 text-white rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <User className="w-8 h-8" />
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 mb-2">Dasbor Pembeli</h1>
-          <p className="text-slate-500 font-bold mb-4 text-sm">Masuk untuk melihat riwayat pesanan Anda.</p>
-          <Link href="/manual/pembeli" className="inline-block text-xs font-black text-green-600 bg-green-50 px-4 py-2 rounded-xl hover:bg-green-100 transition-colors mb-8">
-            📖 Baca Panduan Pembeli
-          </Link>
-          
-          <form onSubmit={handleLogin} className="space-y-4">
-            <input
-              type="tel"
-              value={phoneInput}
-              onChange={(e) => setPhoneInput(e.target.value)}
-              placeholder="0812xxxx (Nomor WhatsApp)"
-              className="w-full text-center text-lg font-black p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none transition-all"
-            />
-            <input
-              type="password"
-              inputMode="numeric"
-              value={pinInput}
-              onChange={(e) => setPinInput(e.target.value)}
-              placeholder="PIN (Default: 123456)"
-              className="w-full text-center text-xl tracking-[0.5em] font-black p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none transition-all"
-            />
-            {errorLogin && <p className="text-red-500 text-sm font-bold">{errorLogin}</p>}
-            <button 
-              disabled={loadingLogin}
-              type="submit" 
-              className="w-full bg-slate-900 text-white font-black py-4 rounded-2xl active:scale-95 transition-all shadow-xl shadow-slate-200 mt-2"
-            >
-              {loadingLogin ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'Masuk Dasbor'}
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* Kanan: Lacak Cepat */}
-      <div className="w-full md:w-1/2 p-6 md:p-12 flex items-center justify-center bg-green-600 text-white">
-        <div className="w-full max-w-md text-center">
-          <div className="bg-white/20 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
-            <Package className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-4xl font-black mb-4">Lacak Cepat</h1>
-          <p className="text-green-100 mb-10 text-lg font-medium">
-            Tidak ingin login? Lacak langsung menggunakan Nomor Pesanan Anda (ORD-XXX).
-          </p>
-          
-          <div className="bg-white p-6 rounded-[2rem] shadow-2xl">
-            <TrackOrderForm />
+    <div className="min-h-screen bg-slate-50 py-16">
+      <div className="container mx-auto px-4">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex w-16 h-16 bg-red-600 rounded-2xl items-center justify-center text-3xl mb-4 shadow-lg shadow-red-200">
+              📍
+            </div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">
+              Lacak Pesanan
+            </h1>
+            <p className="text-slate-500 font-medium">
+              Masukkan nomor pesanan Anda (diawali ANT-) untuk melihat status pengiriman.
+            </p>
           </div>
 
-          <div className="mt-10 text-left text-sm text-green-100/80 max-w-xs mx-auto">
-            <p className="font-bold mb-2">Tips:</p>
-            <ul className="list-disc ml-4 space-y-2">
-              <li>Nomor pesanan diawali <strong>ORD-</strong></li>
-              <li>Status diperbarui secara real-time.</li>
-            </ul>
+          {/* Search Form */}
+          <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 mb-6">
+            <form onSubmit={handleTrack} className="flex gap-3">
+              <input
+                type="text"
+                value={orderNumber}
+                onChange={(e) => setOrderNumber(e.target.value)}
+                placeholder="ANT-123456"
+                className="flex-1 px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-black text-slate-900 text-lg uppercase placeholder:font-normal placeholder:normal-case placeholder:text-slate-400"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-red-600 text-white font-black px-6 py-4 rounded-2xl hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-red-200"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
+              </button>
+            </form>
+
+            {error && (
+              <div className="mt-4 bg-red-50 text-red-700 px-4 py-3 rounded-2xl text-sm font-bold flex items-center gap-2">
+                <XCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </div>
+            )}
           </div>
+
+          {/* Order Result */}
+          {order && statusInfo && (
+            <div className="space-y-4">
+              {/* Status Banner */}
+              <div className={`rounded-3xl p-6 ${statusInfo.color} text-center`}>
+                <div className="text-4xl mb-2">{statusInfo.icon}</div>
+                <div className="text-2xl font-black">{statusInfo.label}</div>
+                {order.estimatedTime && (
+                  <div className="mt-2 flex items-center justify-center gap-1.5 text-sm font-bold opacity-80">
+                    <Clock className="w-4 h-4" />
+                    Estimasi: {order.estimatedTime}
+                  </div>
+                )}
+              </div>
+
+              {/* Progress Steps */}
+              {order.status !== 'cancelled' && order.status !== 'problem' && (
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                  <div className="flex justify-between items-center">
+                    {[
+                      { step: 1, icon: '✅', label: 'Konfirmasi' },
+                      { step: 3, icon: '🛵', label: 'Pickup' },
+                      { step: 5, icon: '🚀', label: 'Kirim' },
+                      { step: 7, icon: '✔️', label: 'Selesai' },
+                    ].map(({ step, icon, label }, i) => {
+                      const currentStep = statusInfo.step
+                      const isActive = currentStep >= step
+                      return (
+                        <div key={step} className="flex-1 flex flex-col items-center">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black transition-all ${
+                            isActive ? 'bg-red-600 shadow-lg shadow-red-200' : 'bg-slate-100 text-slate-300'
+                          }`}>
+                            {isActive ? icon : <div className="w-2 h-2 rounded-full bg-slate-300"></div>}
+                          </div>
+                          <div className={`text-[10px] font-black mt-2 uppercase tracking-wider ${isActive ? 'text-red-600' : 'text-slate-400'}`}>
+                            {label}
+                          </div>
+                          {i < 3 && (
+                            <div className={`absolute top-5 w-full h-px ${isActive ? 'bg-red-200' : 'bg-slate-100'}`}></div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Order Details */}
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                  <div>
+                    <div className="text-xs text-slate-400 font-black uppercase tracking-widest">Nomor Order</div>
+                    <div className="font-black text-slate-900 text-lg">{order.orderNumber}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-slate-400 font-black uppercase tracking-widest">Jenis</div>
+                    <div className="font-bold text-sm">{ORDER_TYPES[order.orderType] || order.orderType}</div>
+                  </div>
+                </div>
+
+                {/* Merchant */}
+                {order.merchant && (
+                  <div className="flex items-center gap-3 bg-slate-50 rounded-2xl p-3">
+                    <div className="text-2xl">🏪</div>
+                    <div>
+                      <div className="font-black text-sm text-slate-900">{order.merchant.name}</div>
+                      <div className="text-xs text-slate-400 font-bold">Merchant</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Items */}
+                <div>
+                  <div className="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">Detail Pesanan</div>
+                  <div className="text-sm font-bold text-slate-700 bg-slate-50 rounded-2xl p-3 whitespace-pre-line">{order.items}</div>
+                </div>
+
+                {/* Addresses */}
+                <div className="grid grid-cols-1 gap-3">
+                  {order.pickupAddress && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-black text-green-600 uppercase tracking-widest">Pickup</div>
+                        <div className="text-sm font-bold text-slate-700">{order.pickupAddress}</div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-red-600 uppercase tracking-widest">Tujuan</div>
+                      <div className="text-sm font-bold text-slate-700">{order.deliveryAddress}</div>
+                      {order.deliveryArea && <div className="text-xs text-slate-400 font-bold">{order.deliveryArea}</div>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Courier */}
+                {order.courier && (
+                  <div className="bg-red-50 rounded-2xl p-4">
+                    <div className="text-xs text-red-600 font-black uppercase tracking-widest mb-2">Kurir Anda</div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">🛵</div>
+                        <div>
+                          <div className="font-black text-slate-900">{order.courier.name}</div>
+                          <div className="text-xs text-slate-500 font-bold">{order.courier.vehicleType || 'Motor'}</div>
+                        </div>
+                      </div>
+                      <a
+                        href={`https://wa.me/${order.courier.phone?.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-green-600 text-white font-black px-4 py-2 rounded-xl text-sm hover:bg-green-700 transition-all active:scale-95"
+                      >
+                        <Phone className="w-3 h-3" />
+                        WA Kurir
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Payment */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div>
+                    <div className="text-xs text-slate-400 font-black uppercase tracking-widest">Pembayaran</div>
+                    <div className="font-bold text-sm text-slate-700">
+                      {order.paymentMethod === 'cod' ? '💵 COD (Bayar di Tempat)' : '💳 Transfer / QRIS'}
+                    </div>
+                  </div>
+                  {order.shippingFee > 0 && (
+                    <div className="text-right">
+                      <div className="text-xs text-slate-400 font-black uppercase tracking-widest">Ongkir</div>
+                      <div className="font-black text-red-600">Rp{order.shippingFee?.toLocaleString('id-ID')}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Help */}
+              <div className="text-center">
+                <p className="text-sm text-slate-400 font-medium mb-3">Ada masalah dengan pesanan?</p>
+                <a
+                  href="https://wa.me/6281234567890"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-green-600 text-white font-black px-6 py-3 rounded-2xl hover:bg-green-700 transition-all text-sm active:scale-95"
+                >
+                  <Phone className="w-4 h-4" />
+                  Hubungi Admin Anterbae
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,16 +1,21 @@
 {
-  "name": "PAWON - Pasar Warga Pondokrejo",
-  "short_name": "PAWON",
-  "description": "Pasar Digital Resmi Kalurahan Pondokrejo",
+  "name": "Anterbae",
+  "short_name": "Anterbae",
+  "description": "Anterbae Delivery Service - Kurir Banjarnegara",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#16a34a",
+  "background_color": "#0f172a",
+  "theme_color": "#dc2626",
   "icons": [
     {
-      "src": "/logo.webp",
-      "sizes": "192x192 512x512",
-      "type": "image/webp"
+      "src": "/anterbae.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/anterbae.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

@@ -3,7 +3,7 @@ import { InfoOutlineIcon } from '@sanity/icons'
 
 export const articleType = defineType({
   name: 'article',
-  title: 'Info & Pengumuman',
+  title: 'Info & Promosi Anterbae',
   type: 'document',
   icon: InfoOutlineIcon,
   fields: [
@@ -32,9 +32,10 @@ export const articleType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Pelatihan', value: 'pelatihan' },
+          { title: 'Promo & Diskon', value: 'promo' },
           { title: 'Pengumuman', value: 'pengumuman' },
-          { title: 'Panduan', value: 'panduan' },
+          { title: 'Panduan Layanan', value: 'panduan' },
+          { title: 'Info Area', value: 'area' },
         ],
       },
       validation: (rule) => rule.required(),

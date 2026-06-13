@@ -59,8 +59,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-3 sm:p-6 flex flex-col flex-grow">
         <div className="flex flex-wrap gap-1 sm:gap-2 items-center mb-1.5 sm:mb-3">
           <div className="flex items-center gap-1 text-[7px] sm:text-[10px] text-green-700 font-black uppercase tracking-wider bg-green-50 px-1.5 py-0.5 rounded-md line-clamp-1">
-            {product.vendor.isVerified && <BadgeCheck className="w-2.5 h-3.5 text-blue-500" />}
-            {product.vendor.name}
+            {product.merchant?.isVerified && <BadgeCheck className="w-2.5 h-3.5 text-blue-500" />}
+            {product.merchant?.name}
           </div>
           {product.categories && product.categories.length > 0 && (
             <span className="text-[7px] sm:text-[10px] px-1.5 py-0.5 rounded-md text-slate-400 font-bold border border-slate-100">

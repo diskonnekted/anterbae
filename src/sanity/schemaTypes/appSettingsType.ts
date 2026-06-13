@@ -8,38 +8,72 @@ export const appSettingsType = defineType({
   icon: CogIcon,
   fields: [
     defineField({
-      name: 'adminPhone',
-      title: 'Nomor WhatsApp Admin Pusat',
-      type: 'string',
-      description: 'Nomor utama yang akan menerima laporan pesanan baru (Format: 08xxx atau 628xxx).',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'defaultShippingFee',
-      title: 'Biaya Ongkir Flat',
-      type: 'number',
-      description: 'Biaya kirim standar untuk wilayah Kalurahan Pondokrejo.',
-      initialValue: 5000,
-    }),
-    defineField({
       name: 'siteName',
       title: 'Nama Aplikasi',
       type: 'string',
-      initialValue: 'PAWON PONDOKREJO',
+      initialValue: 'Anterbae',
+    }),
+    defineField({
+      name: 'adminPhone',
+      title: 'WhatsApp Admin/CS',
+      type: 'string',
+      description: 'Nomor WA untuk menerima notifikasi dan CS pelanggan.',
+    }),
+    defineField({
+      name: 'baseDeliveryFee',
+      title: 'Ongkos Kirim Dasar (Rp)',
+      type: 'number',
+      initialValue: 5000,
+    }),
+    defineField({
+      name: 'feePerKm',
+      title: 'Tarif per KM (Rp)',
+      type: 'number',
+      initialValue: 2000,
+    }),
+    defineField({
+      name: 'operationalHours',
+      title: 'Jam Operasional',
+      type: 'string',
+      initialValue: '07.00 - 22.00 WIB',
+    }),
+    defineField({
+      name: 'serviceArea',
+      title: 'Area Layanan',
+      type: 'string',
+      initialValue: 'Kabupaten Banjarnegara',
     }),
     defineField({
       name: 'isMaintenance',
-      title: 'Mode Perbaikan (Maintenance)',
+      title: 'Mode Maintenance',
       type: 'boolean',
       initialValue: false,
-      description: 'Aktifkan ini jika ingin menutup akses belanja sementara untuk pemeliharaan sistem.',
+    }),
+    defineField({
+      name: 'maintenanceMessage',
+      title: 'Pesan Maintenance',
+      type: 'text',
+      hidden: ({ document }) => !document?.isMaintenance,
+    }),
+    defineField({
+      name: 'qrisImage',
+      title: 'Foto QRIS Pembayaran',
+      type: 'image',
+    }),
+    defineField({
+      name: 'instagramHandle',
+      title: 'Instagram (@username)',
+      type: 'string',
+    }),
+    defineField({
+      name: 'waGroupLink',
+      title: 'Link Grup WhatsApp',
+      type: 'url',
     }),
   ],
   preview: {
-    prepare() {
-      return {
-        title: 'Konfigurasi Global PAWON',
-      }
+    select: {
+      title: 'siteName',
     },
   },
 })

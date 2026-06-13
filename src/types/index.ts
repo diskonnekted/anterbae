@@ -1,41 +1,65 @@
 import type { Image, PortableTextBlock } from 'sanity';
 
-export interface Vendor {
+// ===== ANTERBAE TYPES =====
+
+export interface Courier {
   _id: string;
   name: string;
-  slug: string;
   phone: string;
-  address?: string;
-  logo?: Image;
-  description?: string;
-  isVerified?: boolean;
-  isOpen?: boolean;
-  closingMessage?: string;
   pin?: string;
+  area?: string;
+  vehicleType: 'motor' | 'mobil';
+  vehiclePlate?: string;
+  photo?: Image;
+  isActive: boolean;
+  statusMessage?: string;
+  status: 'active' | 'inactive';
 }
 
-export interface Category {
+export interface Merchant {
   _id: string;
   name: string;
   slug: string;
-  image?: Image;
-  productCount?: number;
-  serviceCount?: number;
-}
-
-export interface Product {
-  _id: string;
-  name: string;
-  slug: string;
-  price: number;
-  stock: number;
-  image: Image;
+  category: 'food' | 'grocery' | 'health' | 'other';
+  logo?: Image;
+  coverImage?: Image;
+  phone?: string;
+  address?: string;
+  area?: string;
   description?: string;
-  vendor: Vendor;
-  categories?: Category[];
-  isBestSeller?: boolean;
-  isPromo?: boolean;
-  promoDiscount?: number;
+  isOpen: boolean;
+  closingMessage?: string;
+  openHours?: string;
+  minOrder?: number;
+  isVerified: boolean;
+}
+
+export type OrderType = 'food' | 'parcel' | 'jastip';
+export type OrderStatus = 'pending' | 'accepted' | 'picking_up' | 'picked_up' | 'delivering' | 'delivered' | 'completed' | 'cancelled' | 'problem';
+export type PaymentMethod = 'cod' | 'transfer';
+
+export interface DeliveryOrder {
+  _id: string;
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  orderType: OrderType;
+  merchant?: { name: string; logo?: Image; phone?: string };
+  merchantName?: string;
+  items: string;
+  pickupAddress: string;
+  deliveryAddress: string;
+  deliveryArea?: string;
+  customerNotes?: string;
+  totalAmount?: number;
+  shippingFee?: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: 'unpaid' | 'paid';
+  status: OrderStatus;
+  courier?: { name: string; phone: string; vehicleType?: string };
+  courierNotes?: string;
+  estimatedTime?: string;
+  _createdAt: string;
 }
 
 export interface Banner {
@@ -46,17 +70,47 @@ export interface Banner {
   link?: string;
 }
 
-export type PriceType = 'fixed' | 'starting_from' | 'hourly' | 'negotiable';
+export interface Article {
+  _id: string;
+  title: string;
+  slug: string;
+  publishedAt: string;
+  category: 'promo' | 'pengumuman' | 'panduan' | 'area';
+  image: Image;
+  excerpt?: string;
+  content: PortableTextBlock[];
+}
 
-export interface Service {
+export interface AppSettings {
+  adminPhone?: string;
+  baseDeliveryFee?: number;
+  feePerKm?: number;
+  operationalHours?: string;
+  serviceArea?: string;
+  siteName?: string;
+  isMaintenance?: boolean;
+  maintenanceMessage?: string;
+  instagramHandle?: string;
+  waGroupLink?: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  image?: Image;
+  productCount?: number;
+}
+
+export interface Product {
   _id: string;
   name: string;
   slug: string;
   price: number;
-  priceType: PriceType;
+  stock: number;
   image: Image;
   description?: string;
-  vendor: Vendor;
+  merchant: Merchant;
   categories?: Category[];
   isBestSeller?: boolean;
   isPromo?: boolean;
@@ -67,25 +121,6 @@ export interface OrderFormData {
   name: string;
   phone: string;
   address: string;
-  paymentMethod?: 'cod' | 'qris';
-}
-
-export interface Article {
-  _id: string;
-  title: string;
-  slug: string;
-  publishedAt: string;
-  category: 'pelatihan' | 'pengumuman' | 'panduan';
-  image: Image;
-  excerpt?: string;
-  content: PortableTextBlock[];
-}
-
-export interface IncubatorService {
-  _id: string;
-  title: string;
-  slug: string;
-  description: string;
-  iconName: string;
-  order: number;
+  notes?: string;
+  paymentMethod?: PaymentMethod;
 }

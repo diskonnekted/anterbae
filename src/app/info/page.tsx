@@ -4,6 +4,8 @@ import { Article } from "@/types";
 import ArticleCard from "@/components/ArticleCard";
 import { Info } from "lucide-react";
 
+export const revalidate = 60;
+
 export default async function InfoPage() {
   const { data: articles } = await sanityFetch({ query: ARTICLES_QUERY }) as { data: Article[] };
 
@@ -12,13 +14,13 @@ export default async function InfoPage() {
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-2xl font-black text-xs uppercase tracking-widest mb-4">
           <Info className="w-4 h-4" />
-          Kabar Kalurahan
+          Kabar Anterbae
         </div>
         <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-4 tracking-tighter">
           Info & <span className="text-green-600">Pengumuman</span>.
         </h1>
         <p className="text-slate-500 font-medium max-w-2xl mx-auto">
-          Dapatkan informasi terbaru mengenai pelatihan UMKM, panduan penggunaan aplikasi PAWON, dan dukungan dari Pemerintah Kalurahan Pondokrejo.
+          Dapatkan informasi terbaru mengenai layanan Anterbae, promo menarik, dan berita seputar layanan pesan antar di wilayah Kabupaten Banjarnegara.
         </p>
       </div>
 

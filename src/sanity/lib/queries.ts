@@ -1,88 +1,141 @@
 import { defineQuery } from 'next-sanity'
 
-export const PRODUCTS_QUERY = defineQuery(`
-  *[_type == "product" && (!defined($search) || name match $search + "*")] | order(_createdAt desc) {
+// ===== APP SETTINGS =====
+export const APP_SETTINGS_QUERY = defineQuery(`
+  *[_type == "appSettings"][0] {
+    adminPhone,
+    baseDeliveryFee,
+    feePerKm,
+    operationalHours,
+    serviceArea,
+    siteName,
+    isMaintenance,
+    maintenanceMessage,
+    instagramHandle,
+    waGroupLink
+  }
+`)
+
+// ===== COURIERS =====
+export const ACTIVE_COURIERS_QUERY = defineQuery(`
+  *[_type == "courier" && status == "active" && isActive == true] | order(name asc) {
+    _id,
+    name,
+    phone,
+    area,
+    vehicleType,
+    photo,
+    isActive,
+    statusMessage
+  }
+`)
+
+export const COURIER_BY_PHONE_QUERY = defineQuery(`
+  *[_type == "courier" && phone == $phone][0] {
+    _id,
+    name,
+    phone,
+    pin,
+    area,
+    vehicleType,
+    vehiclePlate,
+    isActive,
+    statusMessage,
+    status
+  }
+`)
+
+// ===== MERCHANTS =====
+export const MERCHANTS_QUERY = defineQuery(`
+  *[_type == "merchant" && isVerified == true] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
-    price,
-    stock,
-    image,
-    isBestSeller,
-    isPromo,
-    promoDiscount,
-    "vendor": vendor->{
-      name,
-      "slug": slug.current,
-      isVerified
-    },
-    "categories": categories[]->{
-      name,
-      "slug": slug.current
-    }
+    logo,
+    coverImage,
+    category,
+    area,
+    address,
+    description,
+    isOpen,
+    closingMessage,
+    openHours,
+    minOrder
   }
 `)
 
-export const BEST_SELLERS_QUERY = defineQuery(`
-  *[_type == "product" && isBestSeller == true] | order(_createdAt desc) [0...8] {
+export const FOOD_MERCHANTS_QUERY = defineQuery(`
+  *[_type == "merchant" && isVerified == true && category == "food"] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
-    price,
-    stock,
-    image,
-    isBestSeller,
-    isPromo,
-    promoDiscount,
-    "vendor": vendor->{
-      name,
-      "slug": slug.current,
-      isVerified,
-      isOpen,
-      closingMessage
-    }
+    logo,
+    coverImage,
+    area,
+    address,
+    isOpen,
+    closingMessage,
+    openHours
   }
 `)
 
-export const PROMO_PRODUCTS_QUERY = defineQuery(`
-  *[_type == "product" && isPromo == true] | order(_createdAt desc) [0...8] {
+export const MERCHANT_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "merchant" && slug.current == $slug][0] {
     _id,
     name,
     "slug": slug.current,
-    price,
-    stock,
-    image,
-    isBestSeller,
-    isPromo,
-    promoDiscount,
-    "vendor": vendor->{
-      name,
-      "slug": slug.current,
-      isVerified,
-      isOpen,
-      closingMessage
-    }
+    logo,
+    coverImage,
+    category,
+    phone,
+    area,
+    address,
+    description,
+    isOpen,
+    closingMessage,
+    openHours,
+    minOrder
   }
 `)
 
-export const BANNERS_QUERY = defineQuery(`
-  *[_type == "banner" && isActive == true] | order(_createdAt desc) {
-    _id,
-    title,
-    imageDesktop,
-    imageMobile,
-    link
-  }
-`)
-
+// ===== PRODUCTS & CATEGORIES =====
 export const CATEGORIES_QUERY = defineQuery(`
   *[_type == "category"] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
     image,
-    "productCount": count(*[_type == "product" && references(^._id)]),
-    "serviceCount": count(*[_type == "service" && references(^._id)])
+    "productCount": count(*[_type == "product" && references(^._id)])
+  }
+`)
+
+export const CATEGORY_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "category" && slug.current == $slug][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    image
+  }
+`)
+
+export const PRODUCTS_QUERY = defineQuery(`
+  *[_type == "product"] | order(_createdAt desc) {
+    _id,
+    name,
+    "slug": slug.current,
+    price,
+    stock,
+    image,
+    isBestSeller,
+    isPromo,
+    promoDiscount,
+    "merchant": merchant->{
+      _id,
+      name,
+      "slug": slug.current,
+      isOpen,
+      closingMessage
+    }
   }
 `)
 
@@ -93,50 +146,29 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(`
     "slug": slug.current,
     price,
     stock,
-    description,
     image,
+    description,
     isBestSeller,
     isPromo,
     promoDiscount,
-    "vendor": vendor->{
+    "merchant": merchant->{
+      _id,
       name,
-      phone,
-      address,
       "slug": slug.current,
-      isVerified,
       isOpen,
-      closingMessage
+      closingMessage,
+      phone
+    },
+    "categories": categories[]->{
+      _id,
+      name,
+      "slug": slug.current
     }
   }
 `)
 
-export const VENDORS_QUERY = defineQuery(`
-  *[_type == "vendor" && isVerified == true] | order(name asc) {
-    _id,
-    name,
-    "slug": slug.current,
-    logo,
-    address,
-    description,
-    isVerified
-  }
-`)
-
-export const VENDOR_BY_SLUG_QUERY = defineQuery(`
-  *[_type == "vendor" && slug.current == $slug][0] {
-    _id,
-    name,
-    "slug": slug.current,
-    logo,
-    address,
-    description,
-    phone,
-    isVerified
-  }
-`)
-
-export const PRODUCTS_BY_VENDOR_QUERY = defineQuery(`
-  *[_type == "product" && vendor->slug.current == $slug] | order(_createdAt desc) {
+export const PRODUCTS_BY_CATEGORY_QUERY = defineQuery(`
+  *[_type == "product" && references($categoryId)] | order(_createdAt desc) {
     _id,
     name,
     "slug": slug.current,
@@ -146,86 +178,124 @@ export const PRODUCTS_BY_VENDOR_QUERY = defineQuery(`
     isBestSeller,
     isPromo,
     promoDiscount,
-    "vendor": vendor->{
+    "merchant": merchant->{
+      _id,
       name,
       "slug": slug.current,
-      isVerified,
       isOpen,
       closingMessage
     }
   }
 `)
 
-export const SERVICES_QUERY = defineQuery(`
-  *[_type == "service" && (!defined($search) || name match $search + "*")] | order(_createdAt desc) {
+export const PRODUCTS_BY_MERCHANT_QUERY = defineQuery(`
+  *[_type == "product" && merchant._ref == $merchantId] | order(_createdAt desc) {
     _id,
     name,
     "slug": slug.current,
     price,
-    priceType,
+    stock,
     image,
     isBestSeller,
     isPromo,
+    promoDiscount
+  }
+`)
+
+export const PROMO_PRODUCTS_QUERY = defineQuery(`
+  *[_type == "product" && isPromo == true] | order(_createdAt desc) {
+    _id,
+    name,
+    "slug": slug.current,
+    price,
+    stock,
+    image,
+    isPromo,
     promoDiscount,
-    "vendor": vendor->{
+    "merchant": merchant->{
+      _id,
       name,
       "slug": slug.current,
-      isVerified
-    },
-    "categories": categories[]->{
-      name,
-      "slug": slug.current
+      isOpen,
+      closingMessage
     }
   }
 `)
 
-export const SERVICE_BY_SLUG_QUERY = defineQuery(`
-  *[_type == "service" && slug.current == $slug][0] {
+export const BEST_SELLER_PRODUCTS_QUERY = defineQuery(`
+  *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {
     _id,
     name,
     "slug": slug.current,
     price,
-    priceType,
-    description,
+    stock,
     image,
     isBestSeller,
-    isPromo,
-    promoDiscount,
-    "vendor": vendor->{
+    "merchant": merchant->{
+      _id,
+      name,
+      "slug": slug.current,
+      isOpen,
+      closingMessage
+    }
+  }
+`)
+
+// ===== DELIVERY ORDERS =====
+export const ORDER_BY_NUMBER_QUERY = defineQuery(`
+  *[_type == "deliveryOrder" && orderNumber == $orderNumber][0] {
+    _id,
+    orderNumber,
+    customerName,
+    customerPhone,
+    orderType,
+    items,
+    pickupAddress,
+    deliveryAddress,
+    deliveryArea,
+    status,
+    totalAmount,
+    shippingFee,
+    paymentMethod,
+    estimatedTime,
+    _createdAt,
+    "merchant": merchant->{
+      name,
+      logo,
+      phone
+    },
+    "courier": courier->{
       name,
       phone,
-      address,
-      "slug": slug.current,
-      isVerified,
-      isOpen,
-      closingMessage
+      vehicleType
     }
   }
 `)
 
-export const SERVICES_BY_VENDOR_QUERY = defineQuery(`
-  *[_type == "service" && vendor->slug.current == $slug] | order(_createdAt desc) {
+export const ORDERS_BY_COURIER_QUERY = defineQuery(`
+  *[_type == "deliveryOrder" && courier._ref == $courierId && status != "completed" && status != "cancelled"] | order(_createdAt desc) {
     _id,
-    name,
-    "slug": slug.current,
-    price,
-    priceType,
-    image,
-    isBestSeller,
-    isPromo,
-    promoDiscount,
-    "vendor": vendor->{
-      name,
-      "slug": slug.current,
-      isVerified,
-      isOpen,
-      closingMessage
-    }
+    orderNumber,
+    customerName,
+    customerPhone,
+    orderType,
+    items,
+    pickupAddress,
+    deliveryAddress,
+    deliveryArea,
+    status,
+    totalAmount,
+    shippingFee,
+    paymentMethod,
+    courierNotes,
+    estimatedTime,
+    _createdAt
   }
 `)
 
-export const ARTICLES_QUERY = defineQuery(`
-  *[_type == "article"] | order(publishedAt desc) {
+// ===== ARTICLES / PROMOS =====
+export const LATEST_ARTICLES_QUERY = defineQuery(`
+  *[_type == "article"] | order(publishedAt desc) [0...3] {
     _id,
     title,
     "slug": slug.current,
@@ -236,8 +306,8 @@ export const ARTICLES_QUERY = defineQuery(`
   }
 `)
 
-export const LATEST_ARTICLES_QUERY = defineQuery(`
-  *[_type == "article"] | order(publishedAt desc) [0...3] {
+export const ARTICLES_QUERY = defineQuery(`
+  *[_type == "article"] | order(publishedAt desc) {
     _id,
     title,
     "slug": slug.current,
@@ -261,64 +331,13 @@ export const ARTICLE_BY_SLUG_QUERY = defineQuery(`
   }
 `)
 
-export const INCUBATOR_SERVICES_QUERY = defineQuery(`
-  *[_type == "incubatorService"] | order(order asc) {
+// ===== BANNERS =====
+export const BANNERS_QUERY = defineQuery(`
+  *[_type == "banner" && isActive == true] | order(_createdAt desc) {
     _id,
     title,
-    "slug": slug.current,
-    description,
-    iconName,
-    order
-  }
-`)
-
-export const INCUBATOR_SERVICE_BY_SLUG_QUERY = defineQuery(`
-  *[_type == "incubatorService" && slug.current == $slug][0] {
-    _id,
-    title,
-    "slug": slug.current,
-    description,
-    iconName,
-    order
-  }
-`)
-
-export const INCUBATOR_SETTINGS_QUERY = defineQuery(`
-  *[_type == "article" && title == "Aset Visual Inkubator UMKM"][0] {
-    image
-  }
-`)
-
-export const APP_SETTINGS_QUERY = defineQuery(`
-  *[_type == "appSettings"][0] {
-    adminPhone,
-    defaultShippingFee,
-    siteName,
-    isMaintenance
-  }
-`)
-
-export const ORDER_BY_NUMBER_QUERY = defineQuery(`
-  *[_type == "order" && orderNumber == $orderNumber][0] {
-    _id,
-    orderNumber,
-    customerName,
-    status,
-    totalAmount,
-    deliveryAddress,
-    _createdAt,
-    "items": items[] {
-      _key,
-      quantity,
-      price,
-      "product": product->{
-        name,
-        image
-      }
-    },
-    "courier": courier->{
-      name,
-      phone
-    }
+    imageDesktop,
+    imageMobile,
+    link
   }
 `)

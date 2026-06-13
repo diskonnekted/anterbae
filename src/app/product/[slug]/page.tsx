@@ -53,7 +53,7 @@ export default async function ProductPage({ params }: Props) {
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-6">
               <span className="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em]">
-                {product.vendor.name}
+                {product.merchant.name}
               </span>
               <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${product.stock > 0 ? "border-green-200 text-green-600 bg-green-50" : "border-red-200 text-red-600 bg-red-50"}`}>
                 {product.stock > 0 ? "Stok Ready" : "Stok Habis"}
@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: Props) {
               <AddToCartButton product={product} />
             </div>
             <a
-              href={`https://wa.me/${product.vendor.phone}?text=Halo, saya tertarik dengan produk ${product.name} di Pasar Pondokrejo.`}
+              href={`https://wa.me/${product.merchant.phone}?text=Halo, saya tertarik dengan produk ${product.name} di Anterbae.`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-900 font-black py-4 px-8 rounded-3xl hover:bg-slate-50 transition-all active:scale-95 shadow-lg shadow-slate-100"
@@ -90,7 +90,6 @@ export default async function ProductPage({ params }: Props) {
             </a>
           </div>
 
-          {/* Vendor Card */}
           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
             <div className="relative z-10">
               <div className="flex items-center gap-4 mb-6">
@@ -98,12 +97,12 @@ export default async function ProductPage({ params }: Props) {
                   <MapPin className="w-6 h-6 text-green-400" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-black">{product.vendor.name}</h4>
-                  <p className="text-slate-400 text-sm font-medium">Alamat: {product.vendor.address}</p>
+                  <h4 className="text-xl font-black">{product.merchant.name}</h4>
+                  <p className="text-slate-400 text-sm font-medium">Alamat: {product.merchant.address}</p>
                 </div>
               </div>
-              <Link href={`/vendor/${product.vendor.slug || ''}`} className="inline-flex text-sm font-bold text-green-400 hover:text-green-300 transition-colors">
-                Lihat Semua Produk Toko Ini &rarr;
+              <Link href={`/mitra`} className="inline-flex text-sm font-bold text-green-400 hover:text-green-300 transition-colors">
+                Lihat Semua Merchant &rarr;
               </Link>
             </div>
             {/* Decor */}
