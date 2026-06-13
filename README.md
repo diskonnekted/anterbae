@@ -1,32 +1,24 @@
-# PAWON (Pasar Warga Pondokrejo) 🍲⚡
+# Anterbae Delivery 🛵⚡
 
-**PAWON** adalah inisiatif marketplace digital resmi milik **Kalurahan Pondokrejo** yang dirancang untuk memperkuat ekonomi lokal. Nama PAWON sendiri merupakan akronim dari **Pasar Warga Pondokrejo**, sekaligus melambangkan kehangatan dapur (pawon) yang menjadi pusat kehidupan warga.
+**Anterbae Delivery** adalah platform layanan pesan antar makanan, paket, dan jasa titip (jastip) lokal terpercaya untuk seluruh wilayah Kabupaten Banjarnegara. Dirancang dengan antarmuka yang modern, cepat, dan responsif.
 
-Aplikasi ini menghubungkan produk UMKM, hasil bumi, dan layanan jasa profesional warga langsung ke tangan pembeli dengan sistem yang modern, terverifikasi, dan ramah pengguna.
+Aplikasi ini menghubungkan pelanggan dengan mitra merchant lokal (warung, restoran, apotek, toko kelontong) secara langsung melalui sistem pemesanan via WhatsApp yang terintegrasi.
 
 ## 🚀 Fitur Utama
 
-### 🛒 Marketplace Produk (UMKM)
-*   **Katalog Terverifikasi**: Semua produk telah diverifikasi oleh Admin Kalurahan untuk menjamin keaslian dan kualitas.
-*   **Seksi Promo & Terlaris**: Menampilkan produk unggulan dan penawaran spesial untuk warga.
-*   **Kategori Pilihan**: Pencarian produk berdasarkan kategori (Makanan, Kerajinan, Pertanian, dll) dengan tampilan elegan.
+### 🛒 Katalog Mitra & Produk
+*   **Mitra Terverifikasi**: Menampilkan daftar mitra merchant yang beroperasi di sekitar Banjarnegara.
+*   **Pencarian Cerdas**: Temukan produk, makanan, atau kebutuhan sehari-hari dengan mudah.
+*   **Profil Mitra Dinamis**: Halaman detail merchant lengkap dengan banner (*cover*), logo, status operasional, dan katalog produk.
 
-### 🛠️ Layanan Jasa (Services)
-*   **Tenaga Ahli Lokal**: Temukan jasa instalasi listrik, internet, pijat bayi, hingga perbaikan elektronik langsung dari warga berkopetensi.
-*   **Booking Mudah**: Terhubung langsung ke WhatsApp penyedia jasa untuk konsultasi dan pemesanan.
+### ⚡ Performa Tinggi & Optimal
+*   **Optimasi LCP**: Penggunaan `next/image` dengan prioritas tinggi pada aset utama untuk pemuatan halaman yang instan.
+*   **Sanity Edge CDN**: Seluruh data dinamis dari CMS dikirim langsung dari ujung server terdekat (*edge*) untuk respons yang secepat kilat (TTFB rendah).
+*   **Incremental Static Regeneration (ISR)**: Halaman-halaman utama telah di- *cache* statis di sisi *server* (`revalidate = 60`) sehingga meminimalisasi waktu tunggu pengguna hingga 0 milidetik saat halaman dimuat.
 
-### 📱 Pengalaman Mobile Native (PWA)
-*   **Optimasi Mobile**: Tampilan khusus mobile dengan navigasi bawah (*Bottom Nav*) layaknya aplikasi Android/iOS native.
-*   **PWA Ready**: Dapat diinstal langsung di layar utama HP tanpa melalui Play Store.
-*   **Deteksi Otomatis**: Sistem secara cerdas menyajikan layout terbaik berdasarkan perangkat yang digunakan.
-
-### 📰 Kabar Kalurahan (Info)
-*   **Pusat Informasi**: Update resmi mengenai pelatihan UMKM, bantuan modal BUMKal, dan panduan resmi kalurahan.
-*   **Dukungan Pemerintah**: Pengumuman kegiatan yang bertujuan meningkatkan kapasitas pelaku usaha kalurahan.
-
-### 🚚 Logistik & Tracking
-*   **Kurir Kalurahan**: Pengiriman barang ditangani oleh tenaga kurir resmi kalurahan.
-*   **Lacak Pesanan**: Fitur real-time untuk memantau status pengiriman paket.
+### 📱 Desain Responsif & Modern
+*   **UI/UX Bersih**: Dirancang dengan Tailwind CSS yang rapi, *micro-animations*, serta tata letak bergaya modern-minimalis.
+*   **Ikon Konsisten**: Menggunakan `lucide-react` untuk memastikan semua ikon (*flat icon*) terlihat seragam dan profesional.
 
 ## 🛠️ Tech Stack
 
@@ -34,16 +26,14 @@ Aplikasi ini menghubungkan produk UMKM, hasil bumi, dan layanan jasa profesional
 *   **CMS**: [Sanity.io](https://www.sanity.io/) (Headless CMS for Content & Products)
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 *   **Icons**: [Lucide React](https://lucide.dev/)
-*   **Rich Text**: [Portable Text](https://github.com/portabletext/react)
-*   **PWA**: [@ducanh2912/next-pwa](https://www.npmjs.com/package/@ducanh2912/next-pwa)
-*   **Deployment**: Ubuntu with CloudPanel (Nginx Reverse Proxy)
+*   **Database**: Terintegrasi langsung dengan Next-Sanity Live API
 
 ## 📦 Instalasi Lokal
 
 1.  **Clone Repository**:
     ```bash
-    git clone https://github.com/diskonnekted/pawon-pondokrejo.git
-    cd pawon-pondokrejo
+    git clone https://github.com/diskonnekted/anterbae.git
+    cd anterbae
     ```
 
 2.  **Instal Dependensi**:
@@ -65,25 +55,10 @@ Aplikasi ini menghubungkan produk UMKM, hasil bumi, dan layanan jasa profesional
     ```
     Buka `http://localhost:3000` di browser Anda.
 
-## 🌐 Panduan Deployment (CloudPanel)
+## 🌐 Kontribusi & Dukungan
 
-Jika Anda menggunakan **Ubuntu** dengan **CloudPanel**:
-
-1.  **Buat Reverse Proxy Site** di CloudPanel yang diarahkan ke port internal (misal: `http://127.0.0.1:8080`).
-2.  **Build Aplikasi** di server:
-    ```bash
-    npm run build
-    ```
-3.  **Jalankan menggunakan PM2**:
-    ```bash
-    PORT=8080 pm2 start npm --name "pawon-app" -- start
-    ```
-4.  **Aktifkan SSL** melalui menu SSL di CloudPanel menggunakan Let's Encrypt.
-
-## 🤝 Kontribusi
-
-Aplikasi ini dikembangkan untuk kemajuan warga Kalurahan Pondokrejo. Saran dan masukan sangat kami harapkan untuk pengembangan fitur ke depannya.
+Platform ini dikembangkan untuk memajukan ekosistem pesan antar dan memberdayakan pelaku usaha lokal di Banjarnegara. Segala bentuk dukungan, pelaporan *bug*, maupun usulan fitur dapat dikirimkan melalui *Issues* di repositori ini.
 
 ---
-**PAWON** - *Membangun Kalurahan dari Tetangga.*
-© 2026 Pemerintah Kalurahan Pondokrejo.
+**Anterbae Delivery** - *Cepat, Aman, dan Lokal.*
+© 2026 Anterbae Banjarnegara.
