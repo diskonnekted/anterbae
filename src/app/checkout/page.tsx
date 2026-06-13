@@ -45,7 +45,7 @@ export default function CheckoutPage() {
     localStorage.setItem('anterbae-customer-address', formData.address)
 
     const itemsString = items.map(i => `${i.quantity}x ${i.name} (Rp ${i.price.toLocaleString('id-ID')})`).join('\n')
-    const merchantNames = Array.from(new Set(items.map(i => i.merchant?.name || 'Toko'))).join(', ')
+    const merchantNames = Array.from(new Set(items.map(i => i.vendorName || 'Toko'))).join(', ')
 
     // 1. Create Anterbae Delivery Order
     const result = await createDeliveryOrder({
