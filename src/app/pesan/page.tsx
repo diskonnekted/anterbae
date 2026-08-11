@@ -182,10 +182,24 @@ export default function PesanPage() {
               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
                 {orderType === 'parcel' ? 'Alamat Pengirim *' : 'Alamat Pickup (Warung/Toko) *'}
               </label>
-              <input required name="pickupAddress" type="text"
-                placeholder="Alamat lengkap tempat kurir pickup"
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900"
-                value={formData.pickupAddress} onChange={handleChange} />
+              <AddressPicker
+                name="pickupAddress"
+                value={formData.pickupAddress}
+                onChange={(val) => setFormData(prev => ({ ...prev, pickupAddress: val }))}
+                label="Alamat Pickup"
+                placeholder="Pilih kecamatan, desa, lalu isi detail jalan"
+              />
+              {/* Peta interaktif pickup */}
+              <div className="mt-3">
+                <PetaInteraktif
+                  height="200px"
+                  onClick={(kecamatan) => {
+                    if (kecamatan) {
+                      setFormData(prev => ({ ...prev, pickupAddress: prev.pickupAddress ? prev.pickupAddress + ', ' + kecamatan : kecamatan }))
+                    }
+                  }}
+                />
+              </div>
             </div>
 
             {/* Delivery Address */}

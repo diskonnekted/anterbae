@@ -6,6 +6,8 @@ import { createDeliveryOrder } from '@/app/actions/delivery-order'
 import { useRouter } from 'next/navigation'
 import { Loader2, CheckCircle, MessageCircle } from 'lucide-react'
 import { OrderFormData } from '@/types'
+import AddressPicker from '@/components/AddressPicker'
+import PetaInteraktif from '@/components/PetaInteraktif'
 
 export default function CheckoutPage() {
   const { items, totalPrice, shippingFee, grandTotal, clearCart } = useCart()
@@ -160,14 +162,24 @@ export default function CheckoutPage() {
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Alamat Lengkap</label>
-              <textarea
-                required
-                rows={3}
-                className="w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                placeholder="Alamat pengiriman di area Banjarnegara"
+              <AddressPicker
+                name="address"
                 value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                onChange={(val) => setFormData({ ...formData, address: val })}
+                label="Alamat Pengiriman"
+                placeholder="Pilih kecamatan, desa, lalu isi detail jalan"
               />
+              {/* Peta interaktif */}
+              <div className="mt-3">
+                <PetaInteraktif
+                  height="200px"
+                  onClick={(kecamatan) => {
+                    if (kecamatan) {
+                      setFormData(prev => ({ ...prev, address: prev.address ? prev.address + ', ' + kecamatan : kecamatan }))
+                    }
+                  }}
+                />
+              </div>
             </div>
 
             <div className="pt-4 border-t">
