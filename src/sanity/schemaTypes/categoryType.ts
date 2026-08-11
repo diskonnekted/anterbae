@@ -27,11 +27,22 @@ export const categoryType = defineType({
       type: 'image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'parentCategory',
+      type: 'reference',
+      to: [{ type: 'category' }],
+      description: 'Induk kategori untuk hierarki (kosongkan jika ini adalah kategori utama)',
+    }),
   ],
   preview: {
     select: {
       title: 'name',
       media: 'image',
+      parentCategory: 'parentCategory.name',
+    },
+    prepare({ title, media, parentCategory }) {
+      const subtitle = parentCategory ? `${parentCategory} → ${title}` : title
+      return { title, subtitle, media }
     },
   },
 })

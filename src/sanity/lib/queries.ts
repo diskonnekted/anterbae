@@ -60,7 +60,8 @@ export const MERCHANTS_QUERY = defineQuery(`
     isOpen,
     closingMessage,
     openHours,
-    minOrder
+    minOrder,
+    isVerified
   }
 `)
 
@@ -99,24 +100,51 @@ export const MERCHANT_BY_SLUG_QUERY = defineQuery(`
 `)
 
 // ===== PRODUCTS & CATEGORIES =====
-export const CATEGORIES_QUERY = defineQuery(`
-  *[_type == "category"] | order(name asc) {
-    _id,
-    name,
-    "slug": slug.current,
-    image,
-    "productCount": count(*[_type == "product" && references(^._id)])
-  }
-`)
+export const CATEGORIES_QUERY = defineQuery(
+  '*[_type == "category" && defined(parentCategory._ref) == false] | order(name asc) ' +
+  '{' +
+  '  _id,' +
+  '  name,' +
+  '  "slug": slug.current,' +
+  '  image,' +
+  '  description,' +
+  '  "productCount": count(*[_type == "product" && references(^._id)]),' +
+  '  "subcategories": *[_type == "category" && parentCategory._ref == ^._id] | order(name asc) ' +
+  '  {' +
+  '    _id,' +
+  '    name,' +
+  '    "slug": slug.current,' +
+  '    image,' +
+  '    description,' +
+  '    "productCount": count(*[_type == "product" && references(^._id)])' +
+  '  }' +
+  '}'
+)
 
-export const CATEGORY_BY_SLUG_QUERY = defineQuery(`
-  *[_type == "category" && slug.current == $slug][0] {
-    _id,
-    name,
-    "slug": slug.current,
-    image
-  }
-`)
+export const CATEGORY_BY_SLUG_QUERY = defineQuery(
+  '*[_type == "category" && slug.current == $slug] ' +
+  '{' +
+  '  _id,' +
+  '  name,' +
+  '  "slug": slug.current,' +
+  '  image,' +
+  '  description,' +
+  '  parentCategory->' +
+  '  {' +
+  '    _id,' +
+  '    name,' +
+  '    "slug": slug.current' +
+  '  }, ' +
+  '  "subcategories": *[_type == "category" && parentCategory._ref == ^._id] | order(name asc) ' +
+  '  {' +
+  '    _id,' +
+  '    name,' +
+  '    "slug": slug.current,' +
+  '    image,' +
+  '    description' +
+  '  }' +
+  '}'
+)
 
 export const PRODUCTS_QUERY = defineQuery(`
   *[_type == "product"] | order(_createdAt desc) {

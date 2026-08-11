@@ -99,7 +99,14 @@ export interface Category {
   name: string;
   slug: string;
   image?: Image;
+  description?: string;
   productCount?: number;
+  parentCategory?: {
+    _id: string;
+    name: string;
+    slug: string;
+  };
+  subcategories?: Category[];
 }
 
 export interface Product {

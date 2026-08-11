@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import { SanityLive } from "@/sanity/lib/live";
 import Link from "next/link";
 import Image from "next/image";
 import { headers } from "next/headers";
 import Script from "next/script";
 import { CartProvider } from "@/context/CartContext";
 import BottomNav from "@/components/mobile/BottomNav";
+import SanityLiveClient from "@/components/SanityLiveClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -198,7 +198,7 @@ export default async function RootLayout({
             </div>
           </footer>
         )}
-        <SanityLive />
+        <SanityLiveClient />
         </CartProvider>
       </body>
     </html>
