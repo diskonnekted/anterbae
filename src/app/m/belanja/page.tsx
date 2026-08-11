@@ -81,6 +81,7 @@ export default async function MobileBelanjaPage() {
                       alt={merchant.name}
                       fill
                       className="object-cover"
+                      loading="eager"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-indigo-400">
