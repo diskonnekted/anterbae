@@ -222,7 +222,7 @@ export default function TrackPage() {
                   <div>
                     <div className="text-xs text-slate-400 font-black uppercase tracking-widest">Pembayaran</div>
                     <div className="font-bold text-sm text-slate-700">
-                      {order.paymentMethod === 'cod' ? '💵 COD (Bayar di Tempat)' : '💳 Transfer / QRIS'}
+                      {order.paymentMethod === 'cod' ? '💵 COD (Bayar di Tempat)' : '💳 Transfer Bank'}
                     </div>
                   </div>
                   {order.shippingFee > 0 && (

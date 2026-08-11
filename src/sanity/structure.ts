@@ -10,12 +10,12 @@ import {
 
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title('Anterbae — Admin Dashboard')
+    .title('Anterbae - Admin Dashboard')
     .items([
 
       // ======= PESANAN MASUK =======
       S.listItem()
-        .title('📦 Pesanan Masuk')
+        .title('Pesanan Masuk')
         .icon(BasketIcon)
         .child(
           S.list()
@@ -26,58 +26,57 @@ export const structure: StructureResolver = (S) =>
                 .child(S.documentTypeList('deliveryOrder').title('Semua Pesanan')),
               S.divider(),
               S.listItem()
-                .title('⏳ Menunggu Konfirmasi')
+                .title('Menunggu Konfirmasi')
                 .child(
                   S.documentList()
                     .title('Perlu Konfirmasi')
                     .filter('_type == "deliveryOrder" && status == "pending"')
                 ),
               S.listItem()
-                .title('✅ Dikonfirmasi')
+                .title('Dikonfirmasi')
                 .child(
                   S.documentList()
                     .title('Sudah Dikonfirmasi')
                     .filter('_type == "deliveryOrder" && status == "accepted"')
                 ),
               S.listItem()
-                .title('🛵 Dalam Pengiriman')
+                .title('Dalam Pengiriman')
                 .child(
                   S.documentList()
                     .title('Sedang Diantar')
                     .filter('_type == "deliveryOrder" && (status == "picking_up" || status == "picked_up" || status == "delivering")')
                 ),
               S.listItem()
-                .title('✔️ Selesai Hari Ini')
+                .title('Selesai Hari Ini')
                 .child(
                   S.documentList()
                     .title('Pesanan Selesai')
                     .filter('_type == "deliveryOrder" && status == "completed"')
                 ),
               S.listItem()
-                .title('⚠️ Bermasalah')
+                .title('Bermasalah')
                 .child(
                   S.documentList()
                     .title('Pesanan Bermasalah')
                     .filter('_type == "deliveryOrder" && (status == "problem" || status == "cancelled")')
                 ),
               S.divider(),
-              // By type
               S.listItem()
-                .title('🍔 Pesan Antar Makanan')
+                .title('Pesan Antar Makanan')
                 .child(
                   S.documentList()
                     .title('Pesan Antar Makanan')
                     .filter('_type == "deliveryOrder" && orderType == "food"')
                 ),
               S.listItem()
-                .title('📦 Antar Paket')
+                .title('Antar Paket')
                 .child(
                   S.documentList()
                     .title('Antar Paket')
                     .filter('_type == "deliveryOrder" && orderType == "parcel"')
                 ),
               S.listItem()
-                .title('🛒 Jastip')
+                .title('Jastip')
                 .child(
                   S.documentList()
                     .title('Jastip')
@@ -90,7 +89,7 @@ export const structure: StructureResolver = (S) =>
 
       // ======= MITRA KURIR =======
       S.listItem()
-        .title('🛵 Mitra Kurir')
+        .title('Mitra Kurir')
         .icon(RocketIcon)
         .child(
           S.list()
@@ -108,7 +107,7 @@ export const structure: StructureResolver = (S) =>
                     .filter('_type == "courier" && status == "active"')
                 ),
               S.listItem()
-                .title('🆕 Pendaftaran Kurir Baru')
+                .title('Pendaftaran Kurir Baru')
                 .child(S.documentTypeList('courierApplication').title('Pendaftaran Masuk')),
               S.listItem()
                 .title('Perlu Review')
@@ -124,7 +123,7 @@ export const structure: StructureResolver = (S) =>
 
       // ======= MERCHANT =======
       S.listItem()
-        .title('🏪 Mitra Merchant')
+        .title('Mitra Merchant')
         .icon(DocumentIcon)
         .child(
           S.list()
@@ -135,14 +134,14 @@ export const structure: StructureResolver = (S) =>
                 .child(S.documentTypeList('merchant').title('Merchant Anterbae')),
               S.divider(),
               S.listItem()
-                .title('🍔 Makanan & Minuman')
+                .title('Makanan & Minuman')
                 .child(
                   S.documentList()
                     .title('F&B')
                     .filter('_type == "merchant" && category == "food"')
                 ),
               S.listItem()
-                .title('🛒 Grocery/Sembako')
+                .title('Grocery/Sembako')
                 .child(
                   S.documentList()
                     .title('Grocery')
@@ -157,10 +156,10 @@ export const structure: StructureResolver = (S) =>
                 ),
               S.divider(),
               S.listItem()
-                .title('📦 Semua Produk')
+                .title('Semua Produk')
                 .child(S.documentTypeList('product').title('Produk Merchant')),
               S.listItem()
-                .title('🏷️ Kategori Produk')
+                .title('Kategori Produk')
                 .child(S.documentTypeList('category').title('Kategori')),
             ])
         ),
@@ -169,7 +168,7 @@ export const structure: StructureResolver = (S) =>
 
       // ======= PELANGGAN =======
       S.listItem()
-        .title('👤 Data Pelanggan')
+        .title('Data Pelanggan')
         .icon(UserIcon)
         .child(S.documentTypeList('customer').title('Pelanggan Anterbae')),
 
@@ -177,19 +176,19 @@ export const structure: StructureResolver = (S) =>
 
       // ======= KONTEN =======
       S.listItem()
-        .title('📢 Info & Promosi')
+        .title('Info & Promosi')
         .icon(InfoOutlineIcon)
         .child(S.documentTypeList('article').title('Info & Promosi')),
 
       S.listItem()
-        .title('🖼️ Banner Promosi')
+        .title('Banner Promosi')
         .child(S.documentTypeList('banner').title('Banner')),
 
       S.divider(),
 
       // ======= SETTINGS =======
       S.listItem()
-        .title('⚙️ Pengaturan Aplikasi')
+        .title('Pengaturan Aplikasi')
         .icon(CogIcon)
         .child(S.documentTypeList('appSettings').title('Pengaturan')),
     ])

@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Truck, Package, ShoppingBag, Phone, MapPin, FileText, ChevronRight, Loader2, CheckCircle } from 'lucide-react'
+import { Truck, Package, ShoppingBag, Phone, MapPin, FileText, ChevronRight, Loader2, CheckCircle, Crosshair } from 'lucide-react'
 import Link from 'next/link'
+import AddressPicker from '@/components/AddressPicker'
+import PetaInteraktif from '@/components/PetaInteraktif'
 
 const ORDER_TYPES = [
   { value: 'food', icon: '🍔', label: 'Pesan Antar Makanan', desc: 'Antar dari warung/resto ke lokasi Anda' },
@@ -45,7 +47,7 @@ export default function PesanPage() {
       `Tujuan: ${formData.deliveryAddress}` +
       (formData.deliveryArea ? `, ${formData.deliveryArea}` : '') + '\n' +
       (formData.customerNotes ? `\nCatatan: ${formData.customerNotes}\n` : '') +
-      `\nPembayaran: ${formData.paymentMethod === 'cod' ? 'COD (Bayar di Tempat)' : 'Transfer/QRIS'}`
+      `\nPembayaran: ${formData.paymentMethod === 'cod' ? 'COD (Bayar di Tempat)' : 'Transfer Bank'}`
     )
     setTimeout(() => {
       setLoading(false)
@@ -189,15 +191,29 @@ export default function PesanPage() {
             {/* Delivery Address */}
             <div className="mb-4">
               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alamat Tujuan *</label>
-              <input required name="deliveryAddress" type="text"
-                placeholder="Alamat lengkap tujuan pengiriman"
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900"
-                value={formData.deliveryAddress} onChange={handleChange} />
+              <AddressPicker
+                name="deliveryAddress"
+                value={formData.deliveryAddress}
+                onChange={(val) => setFormData(prev => ({ ...prev, deliveryAddress: val }))}
+                label="Alamat Tujuan"
+                placeholder="Pilih kecamatan, desa, lalu isi detail jalan"
+              />
+              {/* Peta interaktif */}
+              <div className="mt-3">
+                <PetaInteraktif
+                  height="200px"
+                  onClick={(kecamatan) => {
+                    if (kecamatan) {
+                      setFormData(prev => ({ ...prev, deliveryArea: kecamatan }))
+                    }
+                  }}
+                />
+              </div>
               <select name="deliveryArea"
                 className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900 mt-2"
                 value={formData.deliveryArea} onChange={handleChange}>
                 <option value="">Pilih kecamatan tujuan...</option>
-                {['Banjarnegara', 'Purwonegoro', 'Bawang', 'Banjarmangu', 'Mandiraja', 'Purworejo Klampok', 'Sigaluh', 'Wanadadi', 'Rakit', 'Susukan', 'Lainnya'].map(a => (
+                {['Banjarmangu', 'Banjarnegara', 'Batur', 'Bawang', 'Kalibening', 'Karangkobar', 'Madukara', 'Pagentan', 'Pandanarum', 'Pejawaran', 'Punggelan', 'Purwanegara', 'Purwarejaklampok', 'Rakit', 'Sigaluh', 'Susukan', 'Wanadadi', 'Wanayasa', 'Lainnya'].map(a => (
                   <option key={a} value={a}>{a}</option>
                 ))}
               </select>

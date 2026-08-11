@@ -104,3 +104,12 @@ body {
 .glow-green {
   box-shadow: 0 0 30px rgba(22, 163, 74, 0.3);
 }
+
+/* Hide scrollbar for horizontal scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

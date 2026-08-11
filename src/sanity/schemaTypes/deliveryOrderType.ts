@@ -126,7 +126,7 @@ export const deliveryOrderType = defineType({
       options: {
         list: [
           { title: 'Bayar di Tempat (COD)', value: 'cod' },
-          { title: 'Transfer / QRIS', value: 'transfer' },
+          { title: 'Transfer Bank', value: 'transfer' },
         ],
       },
       initialValue: 'cod',

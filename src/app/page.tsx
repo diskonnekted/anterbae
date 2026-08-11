@@ -3,8 +3,9 @@ import { ACTIVE_COURIERS_QUERY, FOOD_MERCHANTS_QUERY, LATEST_ARTICLES_QUERY, APP
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import Link from "next/link";
-import { Truck, Package, ShoppingBag, MapPin, Clock, Shield, Phone, Star, ChevronRight, Zap, Utensils, Check, MessageSquare, Bike, CheckCircle, Coins, Store, Megaphone, ArrowRight, Handshake, ShoppingCart } from "lucide-react";
+import { Truck, Package, ShoppingBag, MapPin, Clock, Shield, Phone, Star, ChevronRight, Zap, Utensils, Check, MessageSquare, Bike, CheckCircle, Coins, Store, Megaphone, ArrowRight, Handshake, ShoppingCart, Search, User, QrCode, Home as HomeIcon, MessageSquare as MessageIcon, LayoutGrid, UtensilsCrossed, Briefcase, ShoppingBasket, Gift, Sparkles, ChevronDown, Bell } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import MobileHome from "@/components/MobileHome";
 
 export const revalidate = 60;
 
@@ -29,13 +30,15 @@ export default async function Home() {
   const waLink = `https://wa.me/${adminPhone.replace(/\D/g, '')}`;
 
   return (
-    <div>
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative bg-slate-900 text-white overflow-hidden min-h-[90vh] flex items-center">
+    <div className="md:pb-0 pb-24">
+      <MobileHome waLink={waLink} servicesLink="/services" />
+
+      {/* ===== DESKTOP HERO SECTION (hidden on mobile) ===== */}
+      <section className="relative bg-slate-900 text-white overflow-hidden min-h-[90vh] flex items-center hidden md:block">
         {/* Hero Background */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/hero.jpg"
+            src="/hero3.jpg"
             alt="Hero Background"
             fill
             className="object-cover object-center"

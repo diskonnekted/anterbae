@@ -8,7 +8,7 @@ import { Product } from '@/types'
 export default function AddToCartButton({ product }: { product: Product }) {
   const { addItem } = useCart()
   const [added, setAdded] = useState(false)
-  const isVendorClosed = product.vendor?.isOpen === false
+  const isVendorClosed = product.merchant?.isOpen === false
 
   const handleAdd = () => {
     addItem(product)
@@ -22,7 +22,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
         <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3">
           <Store className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <p className="text-xs font-bold text-red-700 leading-relaxed">
-            {product.vendor?.closingMessage || 'Maaf, toko sedang tutup sementara dan tidak dapat menerima pesanan.'}
+            {product.merchant?.closingMessage || 'Maaf, toko sedang tutup sementara dan tidak dapat menerima pesanan.'}
           </p>
         </div>
         <button 

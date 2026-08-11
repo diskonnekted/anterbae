@@ -8,6 +8,11 @@ export function proxy(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || ''
   const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
 
+  // Redirect mobile users from / to /m
+  if (isMobile && pathname === '/') {
+    return NextResponse.redirect(new URL('/m', request.url))
+  }
+
   // Redirect old PAWON routes to Anterbae equivalents
   const redirectMap: Record<string, string> = {
     '/vendors': '/mitra',

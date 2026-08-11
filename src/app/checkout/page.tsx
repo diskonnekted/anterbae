@@ -35,6 +35,12 @@ export default function CheckoutPage() {
     if (savedAddress) setFormData(prev => ({ ...prev, address: savedAddress }))
   }, [])
 
+  useEffect(() => {
+    if (items.length === 0 && !success) {
+      router.push('/cart')
+    }
+  }, [items.length, success, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -76,7 +82,7 @@ export default function CheckoutPage() {
       text += `*Subtotal:* Rp ${totalPrice.toLocaleString('id-ID')}\n`
       text += `*Estimasi Ongkir:* Rp ${shippingFee.toLocaleString('id-ID')}\n`
       text += `*Total Pembayaran:* Rp ${grandTotal.toLocaleString('id-ID')}\n`
-      text += `*Metode Pembayaran:* ${formData.paymentMethod === 'cod' ? 'Bayar di Tempat (COD)' : 'Transfer/QRIS'}\n\n`
+      text += `*Metode Pembayaran:* ${formData.paymentMethod === 'cod' ? 'Bayar di Tempat (COD)' : 'Transfer Bank'}\n\n`
       text += `Mohon segera diproses dan dicarikan kurir. Terima kasih!`
 
       const waLink = `https://wa.me/${adminTargetPhone.replace(/^0/, '62').replace(/\D/g, '')}?text=${encodeURIComponent(text)}`
@@ -88,11 +94,6 @@ export default function CheckoutPage() {
       alert(result.error || 'Terjadi kesalahan.')
     }
     setLoading(false)
-  }
-
-  if (items.length === 0 && !success) {
-    router.push('/cart')
-    return null
   }
 
   if (success && orderInfo) {
@@ -182,10 +183,10 @@ export default function CheckoutPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, paymentMethod: 'qris' })}
-                  className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${formData.paymentMethod === 'qris' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200'}`}
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'transfer' })}
+                  className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${formData.paymentMethod === 'transfer' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200'}`}
                 >
-                  <span className="font-bold text-center">Transfer / QRIS</span>
+                  <span className="font-bold text-center">Transfer Bank</span>
                   <span className="text-xs opacity-70 text-center">Instruksi via WA</span>
                 </button>
               </div>

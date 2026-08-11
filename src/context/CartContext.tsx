@@ -71,7 +71,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           price: product.price,
           image: product.image,
           quantity: 1,
-          vendorName: product.vendor?.name || 'UMKM Pondokrejo',
+          vendorName: product.merchant?.name || 'UMKM Pondokrejo',
         },
       ]
     })
