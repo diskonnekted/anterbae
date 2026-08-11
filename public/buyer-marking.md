@@ -1,16 +1,16 @@
-Berikut adalah implementasi lengkap fitur **Location Marker untuk Pembeli** pada aplikasi PAWON dengan dua metode: **Manual Marking** dan **Automatic Marking**, menggunakan **OpenStreetMap + Leaflet.js** (tanpa Google Maps), disesuaikan dengan stack Next.js + Tailwind + Sanity CMS, dan tema warna merah-hitam-putih.
+Berikut adalah implementasi lengkap fitur **Location Marker untuk Pelanggan** pada aplikasi Anterbae dengan dua metode: **Manual Marking** dan **Automatic Marking**, menggunakan **OpenStreetMap + Leaflet.js** (tanpa Google Maps), disesuaikan dengan stack Next.js + Tailwind + Sanity CMS, dan tema warna merah-hitam-putih.
 
 ---
 
 ## 🗂️ 1. Update Schema Sanity CMS
 
-Tambahkan field lokasi pembeli pada schema `order`:
+Tambahkan field lokasi pelanggan pada schema `order`:
 
 ```javascript
 // schemas/order.js (tambahkan di fields array)
 {
   name: 'buyerLocation',
-  title: 'Lokasi Pembeli',
+  title: 'Lokasi Pelanggan',
   type: 'object',
   fields: [
     { name: 'lat', title: 'Latitude', type: 'number' },
@@ -48,7 +48,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Custom icon merah-hitam sesuai tema PAWON
+// Custom icon merah-hitam sesuai tema Anterbae
 const customIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
@@ -72,7 +72,7 @@ function LocationWatcher({ position, onMove }) {
 }
 
 export default function LocationMarker({ onLocationSelect, initialPosition = null }) {
-  const [position, setPosition] = useState(initialPosition || { lat: -7.7956, lng: 110.3695 }); // Default: Pondokrejo
+  const [position, setPosition] = useState(initialPosition || { lat: -7.3, lng: 110.5 }); // Default: Banjarnegara
   const [method, setMethod] = useState(null);
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,7 +83,7 @@ export default function LocationMarker({ onLocationSelect, initialPosition = nul
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-        { headers: { 'User-Agent': 'PAWON-App/1.0' } }
+        { headers: { 'User-Agent': 'Anterbae-App/1.0' } }
       );
       const data = await res.json();
       return data.display_name || `${lat}, ${lng}`;
@@ -170,13 +170,13 @@ export default function LocationMarker({ onLocationSelect, initialPosition = nul
         <button
           type="button"
           onClick={() => {
-            setPosition({ lat: -7.7956, lng: 110.3695 });
+            setPosition({ lat: -7.3, lng: 110.5 });
             setMethod('manual');
-            setAddress('Area Pondokrejo (Default)');
+            setAddress('Area Banjarnegara (Default)');
           }}
           className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-medium transition"
         >
-          🎯 Reset ke Pusat Pondokrejo
+          🎯 Reset ke Pusat Banjarnegara
         </button>
       </div>
 
@@ -364,7 +364,7 @@ export async function POST(req) {
     // Kirim notifikasi ke Admin & Kurir via Fonnte
     await sendWhatsApp({
       target: process.env.ADMIN_PHONE,
-      message: `🛒 Pesanan Baru #${order._id.slice(-6)}\n📍 Lokasi: ${buyerLocation?.address || 'Belum ditandai'}\n🗺️ Koordinat: ${buyerLocation?.lat}, ${buyerLocation?.lng}\n🔗 Detail: https://pawon.pondokrejo.id/studio/orders/${order._id}`
+      message: `🛒 Pesanan Baru #${order._id.slice(-6)}\n📍 Lokasi: ${buyerLocation?.address || 'Belum ditandai'}\n🗺️ Koordinat: ${buyerLocation?.lat}, ${buyerLocation?.lng}\n🔗 Detail: https://anterbae.id/studio/orders/${order._id}`
     });
 
     return Response.json({ success: true, orderId: order._id });
@@ -377,7 +377,7 @@ export async function POST(req) {
 
 ---
 
-## 🎨 5. Styling Tambahan (Tailwind + Tema PAWON)
+## 🎨 5. Styling Tambahan (Tailwind + Tema Anterbae)
 
 Tambahkan di `globals.css` untuk konsistensi tema:
 
@@ -426,9 +426,9 @@ Tambahkan di `globals.css` untuk konsistensi tema:
 
 ---
 
-## 💡 Tips Tambahan untuk Area Pondokrejo
+## 💡 Tips Tambahan untuk Area Banjarnegara
 
-1. **Default View**: Set center peta ke `[-7.7956, 110.3695]` (pusat Pondokrejo) agar user tidak perlu zoom jauh.
+1. **Default View**: Set center peta ke `[-7.3, 110.5]` (pusat Banjarnegara) agar user tidak perlu zoom jauh.
 2. **Offline Fallback**: Jika geolocation gagal, tampilkan pesan:  
    *"GPS tidak tersedia? Silakan klik pada peta di sekitar rumah Anda."*
 3. **Link Peta Eksternal**: Di notifikasi WA, tambahkan link langsung ke OSM:  
@@ -441,5 +441,4 @@ Tambahkan di `globals.css` untuk konsistensi tema:
 buatkan juga:
 1. 🗺️ Komponen `TrackingMap` untuk halaman lacak pesanan (tampilan kurir bergerak)?
 2. 🔔 Integrasi notifikasi real-time via Fonnte saat kurir mendekati lokasi?
-3. 🎨 Versi custom marker dengan logo PAWON (SVG)?
-
+3. 🎨 Versi custom marker dengan logo Anterbae (SVG)?

@@ -1,4 +1,4 @@
-Untuk menerapkan fitur **tracking kurir pada aplikasi PAWON tanpa Google Maps**, berikut adalah komponen teknis dan arsitektur yang Anda butuhkan, disesuaikan dengan stack teknologi Anda (Next.js, Sanity CMS, Fonnte API):
+Untuk menerapkan fitur **tracking kurir pada aplikasi Anterbae tanpa Google Maps**, berikut adalah komponen teknis dan arsitektur yang Anda butuhkan, disesuaikan dengan stack teknologi Anda (Next.js, Sanity CMS, Fonnte API):
 
 ---
 
@@ -9,7 +9,7 @@ Untuk menerapkan fitur **tracking kurir pada aplikasi PAWON tanpa Google Maps**,
 | **OpenStreetMap + Leaflet.js** | Gratis, open-source, ringan, mudah diintegrasikan dengan React | Tidak ada routing otomatis bawaan (perlu plugin) | ✅ **Paling direkomendasikan** |
 | **Mapbox GL JS (Free Tier)** | UI modern, performa smooth, ada routing | Free tier terbatas (50k load/bulan), perlu API key | Opsi premium jika butuh fitur advanced |
 | **Static Map Image (OSM Static API)** | Sangat ringan, tidak perlu JS berat | Tidak interaktif, hanya gambar | Cocok untuk notifikasi WhatsApp |
-| **Custom SVG/Peta Kalurahan** | Full control, sangat ringan, offline-friendly | Harus buat manual, tidak scalable ke area lain | ✅ **Ideal untuk cakupan lokal Pondokrejo** |
+| **Custom SVG/Peta Banjarnegara** | Full control, sangat ringan, offline-friendly | Harus buat manual, tidak scalable ke area lain | ✅ **Ideal untuk cakupan lokal Banjarnegara** |
 
 ### 💡 Rekomendasi Implementasi:
 ```bash
@@ -78,7 +78,7 @@ function getCurrentLocation() {
 ### ⚠️ Persyaratan:
 - Portal kurir harus diakses via **HTTPS** (wajib untuk Geolocation API)
 - Kurir harus mengizinkan akses lokasi di browser HP
-- Tambahkan fallback: jika GPS gagal, izinkan input manual ("Saya sudah di depan Rumah Warga X")
+- Tambahkan fallback: jika GPS gagal, izinkan input manual ("Saya sudah di depan Rumah Pelanggan X")
 
 ---
 
@@ -121,8 +121,8 @@ export default {
 | Metode | Cara Kerja | Cocok Untuk |
 |--------|-----------|-------------|
 | **Polling via API** | Kurir kirim lokasi tiap 30-60 detik ke endpoint Next.js → simpan ke Sanity | ✅ **Rekomendasi awal** (sederhana, stabil) |
-| **WebSocket (Socket.io)** | Koneksi persisten, update instan ke pembeli | Butuh server tambahan, lebih kompleks |
-| **WhatsApp Periodic Update** | Server kirim notifikasi via Fonnte tiap status berubah | ✅ **Pelengkap** untuk warga yang tidak buka web |
+| **WebSocket (Socket.io)** | Koneksi persisten, update instan ke pelanggan | Butuh server tambahan, lebih kompleks |
+| **WhatsApp Periodic Update** | Server kirim notifikasi via Fonnte tiap status berubah | ✅ **Pelengkap** untuk pelanggan yang tidak buka web |
 
 ### Contoh Endpoint API (Next.js API Route):
 ```javascript
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
     .set({ lastUpdate: new Date().toISOString() })
     .commit();
     
-  // Opsional: Kirim notifikasi WA ke pembeli via Fonnte
+  // Opsional: Kirim notifikasi WA ke pelanggan via Fonnte
   if (status === 'tiba') {
     await sendWhatsAppNotification(courierId, orderId, 'Kurir telah tiba di lokasi Anda!');
   }
@@ -155,29 +155,29 @@ export default async function handler(req, res) {
 
 ---
 
-## 🖥️ 5. Tampilan Tracking untuk Pembeli
+## 🖥️ 5. Tampilan Tracking untuk Pelanggan
 
 ### Opsi 1: Halaman Web Interaktif (Leaflet)
-- Pembeli buka `pawon.pondokrejo.id/track/[orderId]`
+- Pelanggan buka `anterbae.id/track/[orderId]`
 - Lihat peta dengan marker kurir (update tiap 30 detik via polling)
 
 ### Opsi 2: Timeline Status + Link Peta Eksternal
 ```text
-📦 Status Pesanan #PAWON-123
+📦 Status Pesanan #ANT-123
 ✅ Pesanan Diterima (10:00)
 ✅ Barang Disiapkan (10:15) 
 🚚 Kurir Mengambil Barang (10:30)
-📍 Dalam Perjalanan - [Lihat di OpenStreetMap](https://www.openstreetmap.org/?mlat=-7.8&mlon=110.4#map=15/-7.8/110.4)
+📍 Dalam Perjalanan - [Lihat di OpenStreetMap](https://www.openstreetmap.org/?mlat=-7.3&mlon=110.5#map=15/-7.3/110.5)
 ⏳ Menunggu Diterima
 ```
 
 ### Opsi 3: Notifikasi WhatsApp Bertahap (Via Fonnte)
 ```text
-🚚 Update Pesanan #PAWON-123
+🚚 Update Pesanan #ANT-123
 Kurir Bapak Slamet sedang dalam perjalanan ke alamat Anda.
 Perkiraan tiba: 15-20 menit.
 
-📍 Pantau posisi: https://pawon.pondokrejo.id/track/PAWON-123
+📍 Pantau posisi: https://anterbae.id/track/ANT-123
 ```
 
 ---
@@ -187,7 +187,7 @@ Perkiraan tiba: 15-20 menit.
 1. **Izin Lokasi**: Wajib minta izin eksplisit ke kurir sebelum ambil GPS
 2. **Data Minimalis**: Hanya simpan koordinat saat status berubah, bukan rekaman kontinu
 3. **Retensi Data**: Hapus riwayat lokasi setelah 7-30 hari (kecuali untuk dispute)
-4. **Akses Terbatas**: Hanya pembeli yang terkait + admin yang bisa lihat tracking
+4. **Akses Terbatas**: Hanya pelanggan yang terkait + admin yang bisa lihat tracking
 5. **Fallback Manual**: Sediakan opsi "Konfirmasi Tiba" manual jika GPS gagal
 
 ---
@@ -211,15 +211,15 @@ Perkiraan tiba: 15-20 menit.
 ### Fase 3: Optimasi (Opsional)
 - [ ] PWA untuk portal kurir (bisa jalan offline)
 - [ ] Kompresi koordinat untuk hemat bandwidth
-- [ ] Custom SVG map khusus area Pondokrejo
+- [ ] Custom SVG map khusus area Banjarnegara
 ```
 
 ---
 
 ## 💡 Tips Hemat Resource untuk Area Lokal
 
-Karena cakupan PAWON hanya di **Kalurahan Pondokrejo**, Anda bisa:
-1. **Gunakan koordinat tetap** untuk titik-titik penting (balai, pos kamling, landmark)
+Karena cakupan Anterbae hanya di **Kabupaten Banjarnegara**, Anda bisa:
+1. **Gunakan koordinat tetap** untuk titik-titik penting (kantor, pos kamling, landmark)
 2. **Ganti peta interaktif dengan gambar statis** yang sudah ditandai zona
 3. **Gunakan sistem "zona"**: Kurir hanya update saat pindah zona (RT/RW), bukan koordinat presisi
 4. **Manfaatkan WhatsApp sebagai "peta sosial"**: Kurir kirim foto lokasi via WA yang otomatis terlampir di notifikasi
@@ -232,4 +232,4 @@ Jika Anda ingin, saya bisa bantu buatkan:
 3. 🔌 Endpoint API Next.js untuk handle update lokasi
 4. 🎨 Desain halaman tracking dengan tema merah-hitam-putih sesuai preferensi Anda
 
-Silakan pilih mana yang ingin diprioritaskan, Mas Windy! 🛠️
+Silakan pilih mana yang ingin diprioritaskan! 🛠️

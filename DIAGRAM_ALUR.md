@@ -1,17 +1,17 @@
-# 📊 Diagram Alur Sistem PAWON
+# 📊 Diagram Alur Sistem Anterbae
 
-Berikut adalah skrip **Mermaid.js** yang menggambarkan alur kerja aplikasi PAWON dari pemesanan hingga pengantaran. Anda dapat melihat visualisasinya di [Mermaid Live Editor](https://mermaid.live/).
+Berikut adalah skrip **Mermaid.js** yang menggambarkan alur kerja aplikasi Anterbae dari pemesanan hingga pengantaran. Anda dapat melihat visualisasinya di [Mermaid Live Editor](https://mermaid.live/).
 
 ## 1. Alur Pemesanan & Notifikasi (Order Flow)
 ```mermaid
 sequenceDiagram
-    participant P as Pembeli (Warga)
+    participant P as Pelanggan
     participant S as Server (Next.js)
     participant DB as Sanity CMS
     participant WA as Fonnte API (WhatsApp)
-    participant V as Penjual (UMKM)
+    participant V as Mitra (Merchant)
     participant K as Kurir
-    participant A as Admin Kalurahan
+    participant A as Admin
 
     P->>S: Lakukan Checkout (COD)
     S->>DB: Buat Dokumen Pesanan (Pending)
@@ -27,7 +27,7 @@ sequenceDiagram
 ## 2. Alur Update Status Real-Time (Status Sync)
 ```mermaid
 graph TD
-    Start((Pesanan Masuk)) --> V_Prep[Penjual Siapkan Barang]
+    Start((Pesanan Masuk)) --> V_Prep[Mitra Siapkan Barang]
     V_Prep --> V_Link{Klik Magic Link WA}
     V_Link --> |Update: Shipped| DB[(Sanity Database)]
     
@@ -37,7 +37,7 @@ graph TD
     K_Task --> K_Link{Klik Magic Link WA}
     K_Link --> |Update: Delivering| DB
     
-    K_Link --> K_OTW[Kurir Menuju Alamat Warga]
+    K_Link --> K_OTW[Kurir Menuju Alamat Pelanggan]
     K_OTW --> K_Arrived[Barang Diterima & Bayar COD]
     K_Arrived --> K_Final{Klik Selesai}
     K_Final --> |Update: Completed| DB
@@ -52,11 +52,11 @@ graph TD
 ## 3. Alur Portal Mandiri (Self-Service)
 ```mermaid
 graph LR
-    User[Penjual / Kurir] --> Login{Portal Lapak/Kurir}
+    User[Mitra / Kurir] --> Login{Portal Lapak/Kurir}
     Login --> |Input WA + PIN| Auth[Server Check]
     Auth --> |Valid| Dash[Dashboard Mandiri]
     
-    subgraph Penjual
+    subgraph Mitra
     Dash --> Op[Toggle Buka/Tutup]
     Dash --> Prod[Upload Produk Baru]
     Prod --> Cam[Ambil Foto Kamera]

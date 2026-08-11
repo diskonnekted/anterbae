@@ -147,7 +147,7 @@ export const CATEGORY_BY_SLUG_QUERY = defineQuery(
 )
 
 export const PRODUCTS_QUERY = defineQuery(`
-  *[_type == "product"] | order(_createdAt desc) {
+  *[_type == "product"] | order(_createdAt desc)[0...100] {
     _id,
     name,
     "slug": slug.current,

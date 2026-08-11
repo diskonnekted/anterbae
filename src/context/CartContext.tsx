@@ -35,7 +35,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Load from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('pondokrejo-cart')
+      const saved = localStorage.getItem('anterbae-cart') || localStorage.getItem('pondokrejo-cart')
       if (saved) {
         try {
           // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -51,7 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Save to localStorage
   useEffect(() => {
     if (isLoaded.current) {
-      localStorage.setItem('pondokrejo-cart', JSON.stringify(items))
+      localStorage.setItem('anterbae-cart', JSON.stringify(items))
     }
   }, [items])
 

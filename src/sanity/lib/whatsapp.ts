@@ -61,16 +61,16 @@ Estimasi Harga: Rp${price.toLocaleString('id-ID')}
 _Mohon segera konfirmasi kesanggupan dan hubungi pemesan!_`
 }
 
-/**
- * Mengirim pesan WhatsApp menggunakan API Fonnte.
- */
 export async function sendWhatsAppNotification(target: string, message: string) {
-  const token = 'bxWCvLcukyYH4ky6eDur' // Updated token from user
+  const token = process.env.FONNTE_API_TOKEN || 'bxWCvLcukyYH4ky6eDur'
 
   if (!token) {
     console.warn('FONNTE_API_TOKEN tidak ditemukan di environment variables.')
     return { success: false, error: 'API Token tidak dikonfigurasi.' }
   }
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 8000)
 
   try {
     const response = await fetch('https://api.fonnte.com/send', {
@@ -82,13 +82,19 @@ export async function sendWhatsAppNotification(target: string, message: string) 
         target: target,
         message: message,
       }),
+      signal: controller.signal,
     })
 
+    clearTimeout(timeoutId)
     const data = await response.json()
     console.log(`Fonnte API Response (${target}):`, data)
     return { success: data.status, data }
-  } catch (error) {
+  } catch (error: any) {
+    clearTimeout(timeoutId)
     console.error(`Fonnte API Error Detail (${target}):`, error)
+    if (error.name === 'AbortError') {
+      return { success: false, error: 'Request timeout saat menghubungi server Fonnte.' }
+    }
     return { success: false, error: 'Gagal menghubungi server Fonnte.' }
   }
 }

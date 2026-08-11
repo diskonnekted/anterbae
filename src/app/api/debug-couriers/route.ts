@@ -9,7 +9,16 @@ const writeClient = createClient({
   token: process.env.SANITY_API_WRITE_TOKEN,
 })
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Protect this endpoint from public exposure
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  const expectedSecret = process.env.DEBUG_SECRET || 'anterbae-debug-secret-2026'
+
+  if (process.env.NODE_ENV === 'production' && secret !== expectedSecret) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
   const couriers = await writeClient.fetch(`*[_type == "courier"]{_id, name, phone, isActive, status}`)
   
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pawon.pondokrejo.id'

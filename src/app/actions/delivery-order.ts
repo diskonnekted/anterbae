@@ -61,7 +61,8 @@ export async function createDeliveryOrder(data: {
   paymentMethod: 'cod' | 'transfer'
 }) {
   try {
-    const orderNumber = `ANT-${Date.now().toString().slice(-6)}`
+    const rand = Math.floor(100 + Math.random() * 900)
+    const orderNumber = `ANT-${Date.now().toString().slice(-6)}${rand}`
 
     const order = await client.create({
       _type: 'deliveryOrder',
