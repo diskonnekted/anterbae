@@ -3,14 +3,13 @@
 import { useState } from 'react'
 import { MapPin, ChevronDown, ChevronUp, Check } from 'lucide-react'
 
-// Data kecamatan dan desa dari GeoJSON Banjarnegara
 const AREA_DATA: Record<string, string[]> = {
   'Banjarmangu': ['Banjar Mangu', 'Bindang', 'Duren Songo', 'Gending', 'Kaliwadas', 'Kesilir', 'Kragnha', 'Leksono', 'Paginggungan', 'Pendowoharjo', 'Sigedong', 'Simpang', 'Sukodono', 'Sumberejo', 'Tamansari', 'Wadeg', 'Wates'],
   'Banjarnegara': ['Banjarnegara', 'Beningharjo', 'Brandal', 'Doroharjo', 'Gumiwang', 'Kadipaten', 'Kadilangu', 'Karangjati', 'Karangtengah', 'Kotagadang', 'Lebak', 'Randulanang', 'Tern堡'],
   'Batur': ['Batur', 'Campursari', 'Gendingsekti', 'Kalikasar', 'Karangtengah', 'Ngadimulyo', 'Sukoharjo', 'Tengaran'],
-  'Bawang': ['Bawang', 'Bumiayu', 'Cemoro', 'Damar', 'Daluwangi', 'Gedongsongo', 'Guntur', 'Kalibening', 'Karangjati', 'Karangnongko', 'Kesilir', 'Kotabaru', 'Patikraja', 'Pucungsari', 'Sumberjo', 'Tern堡', 'Warungpring', 'Wringin'],
+  'Bawang': ['Bawang', 'Bumiayu', 'Cemoro', 'Damar', 'Daluwangi', 'Gedongsongo', 'Guntur', 'Kalibening', 'Karangjati', 'Karangnongko', 'Kesilir', 'Kotabaru', 'Patikraja', 'Pucungsari', 'Sumberjo', 'Warungpring', 'Wringin'],
   'Kalibening': ['Kalibening', 'Bandongan', 'Bumiayu', 'Campurdara', 'Gedongan', 'Gondosari', 'Karangmangu', 'Karangtengah', 'Kayumas', 'Kesilir', 'Mulyosari', 'Noborejo', 'Purbasari', 'Sukamaju', 'Sukoharjo', 'Tengaran'],
-  'Karangkobar': ['Karangkobar', 'Bantarbidu', 'Bondar', 'Doroharjo', 'Kalimulya', 'Karanganyar', 'Karangjati', 'Karangtengah', 'Kersana', 'Lebak', 'Mulyosari', 'Purwoharjo', 'Sukamaju'],
+  'Karangkobar': ['Karangkobar', 'Bandarbidu', 'Bondar', 'Doroharjo', 'Kalimulya', 'Karanganyar', 'Karangjati', 'Karangtengah', 'Kersana', 'Lebak', 'Mulyosari', 'Purwoharjo', 'Sukamaju'],
   'Madukara': ['Madukara', 'Batukara', 'Bumiharjo', 'Campursari', 'Dawung', 'Gandusari', 'Giribangun', 'Giri Harjo', 'Jatilawang', 'Kaliputu', 'Karangmalang', 'Karangtengah', 'Kedungbanteng', 'Kidul', 'Maduretno', 'Mangli', 'Pucanggading', 'Selomerto', 'Tanjungsari', 'Wirasatren'],
   'Pagedongan': ['Pagedongan', 'Banjarnegara', 'Bindang', 'Doro', 'Gumiwang', 'Kotabaru', 'Pagedongan', 'Purwasari', 'Tembes'],
   'Pagentan': ['Pagentan', 'Bondar', 'Bumiayu', 'Campurdara', 'Gedongsari', 'Giri Harjo', 'Jogoyitnan', 'Karangjati', 'Karangmangu', 'Kedungbanteng', 'Mulyosari', 'Pagentan', 'Purwosari', 'Sukamaju', 'Tern堡', 'Wiroto'],
@@ -48,7 +47,6 @@ export default function AddressPicker({
   const kecamatanOptions = Object.keys(AREA_DATA).sort()
   const desaOptions = selectedKecamatan ? AREA_DATA[selectedKecamatan] || [] : []
 
-  // Build full address string
   const fullAddress = [selectedKecamatan, selectedDesa, value].filter(Boolean).join(', ')
 
   const handleKecamatanChange = (kec: string) => {
@@ -62,111 +60,107 @@ export default function AddressPicker({
     onChange('')
   }
 
-  const finalDisplay = fullAddress || placeholder
+  const displayText = fullAddress || placeholder
 
   return (
     <div className="relative">
-      {/* Clickable display area */}
+      {/* Trigger button */}
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900 text-left flex items-center gap-3 transition-colors hover:bg-slate-100"
       >
         <MapPin className="w-5 h-5 text-red-500 flex-shrink-0" />
-        <span className={finalDisplay === placeholder ? 'text-slate-400' : 'text-slate-900'}>
-          {finalDisplay}
+        <span className={displayText === placeholder ? 'text-slate-400' : 'text-slate-900'}>
+          {displayText}
         </span>
-        {expanded ? (
-          <ChevronUp className="w-4 h-4 text-slate-400 ml-auto flex-shrink-0" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-slate-400 ml-auto flex-shrink-0" />
-        )}
+        {expanded ? <ChevronUp className="w-4 h-4 text-slate-400 ml-auto" /> : <ChevronDown className="w-4 h-4 text-slate-400 ml-auto" />}
       </button>
 
-      {/* Dropdown panel */}
+      {/* Dropdown */}
       {expanded && (
-        <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden" style={{ maxHeight: '60vh' }}>
-          <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
-            {/* Kecamatan dropdown */}
-            <div className="p-3 border-b border-slate-100">
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-2">Kecamatan</label>
-              <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden" style={{ maxHeight: '50vh' }}>
+          <div className="overflow-y-auto" style={{ maxHeight: '50vh' }}>
+            {/* Kecamatan */}
+            <div className="p-2 border-b border-slate-100">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1">Kecamatan</p>
+              <div className="max-h-24 overflow-y-auto">
                 {kecamatanOptions.map(kec => (
                   <button
                     key={kec}
                     onClick={() => handleKecamatanChange(kec)}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-all ${
                       selectedKecamatan === kec
                         ? 'bg-red-50 text-red-700'
                         : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    {kec}
-                    {selectedKecamatan === kec && <Check className="w-4 h-4" />}
+                    <div className="flex items-center justify-between">
+                      <span>{kec}</span>
+                      {selectedKecamatan === kec && <Check className="w-4 h-4" />}
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Desa dropdown */}
+            {/* Desa */}
             {selectedKecamatan && (
-              <div className="p-3 border-b border-slate-100">
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-2">Desa / Kelurahan</label>
-                <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
+              <div className="p-2 border-b border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1">Desa / Kelurahan</p>
+                <div className="max-h-24 overflow-y-auto">
                   {desaOptions.map(desa => (
                     <button
                       key={desa}
                       onClick={() => handleDesaChange(desa)}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-all ${
                         selectedDesa === desa
                           ? 'bg-red-50 text-red-700'
                           : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
-                      {desa}
-                      {selectedDesa === desa && <Check className="w-4 h-4" />}
+                      <div className="flex items-center justify-between">
+                        <span>{desa}</span>
+                        {selectedDesa === desa && <Check className="w-4 h-4" />}
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Detail jalan/RT-RW */}
+            {/* Detail input */}
             {selectedDesa && (
-              <div className="p-3">
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-2">
-                  Detail Jalan / Gang / RT-RW
-                </label>
+              <div className="p-2">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1">Detail Jalan / RT-RW</p>
                 <input
-                  name={name}
                   type="text"
-                  placeholder="Misal: Jl. Merdeka No. 10, RT 03/RW 02"
+                  placeholder="Jl. Merdeka No. 10, RT 03/RW 02"
                   value={value}
                   onChange={(e) => onChange(e.target.value)}
-                  onFocus={() => {}}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500"
                   autoComplete="address-line2"
+                  autoFocus
                 />
-                <p className="text-[10px] text-slate-400 mt-1 px-2">
+                <p className="text-[9px] text-slate-400 mt-1 px-2">
                   {selectedKecamatan} / {selectedDesa}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Selected address summary */}
+          {/* Selected address */}
           {fullAddress && (
-            <div className="p-3 bg-red-50 border-t border-red-100">
-              <p className="text-xs font-bold text-red-700 flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5" />
-                Alamat terpilih: {fullAddress}
+            <div className="p-2 bg-red-50 border-t border-red-100">
+              <p className="text-[10px] font-bold text-red-700 flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                {fullAddress}
               </p>
             </div>
           )}
         </div>
       )}
 
-      {/* Hidden input for form submission */}
       <input type="hidden" name={name} value={fullAddress} />
     </div>
   )
