@@ -38,7 +38,7 @@ export default async function Home() {
         {/* Hero Background */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/hero3.jpg"
+            src="/hero.jpg"
             alt="Hero Background"
             fill
             className="object-cover object-center"
