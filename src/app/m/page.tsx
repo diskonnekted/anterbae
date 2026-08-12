@@ -17,10 +17,10 @@ const services = [
 ]
 
 const restaurants = [
-  { name: 'Warung Nasi Bu Sri', cuisine: 'Nasi, Mie, Bakso', rating: 4.8, distance: '0.5 km', eta: '20 menit', icon: <Soup className="w-12 h-12" />, price: 'Rp 10.000 - 25.000' },
-  { name: 'Soto Pak Ahmad', cuisine: 'Soto, Ayam, Sayur', rating: 4.9, distance: '1.2 km', eta: '25 menit', icon: <Soup className="w-12 h-12" />, price: 'Rp 12.000 - 30.000' },
-  { name: 'Bakso Jantur', cuisine: 'Bakso, Bakso Goreng', rating: 4.9, distance: '2.0 km', eta: '30 menit', icon: <UtensilsCrossed className="w-12 h-12" />, price: 'Rp 15.000 - 35.000' },
-  { name: 'Ayam Geprek Sambal Bawang', cuisine: 'Ayam Geprek, Nasi', rating: 4.7, distance: '0.7 km', eta: '20 menit', icon: <DrumstickIcon className="w-12 h-12" />, price: 'Rp 12.000 - 25.000' },
+  { slug: 'warung-nasi-bu-sri', name: 'Warung Nasi Bu Sri', cuisine: 'Nasi, Mie, Bakso', rating: 4.8, distance: '0.5 km', eta: '20 menit', icon: <Soup className="w-12 h-12" />, price: 'Rp 10.000 - 25.000' },
+  { slug: 'soto-pak-ahmad', name: 'Soto Pak Ahmad', cuisine: 'Soto, Ayam, Sayur', rating: 4.9, distance: '1.2 km', eta: '25 menit', icon: <Soup className="w-12 h-12" />, price: 'Rp 12.000 - 30.000' },
+  { slug: 'bakso-jantur', name: 'Bakso Jantur', cuisine: 'Bakso, Bakso Goreng', rating: 4.9, distance: '2.0 km', eta: '30 menit', icon: <UtensilsCrossed className="w-12 h-12" />, price: 'Rp 15.000 - 35.000' },
+  { slug: 'ayam-geprek-sambal-bawang', name: 'Ayam Geprek Sambal Bawang', cuisine: 'Ayam Geprek, Nasi', rating: 4.7, distance: '0.7 km', eta: '20 menit', icon: <DrumstickIcon className="w-12 h-12" />, price: 'Rp 12.000 - 25.000' },
 ]
 
 const servicePages: Record<string, { title: string; desc: string; icon: React.ReactNode; gradient: string; features: { icon: React.ReactNode; title: string; desc: string }[]; cta?: string }> = {
@@ -106,7 +106,7 @@ export default function MobileHome() {
         </div>
         <div className="px-4 py-4 space-y-3">
           {restaurants.map((rest) => (
-            <a key={rest.name} href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="block bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform">
+            <a key={rest.name} href={`/m/food/${rest.slug || rest.name.toLowerCase().replace(/\s+/g, '-')}`} className="block bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform">
               <div className="h-32 bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center relative">
                 <div className="text-orange-600">{rest.icon}</div>
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1">
