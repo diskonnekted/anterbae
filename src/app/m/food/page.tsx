@@ -48,7 +48,7 @@ export default async function MobileFoodPage() {
           merchants.map((merchant: any) => (
             <Link
               key={merchant._id}
-              href={`/m/food/${merchant.slug?.current || merchant.name.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/m/food/${(typeof merchant.slug === 'string' ? merchant.slug : merchant.slug?.current) || merchant.name.toLowerCase().replace(/\s+/g, '-')}`}
               className="block bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
             >
               {/* Cover Image */}

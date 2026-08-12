@@ -17,7 +17,7 @@ const MERCHANT_WITH_PRODUCTS_QUERY = defineQuery(`
     openHours,
     category,
     isVerified,
-    "products": *[_type == "product" && references(^._id) && _id =~ "food-"] | order(_createdAt desc) {
+    "products": *[_type == "product" && references(^._id)] | order(_createdAt desc) {
       _id,
       name,
       slug,
