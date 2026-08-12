@@ -308,11 +308,11 @@ export default function AdminDashboardPage() {
     return <Package className="w-5 h-5" />
   }
 
-  // Filter food orders first
-  const foodOrders = orders.filter(o => o.orderType === 'food')
+  // Filter food orders from regular orders list
+  const regularFoodOrders = orders.filter(o => o.orderType === 'food')
   
   // Filtering logic
-  const filteredOrders = foodOrders.filter(order => {
+  const filteredOrders = regularFoodOrders.filter(order => {
     const matchesSearch = 
       order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -335,17 +335,17 @@ export default function AdminDashboardPage() {
   )
 
   // Stats computation
-  const totalRevenue = foodOrders
+  const totalRevenue = regularFoodOrders
     .filter(o => o.status === 'completed')
     .reduce((acc, curr) => acc + curr.totalAmount, 0)
   
-  const totalPending = foodOrders.filter(o => o.status === 'pending').length
-  const totalActive = foodOrders.filter(o => ['accepted', 'delivering', 'delivered'].includes(o.status)).length
-  const totalCompleted = foodOrders.filter(o => o.status === 'completed').length
+  const totalPending = regularFoodOrders.filter(o => o.status === 'pending').length
+  const totalActive = regularFoodOrders.filter(o => ['accepted', 'delivering', 'delivered'].includes(o.status)).length
+  const totalCompleted = regularFoodOrders.filter(o => o.status === 'completed').length
 
   // Group by Area
   const areaDistribution: Record<string, number> = {}
-  foodOrders.forEach(o => {
+  regularFoodOrders.forEach(o => {
     const area = o.deliveryArea || 'Lainnya'
     areaDistribution[area] = (areaDistribution[area] || 0) + 1
   })
@@ -472,7 +472,7 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pemesanan Makanan</p>
-                <p className="text-2xl font-black text-slate-900">{foodOrders.length}</p>
+                <p className="text-2xl font-black text-slate-900">{regularFoodOrders.length}</p>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                 <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-1">Butuh Tindakan</p>
@@ -1001,7 +1001,7 @@ export default function AdminDashboardPage() {
             </tr>
           </thead>
           <tbody className="text-sm align-top">
-            {foodOrders.map((order) => (
+            {regularFoodOrders.map((order) => (
               <tr key={order._id} className="border-b border-slate-200">
                 <td className="py-4 px-3 font-black">{order.orderNumber}</td>
                 <td className="py-4 px-3">{new Date(order._createdAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</td>
