@@ -15,6 +15,7 @@ const sanity = createClient({
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json()
+    console.log("POST /api/food-order received payload:", JSON.stringify(data))
     const {
       restaurantName,
       customerName,

@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+
 export function formatOrderMessage(
   orderNumber: string,
   customerName: string,
@@ -72,8 +75,28 @@ function formatPhone(phone: string): string {
   return cleaned
 }
 
+function getLocalEnvToken(): string | null {
+  try {
+    const envPath = path.join(process.cwd(), '.env.local')
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8')
+      const match = content.match(/^FONNTE_API_TOKEN\s*=\s*(.*)$/m)
+      if (match && match[1]) {
+        return match[1].trim()
+      }
+    }
+  } catch (e) {
+    console.error('Failed to read .env.local manually:', e)
+  }
+  return null
+}
+
 export async function sendWhatsAppNotification(target: string, message: string) {
-  const token = process.env.FONNTE_API_TOKEN || 'bxWCvLcukyYH4ky6eDur'
+  const localToken = getLocalEnvToken()
+  const rawToken = localToken || process.env.FONNTE_API_TOKEN || 'bxWCvLcukyYH4ky6eDur'
+  const token = rawToken.trim()
+
+  console.log(`[Fonnte Debug] Token Length: ${token.length}, Starts with: ${token.substring(0, 5)}, Char codes: ${Array.from(token).map(c => c.charCodeAt(0)).join(',')}`)
 
   if (!token) {
     console.warn('FONNTE_API_TOKEN tidak ditemukan di environment variables.')
