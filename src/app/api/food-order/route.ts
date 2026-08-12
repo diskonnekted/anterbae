@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
 import { sendWhatsAppNotification } from '@/sanity/lib/whatsapp'
-import { upsertCustomer, updateBuyerLevel, getBuyerLevel } from '@/app/actions/buyer-level'
+import { upsertCustomer, updateBuyerLevel } from '@/app/actions/buyer-level'
+import { getBuyerLevel } from '@/lib/buyer-level-utils'
 
 const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,

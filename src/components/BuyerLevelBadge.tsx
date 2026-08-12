@@ -1,6 +1,6 @@
 'use client'
 
-import { getBuyerLevel } from '@/app/actions/buyer-level'
+import { getBuyerLevel } from '@/lib/buyer-level-utils'
 
 interface BuyerLevelBadgeProps {
   totalOrders: number
