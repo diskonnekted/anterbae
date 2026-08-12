@@ -182,12 +182,13 @@ export default function MobileHome() {
           </button>
           <div className="flex items-center gap-2">
             <Image
-              src="/anterbae.png"
+              src="/logo-anterbae-fix.png"
               alt="Logo Anterbae"
-              width={90}
-              height={30}
-              className="h-[28px] w-auto object-contain"
+              width={32}
+              height={32}
+              className="h-[32px] w-auto object-contain"
             />
+            <span className="text-lg font-black text-orange-600 tracking-tight">Anterbae</span>
           </div>
           <button className="p-2 -mr-2 rounded-xl hover:bg-gray-100 relative">
             <Bell className="w-5 h-5 text-gray-700" />
