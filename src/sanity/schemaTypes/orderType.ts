@@ -43,9 +43,108 @@ export const orderType = defineType({
         list: [
           { title: 'Produk Barang', value: 'product' },
           { title: 'Pemesanan Jasa', value: 'service' },
+          { title: 'Makanan (Food Order)', value: 'food' },
         ],
       },
       initialValue: 'product',
+    }),
+    // ===== FIELDS KHUSUS FOOD ORDER =====
+    defineField({
+      name: 'restaurant',
+      title: 'Restoran / Warung',
+      type: 'reference',
+      to: [{ type: 'merchant' }],
+      hidden: ({ document }) => document?.orderCategory !== 'food',
+    }),
+    defineField({
+      name: 'foodItems',
+      title: 'Menu Makanan',
+      type: 'array',
+      hidden: ({ document }) => document?.orderCategory !== 'food',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({ name: 'productId', type: 'reference', to: [{ type: 'product' }] }),
+            defineField({ name: 'name', type: 'string', title: 'Nama Menu' }),
+            defineField({ name: 'price', type: 'number', title: 'Harga' }),
+            defineField({ name: 'quantity', type: 'number', title: 'Jumlah' }),
+            defineField({ name: 'notes', type: 'string', title: 'Catatan (misal: tidak pedas)' }),
+          ],
+          preview: {
+            select: { name: 'name', quantity: 'quantity', price: 'price' },
+            prepare({ name, quantity, price }) {
+              return {
+                title: `${name} x${quantity}`,
+                subtitle: `Rp ${price?.toLocaleString('id-ID')}`,
+              }
+            },
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: 'paymentFlow',
+      title: 'Alur Pembayaran',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'accountNumber',
+          title: 'Nomor Rekening Admin',
+          type: 'string',
+          description: 'Rekening untuk pembayaran',
+        }),
+        defineField({
+          name: 'accountName',
+          title: 'Nama Pemilik Rekening',
+          type: 'string',
+        }),
+        defineField({
+          name: 'paymentStatus',
+          title: 'Status Pembayaran',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Menunggu Pembayaran', value: 'waiting_payment' },
+              { title: 'Sudah Bayar (Menunggu Konfirmasi)', value: 'paid_pending_confirm' },
+              { title: 'Sudah Dikonfirmasi Admin', value: 'confirmed' },
+            ],
+          },
+          initialValue: 'waiting_payment',
+        }),
+        defineField({
+          name: 'proofImage',
+          title: 'Bukti Transfer',
+          type: 'image',
+          hidden: true,
+        }),
+        defineField({
+          name: 'confirmedAt',
+          title: 'Waktu Konfirmasi',
+          type: 'datetime',
+          hidden: true,
+        }),
+      ],
+      hidden: ({ document }) => document?.orderCategory !== 'food',
+    }),
+    defineField({
+      name: 'foodOrderStatus',
+      title: 'Status Food Order',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Menunggu Pembayaran', value: 'waiting_payment' },
+          { title: 'Menunggu Konfirmasi Admin', value: 'waiting_admin_confirm' },
+          { title: 'Dikonfirmasi - Menunggu Resto', value: 'confirmed_resto_prep' },
+          { title: 'Resto Siap - Menunggu Kurir', value: 'resto_ready_waiting_courier' },
+          { title: 'Kurir Mengambil', value: 'courier_picking' },
+          { title: 'Dalam Pengiriman', value: 'delivering' },
+          { title: 'Selesai', value: 'completed' },
+          { title: 'Dibatalkan', value: 'cancelled' },
+        ],
+      },
+      initialValue: 'waiting_payment',
+      hidden: ({ document }) => document?.orderCategory !== 'food',
     }),
     defineField({
       name: 'serviceItem',
