@@ -61,14 +61,19 @@ Estimasi Harga: Rp${price.toLocaleString('id-ID')}
 _Mohon segera konfirmasi kesanggupan dan hubungi pemesan!_`
 }
 
+function formatPhone(phone: string): string {
+  let cleaned = phone.replace(/[^0-9]/g, '')
+  if (cleaned.startsWith('0')) {
+    cleaned = '62' + cleaned.slice(1)
+  }
+  if (cleaned.startsWith('620')) {
+    cleaned = '62' + cleaned.slice(3)
+  }
+  return cleaned
+}
+
 export async function sendWhatsAppNotification(target: string, message: string) {
   const token = process.env.FONNTE_API_TOKEN || 'bxWCvLcukyYH4ky6eDur'
-
-  // Clean and format target phone number to international format (62...)
-  let formattedTarget = target.replace(/\D/g, '')
-  if (formattedTarget.startsWith('0')) {
-    formattedTarget = '62' + formattedTarget.substring(1)
-  }
 
   if (!token) {
     console.warn('FONNTE_API_TOKEN tidak ditemukan di environment variables.')
@@ -79,27 +84,31 @@ export async function sendWhatsAppNotification(target: string, message: string) 
   const timeoutId = setTimeout(() => controller.abort(), 8000)
 
   try {
-    const formData = new FormData()
-    formData.append('target', formattedTarget)
-    formData.append('message', message)
-    formData.append('token', token)
+    const formattedTarget = formatPhone(target)
+    console.log(`[Fonnte] Sending to ${target} -> ${formattedTarget}`)
 
     const response = await fetch('https://api.fonnte.com/send', {
       method: 'POST',
       headers: {
         Authorization: token,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formData,
+      body: new URLSearchParams({
+        target: formattedTarget,
+        message: message,
+      }),
       signal: controller.signal,
     })
 
     clearTimeout(timeoutId)
-    const data = await response.json()
-    console.log(`Fonnte API Response (${target}):`, data)
-    return { success: data.status, data }
+    const data = await response.json().catch(() => ({ status: response.ok }))
+    console.log(`[Fonnte] Response (${target}):`, JSON.stringify(data))
+
+    const success = data.status === 200 || data.status === true || response.ok
+    return { success, data }
   } catch (error: any) {
     clearTimeout(timeoutId)
-    console.error(`Fonnte API Error Detail (${target}):`, error)
+    console.error(`[Fonnte] Error (${target}):`, error)
     if (error.name === 'AbortError') {
       return { success: false, error: 'Request timeout saat menghubungi server Fonnte.' }
     }
