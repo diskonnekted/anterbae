@@ -64,6 +64,12 @@ _Mohon segera konfirmasi kesanggupan dan hubungi pemesan!_`
 export async function sendWhatsAppNotification(target: string, message: string) {
   const token = process.env.FONNTE_API_TOKEN || 'bxWCvLcukyYH4ky6eDur'
 
+  // Clean and format target phone number to international format (62...)
+  let formattedTarget = target.replace(/\D/g, '')
+  if (formattedTarget.startsWith('0')) {
+    formattedTarget = '62' + formattedTarget.substring(1)
+  }
+
   if (!token) {
     console.warn('FONNTE_API_TOKEN tidak ditemukan di environment variables.')
     return { success: false, error: 'API Token tidak dikonfigurasi.' }
@@ -79,8 +85,9 @@ export async function sendWhatsAppNotification(target: string, message: string) 
         Authorization: token,
       },
       body: new URLSearchParams({
-        target: target,
+        target: formattedTarget,
         message: message,
+        token: token,
       }),
       signal: controller.signal,
     })
