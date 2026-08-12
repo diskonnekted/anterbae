@@ -86,6 +86,10 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     })
 
+    const host = req.headers.get('host') || 'localhost:3000'
+    const protocol = req.headers.get('x-forwarded-proto') || 'http'
+    const baseUrl = `${protocol}://${host}`
+
     // Format WhatsApp message based on payment method
     const isCOD = paymentMethod === 'cod_on_delivery'
     
@@ -93,7 +97,7 @@ export async function POST(req: NextRequest) {
       `- ${item.name} x${item.quantity} = Rp ${(item.price * item.quantity).toLocaleString('id-ID')}${item.notes ? ` (${item.notes})` : ''}`
     ).join('\n')
     
-    const customerMessage = `*🛵 PESANAN MAKANAN ${orderNumber}*\n\n` +
+    let customerMessage = `*🛵 PESANAN MAKANAN ${orderNumber}*\n\n` +
       `Terima kasih telah memesan di *${restaurantName}*\n\n` +
       `*Detail Pesanan:*\n${itemsList}\n\n` +
       `Subtotal: Rp ${subtotal.toLocaleString('id-ID')}\n` +
@@ -114,6 +118,14 @@ export async function POST(req: NextRequest) {
       ) + `\n\n` +
       `📍 Alamat: ${deliveryAddress}`
 
+    if (isCOD) {
+      customerMessage += `\n\n*Aksi Penerimaan Barang (Klik Link):*\n` +
+        `1. Klik jika sudah terima barang:\n` +
+        `👉 ${baseUrl}/order-action?orderNumber=${orderNumber}&action=received\n\n` +
+        `2. Klik jika barang bermasalah:\n` +
+        `👉 ${baseUrl}/order-action?orderNumber=${orderNumber}&action=problem`
+    }
+
     // Send WhatsApp to customer
     await sendWhatsAppNotification(
       customerPhone,
@@ -130,7 +142,14 @@ export async function POST(req: NextRequest) {
       `*Items:*\n${itemsList}\n\n` +
       `*Pembayaran:* ${isCOD ? '✅ COD (Bayar di Tempat)' : '🏦 Transfer'}\n` +
       `*Total:* Rp ${total.toLocaleString('id-ID')}\n\n` +
-      (isCOD ? `✅ Langsung diproses - Kurir ambil uang di tempat` : `Menunggu pembayaran...`)
+      (isCOD ? `✅ Langsung diproses - Kurir ambil uang di tempat` : `Menunggu pembayaran...`) +
+      `\n\n*Aksi Cepat Admin (Klik Link):*\n` +
+      `1. Terima Pesanan:\n` +
+      `👉 ${baseUrl}/admin-order-action?orderNumber=${orderNumber}&action=accept\n\n` +
+      `2. Hubungi/Tunjuk Kurir Bertugas:\n` +
+      `👉 ${baseUrl}/admin-order-action?orderNumber=${orderNumber}&action=courier-wa\n\n` +
+      `3. Tolak Pesanan (dengan alasan):\n` +
+      `👉 ${baseUrl}/admin-order-action?orderNumber=${orderNumber}&action=reject`
 
     await sendWhatsAppNotification(
       '6281328128315',
