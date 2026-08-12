@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { UtensilsCrossed, Truck, ShoppingBasket, Package, Coins, ShoppingCart, Sparkles, Search, Bell, ChevronDown, LayoutGrid, ShoppingBag, MapPin, Bike, MessageSquare, ShoppingCart as CartIcon, User, Home as HomeIcon, ChevronRight, Phone, Star, Clock, MapPin as MapPinIcon, Zap, Shield, Tag, Gift, Lightbulb, Wrench, Camera, Scissors, Hammer, ArrowLeft, Soup, DrumstickIcon, Store, Pill, Timer, Footprints, File, Sprout, Shirt, Smile, PackageCheck } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
 
 const services = [
   { id: 'food', icon: <UtensilsCrossed className="w-7 h-7" />, label: 'Food', href: '/m/food' },
@@ -180,8 +181,13 @@ export default function MobileHome() {
             <LayoutGrid className="w-5 h-5 text-gray-700" />
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-black text-red-600">Anterbae</span>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+            <Image
+              src="/anterbae.png"
+              alt="Logo Anterbae"
+              width={90}
+              height={30}
+              className="h-[28px] w-auto object-contain"
+            />
           </div>
           <button className="p-2 -mr-2 rounded-xl hover:bg-gray-100 relative">
             <Bell className="w-5 h-5 text-gray-700" />

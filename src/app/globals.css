@@ -3,11 +3,11 @@
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
-  --primary: #dc2626;       /* Red - brand primary */
-  --primary-dark: #b91c1c;  /* Red dark */
+  --primary: #f97316;       /* Orange - brand primary */
+  --primary-dark: #ea580c;  /* Orange dark */
   --secondary: #16a34a;     /* Green - brand secondary (logo AB circle) */
   --secondary-dark: #15803d;
-  --accent: #f97316;        /* Orange - CTA accent */
+  --accent: #dc2626;        /* Red - CTA accent */
   --surface: #ffffff;
   --surface-2: #f1f5f9;
 }
@@ -44,13 +44,13 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #dc2626, #16a34a);
+  background: linear-gradient(135deg, #f97316, #16a34a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .text-gradient-red {
-  background: linear-gradient(135deg, #dc2626, #f97316);
+  background: linear-gradient(135deg, #f97316, #ea580c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
