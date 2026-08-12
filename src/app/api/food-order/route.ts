@@ -44,6 +44,28 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Find or create customer document in Sanity to link as Profil Warga (Pembeli)
+    let customerRef = null
+    try {
+      const existingCustomer = await sanity.fetch(
+        `*[_type == "customer" && phone == $phone][0]._id`,
+        { phone: customerPhone }
+      )
+      if (existingCustomer) {
+        customerRef = existingCustomer
+      } else {
+        const newCustomer = await sanity.create({
+          _type: 'customer',
+          name: customerName,
+          phone: customerPhone,
+          address: deliveryAddress,
+        })
+        customerRef = newCustomer._id
+      }
+    } catch (err) {
+      console.error('Failed to link customer reference:', err)
+    }
+
     // Generate order number
     const orderNumber = `FOOD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 
@@ -54,6 +76,10 @@ export async function POST(req: NextRequest) {
       orderCategory: 'food',
       customerName,
       customerPhone,
+      customer: customerRef ? {
+        _type: 'reference',
+        _ref: customerRef,
+      } : undefined,
       deliveryAddress,
       foodItems: items.map((item: any) => ({
         _key: item.productId || Math.random().toString(36).slice(2),
