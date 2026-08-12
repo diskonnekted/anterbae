@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   turbopack: {},
   images: {
     formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [32, 48, 64, 96, 128],
     remotePatterns: [
       {
         protocol: 'https',
@@ -14,7 +16,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Redirect old PAWON paths
+  // Optimize for modern browsers (ES6+)
+  transpileDependencies: [],
   async redirects() {
     return [
       { source: '/vendors', destination: '/mitra', permanent: false },
