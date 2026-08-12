@@ -79,16 +79,17 @@ export async function sendWhatsAppNotification(target: string, message: string) 
   const timeoutId = setTimeout(() => controller.abort(), 8000)
 
   try {
+    const formData = new FormData()
+    formData.append('target', formattedTarget)
+    formData.append('message', message)
+    formData.append('token', token)
+
     const response = await fetch('https://api.fonnte.com/send', {
       method: 'POST',
       headers: {
         Authorization: token,
       },
-      body: new URLSearchParams({
-        target: formattedTarget,
-        message: message,
-        token: token,
-      }),
+      body: formData,
       signal: controller.signal,
     })
 
