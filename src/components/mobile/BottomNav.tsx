@@ -26,7 +26,6 @@ export default function BottomNav() {
       <div className="flex justify-between items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
-          const isMain = item.name === 'Pesan';
           
           return (
             <Link
@@ -34,20 +33,18 @@ export default function BottomNav() {
               href={item.href}
               aria-label={item.name === 'Cart' ? `Keranjang belanja (${totalItems} item)` : item.name}
               className={`flex flex-col items-center gap-1 px-3 py-1 rounded-2xl transition-all relative ${
-                isMain
-                  ? 'bg-red-600 text-white -mt-4 px-5 py-3 shadow-xl shadow-red-300'
-                  : isActive
-                  ? 'text-red-600'
+                isActive
+                  ? 'text-orange-600'
                   : 'text-gray-600'
               }`}
             >
-              <item.icon className={`${isMain ? 'w-6 h-6' : 'w-5 h-5'}`} />
+              <item.icon className="w-5 h-5" />
               {item.name === 'Cart' && totalItems > 0 && (
-                <span className="absolute top-0 right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white shadow-sm" aria-hidden="true">
+                <span className="absolute top-0 right-1 bg-orange-600 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white shadow-sm" aria-hidden="true">
                   {totalItems > 99 ? '99+' : totalItems}
                 </span>
               )}
-              <span className={`font-black uppercase tracking-widest ${isMain ? 'text-[10px]' : 'text-[10px]'}`}>
+              <span className="font-black uppercase tracking-widest text-[9px]">
                 {item.name}
               </span>
             </Link>
