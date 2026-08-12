@@ -57,7 +57,10 @@ export async function POST(req: NextRequest) {
       deliveryAddress,
       foodItems: items.map((item: any) => ({
         _key: item.productId || Math.random().toString(36).slice(2),
-        productId: item.productId,
+        productId: {
+          _type: 'reference',
+          _ref: item.productId,
+        },
         name: item.name,
         price: item.price,
         quantity: item.quantity,
