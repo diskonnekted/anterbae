@@ -181,15 +181,6 @@ export default function FoodDetailPage() {
             </div>
           </div>
         </div>
-
-        <a
-          href={`https://wa.me/${merchant.phone?.replace(/\D/g, '')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider active:scale-95 transition-all shadow-lg shadow-emerald-600/10"
-        >
-          <Phone className="w-4 h-4" /> Hubungi Penjual (WA)
-        </a>
       </div>
 
       {/* Menu / Products Listing */}
