@@ -205,11 +205,12 @@ export const orderType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Bayar di Tempat (COD)', value: 'cod' },
+          { title: 'Transfer Dulu (COD)', value: 'cod_transfer' },
+          { title: 'Bayar di Tempat (COD)', value: 'cod_on_delivery' },
           { title: 'QRIS', value: 'qris' },
         ],
       },
-      initialValue: 'cod',
+      initialValue: 'cod_transfer',
     }),
     defineField({
       name: 'paymentStatus',

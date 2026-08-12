@@ -27,6 +27,7 @@ export default function FoodCheckoutPage() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [deliveryAddress, setDeliveryAddress] = useState('')
   const [customerNotes, setCustomerNotes] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'cod_transfer' | 'cod_on_delivery'>('cod_on_delivery')
   
   // Location
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
@@ -108,6 +109,7 @@ export default function FoodCheckoutPage() {
           subtotal,
           deliveryFee,
           total,
+          paymentMethod,
         }),
       })
 
@@ -304,6 +306,68 @@ export default function FoodCheckoutPage() {
             rows={2}
             className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none"
           />
+        </div>
+
+        {/* Payment Method Selection */}
+        <div>
+          <label className="block text-xs font-bold text-gray-600 mb-3">Metode Pembayaran</label>
+          <div className="space-y-3">
+            {/* COD Option */}
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('cod_on_delivery')}
+              className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${
+                paymentMethod === 'cod_on_delivery'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  paymentMethod === 'cod_on_delivery' ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                }`}>
+                  {paymentMethod === 'cod_on_delivery' && (
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-black text-gray-900">💵 Bayar di Tempat (COD)</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Siapkan uang tunai Rp {total.toLocaleString('id-ID')}. Kurir akan mengambil uang saat pengantaran.
+                  </p>
+                  <p className="text-xs text-green-600 font-bold mt-1">✅ Pesanan langsung diproses</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Transfer Option */}
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('cod_transfer')}
+              className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${
+                paymentMethod === 'cod_transfer'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  paymentMethod === 'cod_transfer' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                }`}>
+                  {paymentMethod === 'cod_transfer' && (
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-black text-gray-900">🏦 Transfer Dulu</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Transfer ke BCA 1234567890, kirim bukti pembayaran via WA.
+                  </p>
+                  <p className="text-xs text-blue-600 font-bold mt-1">⏳ Menunggu konfirmasi admin</p>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 
