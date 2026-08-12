@@ -39,10 +39,10 @@ export async function GET(
   try {
     const { slug } = await params
     
-    const data = await sanityFetch({
+    const { data } = await sanityFetch({
       query: MERCHANT_WITH_PRODUCTS_QUERY,
       params: { slug },
-    })
+    }) as { data: any }
 
     if (!data) {
       return NextResponse.json(
