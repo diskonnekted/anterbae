@@ -3,7 +3,7 @@ import { FOOD_MERCHANTS_QUERY, MERCHANTS_QUERY } from "@/sanity/lib/queries"
 import { urlFor } from "@/sanity/lib/image"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Search, Phone, Star, MapPin as MapPinIcon, Clock } from "lucide-react"
+import { ArrowLeft, ArrowRight, Search, Phone, Star, MapPin as MapPinIcon, Clock } from "lucide-react"
 
 export const revalidate = 60
 
@@ -97,7 +97,7 @@ export default async function MobileFoodPage() {
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <span className="text-xs font-bold text-gray-600">Min. order Rp {merchant.minOrder ? merchant.minOrder.toLocaleString('id-ID') : '10.000'}</span>
                   <span className="flex items-center gap-1 text-xs font-black text-orange-600">
-                    Pesan via WA <Phone className="w-3 h-3" />
+                    Pilih Makanan <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>
