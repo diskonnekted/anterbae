@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
-import { sendWhatsApp } from '@/sanity/lib/whatsapp'
+import { sendWhatsAppNotification } from '@/sanity/lib/whatsapp'
 
 const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -98,10 +98,10 @@ export async function POST(req: NextRequest) {
       `📍 Alamat: ${deliveryAddress}`
 
     // Send WhatsApp to customer
-    await sendWhatsApp({
-      target: customerPhone,
-      message: customerMessage,
-    }).catch(err => console.error('Failed to send WA to customer:', err))
+    await sendWhatsAppNotification(
+      customerPhone,
+      customerMessage
+    ).catch(err => console.error('Failed to send WA to customer:', err))
 
     // Send notification to admin
     const adminMessage = `*🍔 PESANAN MAKANAN BARU*\n\n` +
@@ -115,10 +115,10 @@ export async function POST(req: NextRequest) {
       `*Total:* Rp ${total.toLocaleString('id-ID')}\n\n` +
       (isCOD ? `✅ Langsung diproses - Kurir ambil uang di tempat` : `Menunggu pembayaran...`)
 
-    await sendWhatsApp({
-      target: '6281234567890', // Admin phone
-      message: adminMessage,
-    }).catch(err => console.error('Failed to send WA to admin:', err))
+    await sendWhatsAppNotification(
+      '6281234567890',
+      adminMessage
+    ).catch(err => console.error('Failed to send WA to admin:', err))
 
     return NextResponse.json({
       success: true,

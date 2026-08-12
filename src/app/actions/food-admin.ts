@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@sanity/client'
-import { sendWhatsApp } from '@/sanity/lib/whatsapp'
+import { sendWhatsAppNotification } from '@/sanity/lib/whatsapp'
 
 const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -101,10 +101,10 @@ export async function confirmPaymentAndNotify(orderId: string, orderNumber: stri
       `Silakan siapkan pesanan dan kabari kurir saat siap. 🚀`
 
     // Send to admin (resto will notify via admin WA)
-    await sendWhatsApp({
-      target: '6281234567890',
-      message: restoMessage,
-    }).catch(err => console.error('Failed to notify resto:', err))
+    await sendWhatsAppNotification(
+        '6281234567890',
+        restoMessage
+      ).catch(err => console.error('Failed to notify resto:', err))
 
     // Find available courier in area
     const couriers = await sanity.fetch(
@@ -135,10 +135,10 @@ export async function confirmPaymentAndNotify(orderId: string, orderNumber: stri
         `Pelanggan: ${order.customerPhone}\n\n` +
         `Klik link berikut untuk update status:\nhttps://anterbae.id/kurir`
 
-      await sendWhatsApp({
-        target: courier.phone,
-        message: courierMessage,
-      }).catch(err => console.error('Failed to notify courier:', err))
+      await sendWhatsAppNotification(
+        courier.phone,
+        courierMessage
+      ).catch(err => console.error('Failed to notify courier:', err))
 
       return { 
         success: true, 
