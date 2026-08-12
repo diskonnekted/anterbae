@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
 import { sendWhatsAppNotification } from '@/sanity/lib/whatsapp'
+import { upsertCustomer, updateBuyerLevel, getBuyerLevel } from '@/app/actions/buyer-level'
 
 const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -119,6 +120,46 @@ export async function POST(req: NextRequest) {
       '6281234567890',
       adminMessage
     ).catch(err => console.error('Failed to send WA to admin:', err))
+
+    // Update buyer level
+    try {
+      // Get customer order count from Sanity
+      const existingOrders = await sanity.fetch(
+        `count(*[_type == "order" && customerPhone == $phone])`,
+        { phone: customerPhone }
+      )
+      
+      const newTotalOrders = (existingOrders || 0) + 1
+      
+      // Upsert customer
+      await upsertCustomer({
+        name: customerName,
+        phone: customerPhone,
+        address: deliveryAddress,
+        orderCount: newTotalOrders,
+        totalSpent: total,
+      })
+
+      // Send level up notification if applicable
+      const levelInfo = getBuyerLevel(newTotalOrders)
+      if (newTotalOrders === 10 || newTotalOrders === 11 || newTotalOrders === 51) {
+        let levelUpMessage = ''
+        if (newTotalOrders === 10) {
+          levelUpMessage = `\n\n🎉 Selamat! Anda akan naik ke Level 2 (VIP) setelah 1 pesanan lagi!`
+        } else if (newTotalOrders === 11) {
+          levelUpMessage = `\n\n🎊 CONGRATULATIONS! Anda naik ke Level 2 - PEMBELI RUTIN VIP! 🥈\nBonus: Gratis ongkir untuk 3 pesanan berikutnya!`
+        } else if (newTotalOrders === 51) {
+          levelUpMessage = `\n\n🏆 CONGRATULATIONS! Anda naik ke Level 3 - PEMBELIE SETIA VVIP! 🥇\nBonus: Gratis ongkir selamanya + Priority Service!`
+        }
+
+        if (levelUpMessage) {
+          await sendWhatsAppNotification(customerPhone, levelUpMessage).catch(() => {})
+        }
+      }
+    } catch (err) {
+      console.error('Error updating buyer level:', err)
+      // Don't fail the order if level update fails
+    }
 
     return NextResponse.json({
       success: true,

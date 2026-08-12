@@ -54,6 +54,48 @@ export const customerType = defineType({
       initialValue: 0,
       readOnly: true,
     }),
+    defineField({
+      name: 'totalOrders',
+      title: 'Total Semua Pesanan',
+      type: 'number',
+      initialValue: 0,
+      readOnly: true,
+    }),
+    defineField({
+      name: 'buyerLevel',
+      title: 'Level Pembeli',
+      type: 'string',
+      options: {
+        list: [
+          { title: '🥉 Pembeli Biasa (Level 1)', value: 'regular' },
+          { title: '🥈 Pembeli Rutin VIP (Level 2)', value: 'vip' },
+          { title: '🥇 Pembelian Setia VVIP (Level 3)', value: 'vvip' },
+        ],
+      },
+      initialValue: 'regular',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'buyerLevelBadge',
+      title: 'Badge Level',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
+      name: 'levelUpDate',
+      title: 'Tanggal Naik Level',
+      type: 'datetime',
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
+      name: 'totalSpent',
+      title: 'Total Belanja Semua Waktu',
+      type: 'number',
+      initialValue: 0,
+      readOnly: true,
+    }),
   ],
   preview: {
     select: {
@@ -61,11 +103,14 @@ export const customerType = defineType({
       subtitle: 'phone',
       success: 'successfulOrders',
       failed: 'failedOrders',
+      level: 'buyerLevel',
+      total: 'totalOrders',
     },
-    prepare({ title, subtitle, success, failed }) {
+    prepare({ title, subtitle, success, failed, level, total }) {
+      const levelEmoji = level === 'vvip' ? '🥇' : level === 'vip' ? '🥈' : '🥉'
       return {
         title,
-        subtitle: `WA: ${subtitle} | ✅ ${success || 0} | ❌ ${failed || 0}`,
+        subtitle: `${levelEmoji} ${level?.toUpperCase() || 'REGULAR'} | WA: ${subtitle} | ✅ ${success || 0} | 📦 ${total || 0}`,
       }
     },
   },
