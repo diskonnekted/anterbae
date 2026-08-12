@@ -46,11 +46,9 @@ export default async function MobileFoodPage() {
       <div className="px-4 py-4 space-y-3">
         {merchants.length > 0 ? (
           merchants.map((merchant: any) => (
-            <a
+            <Link
               key={merchant._id}
-              href="https://wa.me/6281234567890"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/m/food/${merchant.slug?.current || merchant.name.toLowerCase().replace(/\s+/g, '-')}`}
               className="block bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
             >
               {/* Cover Image */}
