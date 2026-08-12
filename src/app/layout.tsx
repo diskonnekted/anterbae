@@ -10,6 +10,10 @@ import Script from "next/script";
 import { CartProvider } from "@/context/CartContext";
 import BottomNav from "@/components/mobile/BottomNav";
 import FooterWrapper from "@/components/FooterWrapper";
+import StudioScrollFix from "@/components/StudioScrollFix";
+import NavbarWrapper from "@/components/NavbarWrapper";
+
+
 
 
 const geistSans = Geist({
@@ -62,7 +66,12 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-50" suppressHydrationWarning>
         <CartProvider>
-          {!isMobile && <Navbar />}
+          <StudioScrollFix />
+          {!isMobile && (
+            <NavbarWrapper>
+              <Navbar />
+            </NavbarWrapper>
+          )}
           <main className="flex-grow">
             {children}
           </main>

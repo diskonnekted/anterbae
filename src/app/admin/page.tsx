@@ -37,6 +37,13 @@ import {
   UtensilsCrossed
 } from 'lucide-react'
 
+import dynamic from 'next/dynamic'
+
+const PetaKurir = dynamic(() => import('@/components/PetaKurir'), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-[2rem] flex items-center justify-center text-slate-400 font-bold">Memuat peta live kurir...</div>
+})
+
 // Define Order type
 type Order = {
   _id: string
@@ -96,6 +103,9 @@ type Courier = {
   vehicleType: 'motor' | 'mobil'
   isActive: boolean
   status: 'active' | 'inactive'
+  latitude?: number
+  longitude?: number
+  lastLocationUpdate?: string
 }
 
 type Merchant = {
@@ -394,7 +404,7 @@ export default function AdminDashboardPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 mt-8 print:hidden">
         {/* Navigation Tabs */}
-        <div className="flex bg-white p-1.5 rounded-2xl border border-slate-200/60 shadow-sm max-w-md mb-8 gap-1">
+        <div className="flex bg-white p-1.5 rounded-2xl border border-slate-200/60 shadow-sm max-w-2xl mb-8 gap-1 w-full overflow-x-auto sm:overflow-x-visible">
           <button 
             onClick={() => { setActiveTab('orders'); setSearchQuery(''); }}
             className={`flex-1 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${activeTab === 'orders' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
@@ -901,6 +911,15 @@ export default function AdminDashboardPage() {
         {/* TAB 4: STATISTICS */}
         {activeTab === 'stats' && (
           <div className="space-y-8">
+            {/* Live Courier Tracking Map */}
+            <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <Bike className="w-5 h-5 text-red-600 animate-bounce" />
+                Live Tracking Posisi Kurir
+              </h3>
+              <PetaKurir couriers={couriers} />
+            </div>
+
             {/* Visual Progress Bar Chart for Area Distribution */}
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
               <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">

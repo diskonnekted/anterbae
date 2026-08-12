@@ -81,6 +81,21 @@ export const courierType = defineType({
       initialValue: 'active',
     }),
     defineField({
+      name: 'latitude',
+      title: 'Latitude Terakhir',
+      type: 'number',
+    }),
+    defineField({
+      name: 'longitude',
+      title: 'Longitude Terakhir',
+      type: 'number',
+    }),
+    defineField({
+      name: 'lastLocationUpdate',
+      title: 'Waktu Pembaruan Lokasi',
+      type: 'datetime',
+    }),
+    defineField({
       name: 'joinedAt',
       title: 'Tanggal Bergabung',
       type: 'date',

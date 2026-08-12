@@ -1,10 +1,18 @@
 'use server'
 
-import { client } from '@/sanity/lib/client'
+import { createClient } from 'next-sanity'
+
+const writeClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'mri94xpo',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  apiVersion: '2026-02-01',
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+})
 
 export async function getCourierByPhone(phone: string, pin: string) {
   try {
-    const courier = await client.fetch(
+    const courier = await writeClient.fetch(
       `*[_type == "courier" && phone == $phone][0]`,
       { phone }
     )
@@ -22,7 +30,7 @@ export async function getCourierByPhone(phone: string, pin: string) {
     }
 
     // Fetch assigned orders
-    const orders = await client.fetch(
+    const orders = await writeClient.fetch(
       `*[_type == "deliveryOrder" && courier._ref == $id && status != "completed" && status != "cancelled"] | order(_createdAt desc) {
         _id,
         orderNumber,
@@ -53,10 +61,27 @@ export async function getCourierByPhone(phone: string, pin: string) {
 
 export async function updateOrderStatus(orderId: string, status: string) {
   try {
-    await client.patch(orderId).set({ status }).commit()
+    await writeClient.patch(orderId).set({ status }).commit()
     return { success: true }
   } catch {
     return { success: false, error: 'Gagal update status.' }
+  }
+}
+
+export async function updateCourierLocation(courierId: string, latitude: number, longitude: number) {
+  try {
+    await writeClient
+      .patch(courierId)
+      .set({
+        latitude,
+        longitude,
+        lastLocationUpdate: new Date().toISOString()
+      })
+      .commit()
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating location:', error)
+    return { success: false, error: 'Gagal memperbarui lokasi kurir.' }
   }
 }
 
@@ -71,7 +96,7 @@ export async function submitCourierApplication(data: {
   motivation: string
 }) {
   try {
-    await client.create({
+    await writeClient.create({
       _type: 'courierApplication',
       ...data,
       applicationStatus: 'pending',

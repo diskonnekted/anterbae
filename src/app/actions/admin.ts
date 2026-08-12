@@ -53,7 +53,10 @@ export async function fetchCouriers() {
       area,
       vehicleType,
       isActive,
-      status
+      status,
+      latitude,
+      longitude,
+      lastLocationUpdate
     }`
     const couriers = await writeClient.fetch(query)
     return { success: true, data: couriers }
