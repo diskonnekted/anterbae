@@ -1,21 +1,26 @@
 {
-  "name": "Anterbae",
+  "name": "Anterbae - Delivery Service Banjarnegara",
   "short_name": "Anterbae",
-  "description": "Anterbae Delivery Service - Kurir Banjarnegara",
-  "start_url": "/",
+  "description": "Pesan antar makanan, paket, dan jasa di Banjarnegara",
+  "start_url": "/m",
+  "scope": "/m",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "background_color": "#f9fafb",
   "theme_color": "#dc2626",
+  "categories": ["delivery", "food", "shopping"],
   "icons": [
     {
       "src": "/anterbae.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/anterbae.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

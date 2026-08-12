@@ -1,8 +1,5 @@
 import type { NextConfig } from "next";
 
-// PWA disabled due to compatibility issue with @ducanh2912/next-pwa + Node.js
-// The PWA manifest.json is still served from /public for browser installation support
-
 const nextConfig: NextConfig = {
   turbopack: {},
   images: {
@@ -31,4 +28,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-// Trigger config reload

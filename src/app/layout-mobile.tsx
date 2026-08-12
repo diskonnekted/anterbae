@@ -1,5 +1,6 @@
 import './globals.css'
 import Script from 'next/script'
+import PwaRegister from '@/components/PwaRegister'
 
 export const metadata = {
   title: 'Anterbae - Kirim Apa Saja ke Mana Saja di Banjarnegara',
@@ -10,6 +11,14 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   return (
     <html lang="id">
       <head>
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#dc2626" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Anterbae" />
+        <link rel="apple-touch-icon" href="/anterbae.png" />
+        
         {/* Preconnect ke Sanity API hanya jika diperlukan */}
         <Script id="sanity-preconnect" strategy="afterInteractive">
           {`if ('IntersectionObserver' in window) {
@@ -29,6 +38,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
         </Script>
       </head>
       <body className="bg-gray-50 antialiased">
+        <PwaRegister />
         {children}
       </body>
     </html>
