@@ -10,10 +10,12 @@ import { customerType } from './customerType'
 
 import { productType } from './productType'
 import { categoryType } from './categoryType'
+import { orderType } from './orderType'
 
 export const schemaTypes = [
   // Core business
   deliveryOrderType,
+  orderType,
   courierType,
   merchantType,
   productType,
