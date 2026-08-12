@@ -283,24 +283,38 @@ export default function FoodDetailPage() {
       </div>
 
       {/* Floating Bottom Cart Panel */}
-      {cart.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 p-4 z-40 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] max-w-md mx-auto rounded-t-[2.5rem]">
-          <Link
-            href="/checkout/food"
-            className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-black text-center transition-all active:scale-95 flex items-center justify-between px-6 shadow-xl shadow-red-600/15"
-          >
-            <div className="flex items-center gap-3.5 text-left">
-              <ShoppingCart className="w-5 h-5 text-white" />
-              <div>
-                <span className="block text-[10px] text-red-200 font-extrabold uppercase tracking-wider">Lanjut Bayar</span>
-                <span className="text-xs font-black">{totalItems} Item Menu</span>
+      {cart.length > 0 && (() => {
+        const cartParams = encodeURIComponent(
+          JSON.stringify(
+            cart.map(item => ({
+              productId: item.product._id,
+              name: item.product.name,
+              price: item.product.price,
+              quantity: item.quantity,
+              notes: item.notes
+            }))
+          )
+        );
+        const checkoutUrl = `/checkout/food?cart=${cartParams}&restaurant=${encodeURIComponent(merchant.name)}`;
+        
+        return (
+          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 p-4 z-40 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] max-w-md mx-auto rounded-t-[2.5rem]">
+            <Link
+              href={checkoutUrl}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-black text-center transition-all active:scale-95 flex items-center justify-between px-6 shadow-xl shadow-red-600/15"
+            >
+              <div className="flex items-center gap-3.5 text-left">
+                <ShoppingCart className="w-5 h-5 text-white" />
+                <div>
+                  <span className="block text-[10px] text-red-200 font-extrabold uppercase tracking-wider">Lanjut Bayar</span>
+                  <span className="text-xs font-black">{totalItems} Item Menu</span>
+                </div>
               </div>
-            </div>
-            
-            <span className="text-sm font-black">Rp {totalPrice.toLocaleString('id-ID')}</span>
-          </Link>
-        </div>
-      )}
+              <span className="text-sm font-black">Rp {totalPrice.toLocaleString('id-ID')}</span>
+            </Link>
+          </div>
+        );
+      })()}
     </div>
   )
 }
