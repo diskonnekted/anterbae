@@ -75,7 +75,7 @@ export async function createDeliveryOrder(data: {
 
     // Fetch Admin Settings for Notification
     const settings = await client.fetch(APP_SETTINGS_QUERY)
-    const adminPhone = settings?.adminPhone || '6281234567890'
+    const adminPhone = settings?.adminPhone || '6281328128315'
 
     // Extract item details for Fonnte API notification (simplified for notification)
     const notificationItems = data.items.split('\n').map(line => ({

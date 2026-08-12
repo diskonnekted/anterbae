@@ -93,7 +93,7 @@ export default async function MerchantPage({ params }: Props) {
             
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               <a
-                href={`https://wa.me/${merchant.phone || '6281234567890'}?text=Halo ${merchant.name}, saya ingin pesan.`}
+                href={`https://wa.me/${merchant.phone || '6281328128315'}?text=Halo ${merchant.name}, saya ingin pesan.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-green-600 text-white font-black px-5 py-2.5 rounded-xl hover:bg-green-700 transition-all shadow-lg active:scale-95 text-sm"

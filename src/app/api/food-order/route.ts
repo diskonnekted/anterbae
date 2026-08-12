@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
           `Pesanan Anda langsung diproses dan kurir akan segera diinformasikan. 🛵`
         : `Transfer ke:\nBCA: 1234567890\na.n. Anterbae Banjarnegara\n\n` +
           `Sudah transfer? Klik link berikut untuk kirim bukti:\n` +
-          `https://wa.me/6281234567890?text=${encodeURIComponent(
+          `https://wa.me/6281328128315?text=${encodeURIComponent(
             `Halo Admin, saya sudah transfer untuk pesanan ${orderNumber} sebesar Rp ${total.toLocaleString('id-ID')}. Berikut buktinya.`
           )}\n\n` +
           `Setelah konfirmasi, pesanan akan diproses.`
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       (isCOD ? `✅ Langsung diproses - Kurir ambil uang di tempat` : `Menunggu pembayaran...`)
 
     await sendWhatsAppNotification(
-      '6281234567890',
+      '6281328128315',
       adminMessage
     ).catch(err => console.error('Failed to send WA to admin:', err))
 

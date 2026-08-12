@@ -26,7 +26,7 @@ export default async function Home() {
     sanityFetch({ query: PRODUCTS_QUERY }) as Promise<{ data: any[] }>,
   ]);
 
-  const adminPhone = settings?.adminPhone || '6281234567890';
+  const adminPhone = settings?.adminPhone || '6281328128315';
   const waLink = `https://wa.me/${adminPhone.replace(/\D/g, '')}`;
 
   return (

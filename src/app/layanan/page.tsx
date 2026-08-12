@@ -115,7 +115,7 @@ export default function LayananPage() {
                 </div>
               </div>
               <a
-                href="https://wa.me/6281234567890"
+                href="https://wa.me/6281328128315"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`w-full flex items-center justify-center gap-2 font-black py-3 rounded-2xl transition-all active:scale-95 ${

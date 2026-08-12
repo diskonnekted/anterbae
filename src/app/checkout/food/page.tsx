@@ -153,7 +153,7 @@ export default function FoodCheckoutPage() {
           </p>
 
           <a
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6281328128315"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full bg-green-600 text-white py-4 rounded-2xl font-black text-center hover:bg-green-700 transition-colors mb-3"

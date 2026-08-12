@@ -238,7 +238,7 @@ export default function TrackPage() {
               <div className="text-center">
                 <p className="text-sm text-slate-400 font-medium mb-3">Ada masalah dengan pesanan?</p>
                 <a
-                  href="https://wa.me/6281234567890"
+                  href="https://wa.me/6281328128315"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-green-600 text-white font-black px-6 py-3 rounded-2xl hover:bg-green-700 transition-all text-sm active:scale-95"

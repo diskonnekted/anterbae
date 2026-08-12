@@ -158,7 +158,7 @@ export default async function RootLayout({
                   <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-300 mb-6">Hubungi Kami</h4>
                   <div className="space-y-4">
                     <a
-                      href="https://wa.me/6281234567890"
+                      href="https://wa.me/6281328128315"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-2xl hover:bg-green-700 transition-all shadow-lg active:scale-95 group"

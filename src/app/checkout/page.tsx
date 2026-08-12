@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const [orderInfo, setOrderInfo] = useState<{ orderNumber: string } | null>(null)
   
   // Settings untuk link wa
-  const [adminPhone, setAdminPhone] = useState('6281234567890') // Default
+  const [adminPhone, setAdminPhone] = useState('6281328128315') // Default
 
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',

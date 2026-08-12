@@ -102,7 +102,7 @@ export async function confirmPaymentAndNotify(orderId: string, orderNumber: stri
 
     // Send to admin (resto will notify via admin WA)
     await sendWhatsAppNotification(
-        '6281234567890',
+        '6281328128315',
         restoMessage
       ).catch(err => console.error('Failed to notify resto:', err))
 

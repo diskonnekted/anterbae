@@ -21,7 +21,7 @@ describe('AddToCartButton Component', () => {
     slug: 'produk-tes',
     stock: 10,
     image: {} as any,
-    vendor: { name: 'UMKM Tes' } as any
+    merchant: { name: 'UMKM Tes', isOpen: true } as any
   }
 
   it('should render the button text correctly', () => {
@@ -30,7 +30,7 @@ describe('AddToCartButton Component', () => {
 
     render(<AddToCartButton product={mockProduct} />)
     
-    expect(screen.getByText(/Tambah ke Keranjang/i)).toBeInTheDocument()
+    expect(screen.getByText(/Tambah ke Keranjang/i)).toBeDefined()
   })
 
   it('should call addItem when clicked', () => {

@@ -68,7 +68,7 @@ export default async function MobileBelanjaPage() {
             {merchants.map((merchant: any) => (
               <a
                 key={merchant._id}
-                href="https://wa.me/6281234567890"
+                href="https://wa.me/6281328128315"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
@@ -131,7 +131,7 @@ export default async function MobileBelanjaPage() {
             <p className="text-gray-500 font-bold mb-2">Toko sedang disiapkan</p>
             <p className="text-xs text-gray-400">Hubungi admin via WhatsApp untuk daftar toko</p>
             <a
-              href="https://wa.me/6281234567890"
+              href="https://wa.me/6281328128315"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 mt-4 bg-indigo-600 text-white font-black px-6 py-3 rounded-2xl active:scale-95 transition-transform"

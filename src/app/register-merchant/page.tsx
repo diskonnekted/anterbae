@@ -34,7 +34,7 @@ export default function RegisterMerchantPage() {
     setTimeout(() => {
       setLoading(false)
       setSubmitted(true)
-      window.open(`https://wa.me/6281234567890?text=${message}`, '_blank')
+      window.open(`https://wa.me/6281328128315?text=${message}`, '_blank')
     }, 1000)
   }
 

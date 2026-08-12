@@ -104,7 +104,7 @@ export default function Navbar() {
             🛵 Pesan Antar Sekarang
           </Link>
           <a
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6281328128315"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full border-2 border-green-500 text-green-700 font-black px-6 py-3 rounded-2xl hover:bg-green-50 transition-all"

@@ -52,7 +52,7 @@ export default function PesanPage() {
     setTimeout(() => {
       setLoading(false)
       setSubmitted(true)
-      window.open(`https://wa.me/6281234567890?text=${message}`, '_blank')
+      window.open(`https://wa.me/6281328128315?text=${message}`, '_blank')
     }, 800)
   }
 
@@ -94,7 +94,7 @@ export default function PesanPage() {
 
           {/* Direct WA Button */}
           <a
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6281328128315"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-3 w-full bg-green-600 text-white font-black py-4 rounded-2xl hover:bg-green-700 transition-all shadow-lg shadow-green-200 mb-6 text-lg active:scale-95"

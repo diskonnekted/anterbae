@@ -90,7 +90,7 @@ export default async function MitraPage() {
           <p className="text-slate-400 font-bold text-xl mb-2">Merchant sedang disiapkan</p>
           <p className="text-slate-400 text-sm">Data merchant akan segera tersedia. Hubungi kami via WhatsApp untuk info merchant!</p>
           <a
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6281328128315"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 mt-6 bg-green-600 text-white font-black px-6 py-3 rounded-2xl hover:bg-green-700 transition-all"

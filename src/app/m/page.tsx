@@ -163,7 +163,7 @@ export default function MobileHome() {
               </div>
             ))}
           </div>
-          <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="block w-full bg-gray-900 text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform flex items-center justify-center gap-2">
+          <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className="block w-full bg-gray-900 text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform flex items-center justify-center gap-2">
             <Phone className="w-5 h-5" />Pesan Sekarang
           </a>
         </div>
@@ -221,7 +221,7 @@ export default function MobileHome() {
           <p className="text-xs font-bold text-red-100 uppercase tracking-wider mb-1">Promo Spesial</p>
           <p className="text-lg font-black mb-1">Gratis Ongkir!</p>
           <p className="text-xs text-red-100 mb-3">Untuk pengguna baru di Banjarnegara</p>
-          <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="bg-white text-red-600 font-black text-xs px-4 py-2 rounded-xl active:scale-95 transition-transform inline-block">Klaim Sekarang</a>
+          <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className="bg-white text-red-600 font-black text-xs px-4 py-2 rounded-xl active:scale-95 transition-transform inline-block">Klaim Sekarang</a>
         </div>
       </div>
 
@@ -249,7 +249,7 @@ export default function MobileHome() {
           <Link href="/products" className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400">
             <ShoppingBag className="w-5 h-5" /><span className="text-[10px] font-bold">Produk</span>
           </Link>
-          <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 px-3 py-1 text-red-600">
+          <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 px-3 py-1 text-red-600">
             <MessageSquare className="w-5 h-5" /><span className="text-[10px] font-black">Pesan</span>
           </a>
           <Link href="/cart" className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400 relative">

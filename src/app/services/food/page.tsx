@@ -119,7 +119,7 @@ export default function FoodPage() {
         {restaurants.map((rest) => (
           <a
             key={rest.id}
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6281328128315"
             target="_blank"
             rel="noopener noreferrer"
             className="block bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-orange-200 hover:shadow-md transition-all active:scale-[0.98]"

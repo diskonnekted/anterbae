@@ -84,7 +84,7 @@ export default function ExpressPage() {
 
         {/* CTA */}
         <a
-          href="https://wa.me/6281234567890"
+          href="https://wa.me/6281328128315"
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full bg-red-600 text-white font-black py-4 rounded-2xl text-center hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center gap-2"
