@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Loader2, CheckCircle, MessageCircle } from 'lucide-react'
 import { OrderFormData } from '@/types'
 import AddressPicker from '@/components/AddressPicker'
-import PetaInteraktif from '@/components/PetaInteraktif'
+import PetaInteraktif from '@/components/PetaInteraktifDynamic'
 
 export default function CheckoutPage() {
   const { items, totalPrice, shippingFee, grandTotal, clearCart } = useCart()
@@ -46,6 +46,17 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+
+    // Client-side rate limit check
+    const lastOrderKey = `anterbae-last-order-${formData.phone}`
+    const lastOrderTime = localStorage.getItem(lastOrderKey)
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000
+    
+    if (lastOrderTime && parseInt(lastOrderTime) > fiveMinutesAgo) {
+      setLoading(false)
+      alert('Tunggu sebentar sebelum membuat pesanan lagi. Maksimal 3 pesanan per 5 menit.')
+      return
+    }
 
     // Save profile
     localStorage.setItem('anterbae-customer-name', formData.name)
@@ -88,6 +99,9 @@ export default function CheckoutPage() {
       text += `Mohon segera diproses dan dicarikan kurir. Terima kasih!`
 
       const waLink = `https://wa.me/${adminTargetPhone.replace(/^0/, '62').replace(/\D/g, '')}?text=${encodeURIComponent(text)}`
+      
+      // Record order timestamp for rate limiting
+      localStorage.setItem(lastOrderKey, Date.now().toString())
       
       // Buka tab WA
       window.open(waLink, '_blank')

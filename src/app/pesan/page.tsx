@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Truck, Package, ShoppingBag, Phone, MapPin, FileText, ChevronRight, Loader2, CheckCircle, Crosshair } from 'lucide-react'
 import Link from 'next/link'
 import AddressPicker from '@/components/AddressPicker'
-import PetaInteraktif from '@/components/PetaInteraktif'
+import PetaInteraktif from '@/components/PetaInteraktifDynamic'
 
 const ORDER_TYPES = [
   { value: 'food', icon: '🍔', label: 'Pesan Antar Makanan', desc: 'Antar dari warung/resto ke lokasi Anda' },

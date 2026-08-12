@@ -29,6 +29,20 @@ export async function POST(req: NextRequest) {
       paymentMethod = 'cod_transfer', // default to transfer
     } = data
 
+    // Rate limit: max 3 food orders per phone in 5 minutes
+    const cutoffTime = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+    const recentOrders = await sanity.fetch(
+      `count(*[_type == "order" && customerPhone == $phone && _createdAt > $cutoff])`,
+      { phone: customerPhone, cutoff: cutoffTime }
+    )
+
+    if (recentOrders >= 3) {
+      return NextResponse.json(
+        { error: 'Terlalu banyak pesanan! Maksimal 3 pesanan dalam 5 menit.' },
+        { status: 429 }
+      )
+    }
+
     // Generate order number
     const orderNumber = `FOOD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 

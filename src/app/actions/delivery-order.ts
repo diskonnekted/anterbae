@@ -4,6 +4,10 @@ import { client } from '@/sanity/lib/client'
 import { sendWhatsAppNotification, formatOrderMessage } from '@/sanity/lib/whatsapp'
 import { APP_SETTINGS_QUERY } from '@/sanity/lib/queries'
 
+// Rate limit: max orders per phone number within the time window (in milliseconds)
+const RATE_LIMIT_MAX_ORDERS = 3
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000 // 5 minutes
+
 export async function getAppSettings() {
   try {
     const settings = await client.fetch(APP_SETTINGS_QUERY)
@@ -61,6 +65,20 @@ export async function createDeliveryOrder(data: {
   paymentMethod: 'cod' | 'transfer'
 }) {
   try {
+    // Rate limit check: count recent orders from same phone
+    const cutoffTime = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString()
+    const recentOrders = await client.fetch(
+      `count(*[_type == "deliveryOrder" && customerPhone == $phone && _createdAt > $cutoff])`,
+      { phone: data.customerPhone, cutoff: cutoffTime }
+    )
+
+    if (recentOrders >= RATE_LIMIT_MAX_ORDERS) {
+      return {
+        success: false,
+        error: `Terlalu banyak pesanan! Maksimal ${RATE_LIMIT_MAX_ORDERS} pesanan dalam ${RATE_LIMIT_WINDOW_MS / 60000} menit. Tunggu sebentar atau hubungi admin.`,
+      }
+    }
+
     const rand = Math.floor(100 + Math.random() * 900)
     const orderNumber = `ANT-${Date.now().toString().slice(-6)}${rand}`
 
