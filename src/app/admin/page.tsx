@@ -9,6 +9,7 @@ import {
   updateOrderStatus, 
   assignCourier 
 } from '@/app/actions/admin'
+import { fetchFoodOrders, confirmPaymentAndNotify } from '@/app/actions/food-admin'
 import { 
   Loader2, 
   RefreshCw, 
@@ -32,7 +33,8 @@ import {
   PlusCircle, 
   XCircle,
   HelpCircle,
-  Phone
+  Phone,
+  UtensilsCrossed
 } from 'lucide-react'
 
 // Define Order type
@@ -54,6 +56,36 @@ type Order = {
   paymentStatus: 'unpaid' | 'paid'
   status: 'pending' | 'accepted' | 'delivering' | 'delivered' | 'completed' | 'cancelled' | 'problem'
   courier?: { _id: string; name: string; phone: string }
+}
+
+type FoodOrder = {
+  _id: string
+  orderNumber: string
+  _createdAt: string
+  customerName: string
+  customerPhone: string
+  deliveryAddress: string
+  customerNotes?: string
+  restaurantName: string
+  totalAmount: number
+  shippingFee: number
+  paymentMethod: string
+  paymentStatus: string
+  status: string
+  foodOrderStatus: string
+  foodItems: Array<{
+    name: string
+    price: number
+    quantity: number
+    notes?: string
+  }>
+  paymentFlow?: {
+    paymentStatus: string
+    confirmedAt?: string
+    accountNumber?: string
+    accountName?: string
+  }
+  customerLocation?: { lat: number; lng: number }
 }
 
 type Courier = {
@@ -84,10 +116,11 @@ export default function AdminDashboardPage() {
   const [errorPin, setErrorPin] = useState('')
   
   const [orders, setOrders] = useState<Order[]>([])
+  const [foodOrders, setFoodOrders] = useState<FoodOrder[]>([])
   const [couriers, setCouriers] = useState<Courier[]>([])
   const [merchants, setMerchants] = useState<Merchant[]>([])
   
-  const [activeTab, setActiveTab] = useState<'orders' | 'merchants' | 'couriers' | 'stats'>('orders')
+  const [activeTab, setActiveTab] = useState<'orders' | 'food' | 'merchants' | 'couriers' | 'stats'>('orders')
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -121,13 +154,15 @@ export default function AdminDashboardPage() {
     else setRefreshing(true)
 
     try {
-      const [ordersRes, couriersRes, merchantsRes] = await Promise.all([
+      const [ordersRes, foodOrdersRes, couriersRes, merchantsRes] = await Promise.all([
         fetchAllOrders(),
+        fetchFoodOrders(),
         fetchCouriers(),
         fetchMerchants()
       ])
 
       if (ordersRes.success && ordersRes.data) setOrders(ordersRes.data)
+      if (foodOrdersRes.success && foodOrdersRes.data) setFoodOrders(foodOrdersRes.data)
       if (couriersRes.success && couriersRes.data) setCouriers(couriersRes.data)
       if (merchantsRes.success && merchantsRes.data) setMerchants(merchantsRes.data)
     } catch (err) {
@@ -181,6 +216,22 @@ export default function AdminDashboardPage() {
       } : o))
     } else {
       alert('Gagal menunjuk kurir: ' + res.error)
+    }
+    setRefreshing(false)
+  }
+
+  const handleFoodPaymentConfirm = async (orderId: string, orderNumber: string, restaurantName: string, customerPhone: string, totalAmount: number) => {
+    setRefreshing(true)
+    const res = await confirmPaymentAndNotify(orderId, orderNumber, restaurantName, customerPhone, totalAmount)
+    if (res.success) {
+      setFoodOrders(prev => prev.map(o => 
+        o._id === orderId 
+          ? { ...o, foodOrderStatus: 'confirmed_resto_prep', paymentFlow: { ...o.paymentFlow, paymentStatus: 'confirmed', confirmedAt: new Date().toISOString() } }
+          : o
+      ))
+      alert(res.message || 'Pembayaran dikonfirmasi!')
+    } else {
+      alert('Gagal konfirmasi: ' + res.error)
     }
     setRefreshing(false)
   }
@@ -350,6 +401,13 @@ export default function AdminDashboardPage() {
           >
             <Package className="w-4 h-4" />
             Pesanan
+          </button>
+          <button 
+            onClick={() => { setActiveTab('food'); setSearchQuery(''); }}
+            className={`flex-1 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${activeTab === 'food' ? 'bg-red-600 text-white shadow-md shadow-red-100' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+          >
+            <UtensilsCrossed className="w-4 h-4" />
+            Makanan
           </button>
           <button 
             onClick={() => { setActiveTab('merchants'); setSearchQuery(''); }}
@@ -603,6 +661,194 @@ export default function AdminDashboardPage() {
                 <Store className="w-16 h-16 text-slate-200 mx-auto mb-4" />
                 <h3 className="text-xl font-black text-slate-800">Merchant Tidak Ditemukan</h3>
                 <p className="text-slate-500 font-bold mt-2">Pastikan nama toko atau daerah yang dicari benar.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: FOOD ORDERS */}
+        {activeTab === 'food' && (
+          <div className="space-y-4">
+            {/* Food Order Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-red-500 to-red-600 p-5 rounded-2xl text-white shadow-lg shadow-red-200">
+                <p className="text-[10px] font-black uppercase tracking-widest text-red-100 mb-1">Total Pesanan</p>
+                <p className="text-2xl font-black">{foodOrders.length}</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-1">Menunggu Bayar</p>
+                <p className="text-2xl font-black text-yellow-600">{foodOrders.filter(o => o.foodOrderStatus === 'waiting_payment').length}</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Dikonfirmasi</p>
+                <p className="text-2xl font-black text-blue-600">{foodOrders.filter(o => o.foodOrderStatus === 'confirmed_resto_prep' || o.foodOrderStatus === 'resto_ready_waiting_courier').length}</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                <p className="text-[10px] font-black text-green-500 uppercase tracking-widest mb-1">Omset Hari Ini</p>
+                <p className="text-2xl font-black text-green-600">Rp{foodOrders.filter(o => {
+                  const today = new Date().toDateString()
+                  return new Date(o._createdAt).toDateString() === today
+                }).reduce((sum, o) => sum + o.totalAmount, 0).toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+
+            {foodOrders.length === 0 ? (
+              <div className="text-center py-20 bg-white rounded-[3rem] border border-slate-100">
+                <UtensilsCrossed className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <h3 className="text-xl font-black text-slate-800">Belum Ada Pesanan Makanan</h3>
+                <p className="text-slate-500 font-bold mt-2">Pesanan makanan akan muncul di sini</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {foodOrders.map((order) => (
+                  <div key={order._id} className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+                    {/* Header */}
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <span className="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-black tracking-widest">
+                        {order.orderNumber}
+                      </span>
+                      <span className="text-slate-400 text-xs font-bold">
+                        {new Date(order._createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                      </span>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black ${
+                        order.foodOrderStatus === 'waiting_payment' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                        order.foodOrderStatus === 'confirmed_resto_prep' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                        order.foodOrderStatus === 'resto_ready_waiting_courier' ? 'bg-purple-100 text-purple-700 border-purple-200' :
+                        order.foodOrderStatus === 'delivering' ? 'bg-green-100 text-green-700 border-green-200' :
+                        'bg-slate-100 text-slate-600 border-slate-200'
+                      }`}>
+                        {order.foodOrderStatus === 'waiting_payment' && '⏳ Menunggu Pembayaran'}
+                        {order.foodOrderStatus === 'waiting_admin_confirm' && '✅ Menunggu Konfirmasi'}
+                        {order.foodOrderStatus === 'confirmed_resto_prep' && '🍳 Resto Disiapkan'}
+                        {order.foodOrderStatus === 'resto_ready_waiting_courier' && '📦 Siap - Tunggu Kurir'}
+                        {order.foodOrderStatus === 'courier_picking' && '🛵 Kurir Mengambil'}
+                        {order.foodOrderStatus === 'delivering' && '🚀 Dalam Pengiriman'}
+                        {order.foodOrderStatus === 'completed' && '✔️ Selesai'}
+                        {order.foodOrderStatus === 'cancelled' && '❌ Dibatalkan'}
+                      </span>
+                    </div>
+
+                    {/* Info Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-red-50 rounded-xl text-red-600"><Store className="w-4 h-4" /></div>
+                        <div>
+                          <p className="text-xs font-black text-slate-400 uppercase">Restoran</p>
+                          <p className="text-sm font-black text-slate-900">{order.restaurantName}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-slate-50 rounded-xl text-slate-400"><User className="w-4 h-4" /></div>
+                        <div>
+                          <p className="text-xs font-black text-slate-400 uppercase">Pelanggan</p>
+                          <p className="text-sm font-black text-slate-900">{order.customerName}</p>
+                          <a href={`https://wa.me/${order.customerPhone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-green-600 hover:underline">
+                            {order.customerPhone} →
+                          </a>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 md:col-span-2">
+                        <div className="p-2 bg-slate-50 rounded-xl text-slate-400"><MapPin className="w-4 h-4" /></div>
+                        <div>
+                          <p className="text-xs font-black text-slate-400 uppercase">Alamat</p>
+                          <p className="text-sm font-bold text-slate-700">{order.deliveryAddress}</p>
+                          {order.customerLocation && (
+                            <a 
+                              href={`https://www.openstreetmap.org/?mlat=${order.customerLocation.lat}&mlon=${order.customerLocation.lng}#map=18/${order.customerLocation.lat}/${order.customerLocation.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-bold text-blue-600 hover:underline inline-flex items-center gap-1 mt-1"
+                            >
+                              📍 Lihat di Peta →
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Food Items */}
+                    <div className="bg-slate-50 p-4 rounded-2xl mb-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Menu Dipesan</p>
+                      <div className="space-y-2">
+                        {order.foodItems?.map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-sm">
+                            <span className="text-slate-700">
+                              {item.name} x{item.quantity}
+                              {item.notes && <span className="text-slate-400 text-xs"> ({item.notes})</span>}
+                            </span>
+                            <span className="font-bold text-slate-900">
+                              Rp {(item.price * item.quantity).toLocaleString('id-ID')}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="border-t border-slate-200 mt-3 pt-3 flex justify-between items-center">
+                        <span className="text-xs font-black text-slate-500">Total</span>
+                        <span className="text-xl font-black text-red-600">Rp {order.totalAmount.toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+
+                    {/* Payment Info */}
+                    {order.paymentFlow && (
+                      <div className="bg-blue-50 p-4 rounded-2xl mb-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Info Pembayaran</p>
+                        <p className="text-sm font-bold text-blue-900 mb-1">
+                          {order.paymentFlow.accountNumber} a.n. {order.paymentFlow.accountName}
+                        </p>
+                        <p className="text-xs text-blue-600">
+                          Status: {order.paymentFlow.paymentStatus === 'confirmed' ? '✅ Dikonfirmasi' : order.paymentFlow.paymentStatus === 'paid_pending_confirm' ? '⏳ Menunggu Konfirmasi' : '⏳ Menunggu Pembayaran'}
+                        </p>
+                        {order.paymentFlow.confirmedAt && (
+                          <p className="text-xs text-blue-500 mt-1">
+                            Dikonfirmasi: {new Date(order.paymentFlow.confirmedAt).toLocaleString('id-ID')}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-2">
+                      {order.foodOrderStatus === 'waiting_payment' && (
+                        <button
+                          onClick={() => {
+                            const confirm = window.confirm(
+                              `Konfirmasi pembayaran untuk ${order.orderNumber}?\n\nResto dan kurir akan dinotifikasi.`
+                            )
+                            if (confirm) {
+                              handleFoodPaymentConfirm(
+                                order._id,
+                                order.orderNumber,
+                                order.restaurantName,
+                                order.customerPhone,
+                                order.totalAmount
+                              )
+                            }
+                          }}
+                          className="flex-1 bg-green-600 text-white py-3 rounded-xl font-black text-sm hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Konfirmasi Pembayaran
+                        </button>
+                      )}
+                      <a
+                        href={`https://wa.me/${order.customerPhone.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-3 bg-green-100 text-green-700 rounded-xl font-bold text-sm hover:bg-green-200 transition-colors flex items-center gap-2"
+                      >
+                        <Phone className="w-4 h-4" />
+                        WA Pelanggan
+                      </a>
+                      <a
+                        href={`/studio/intent/edit/id=${order._id};type=order`}
+                        target="_blank"
+                        className="px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors flex items-center gap-2"
+                      >
+                        Edit di Sanity
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
