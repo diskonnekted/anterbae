@@ -129,6 +129,8 @@ export default function FoodCheckoutPage() {
   }
 
   if (submitted) {
+    const isCod = paymentMethod === 'cod_on_delivery'
+
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-xl">
@@ -137,28 +139,45 @@ export default function FoodCheckoutPage() {
           </div>
           <h2 className="text-2xl font-black text-gray-900 mb-2">Pesanan Berhasil!</h2>
           <p className="text-gray-600 mb-6">
-            Nomor pesanan Anda telah dibuat. Silakan lakukan pembayaran sesuai instruksi berikut:
+            {isCod 
+              ? 'Pesanan Anda telah diterima. Silakan tunggu kurir kami mengantarkan pesanan Anda.'
+              : 'Nomor pesanan Anda telah dibuat. Silakan lakukan pembayaran transfer sesuai instruksi berikut:'
+            }
           </p>
 
-          <div className="bg-gray-50 rounded-2xl p-4 mb-6 text-left">
-            <p className="text-sm text-gray-600 mb-2">Transfer ke:</p>
-            <p className="text-lg font-black text-gray-900 mb-1">BCA: 1234567890</p>
-            <p className="text-sm text-gray-500">a.n. Anterbae Banjarnegara</p>
-            <p className="text-sm text-gray-600 mt-3 mb-2">Total yang harus dibayar:</p>
-            <p className="text-2xl font-black text-red-600">Rp {total.toLocaleString('id-ID')}</p>
-          </div>
+          {isCod ? (
+            <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left border border-gray-100">
+              <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block mb-1">Metode Pembayaran</span>
+              <p className="text-base font-black text-gray-900 mb-3">💵 Bayar di Tempat (COD)</p>
+              
+              <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block mb-1">Total Tunai ke Kurir</span>
+              <p className="text-2xl font-black text-orange-600">Rp {total.toLocaleString('id-ID')}</p>
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left border border-gray-100">
+              <p className="text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Transfer ke:</p>
+              <p className="text-lg font-black text-gray-900 mb-1">BCA: 1234567890</p>
+              <p className="text-xs text-gray-500 font-bold mb-3">a.n. Anterbae Banjarnegara</p>
+              
+              <p className="text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Total yang harus dibayar:</p>
+              <p className="text-2xl font-black text-orange-600">Rp {total.toLocaleString('id-ID')}</p>
+            </div>
+          )}
 
           <p className="text-sm text-gray-600 mb-6">
-            Setelah transfer, kirim bukti pembayaran via WhatsApp ke nomor admin
+            {isCod 
+              ? 'Siapkan uang tunai pas untuk memudahkan kurir saat penyerahan barang.'
+              : 'Setelah transfer, kirim bukti pembayaran via WhatsApp ke nomor admin agar pesanan segera diproses.'
+            }
           </p>
 
           <a
             href="https://wa.me/6281328128315"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full bg-green-600 text-white py-4 rounded-2xl font-black text-center hover:bg-green-700 transition-colors mb-3"
+            className="block w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-black text-center transition-all active:scale-95 mb-3"
           >
-            Kirim Bukti Pembayaran
+            {isCod ? 'Hubungi WhatsApp Admin' : 'Kirim Bukti Pembayaran'}
           </a>
 
           <Link
