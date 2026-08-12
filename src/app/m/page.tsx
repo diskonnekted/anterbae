@@ -89,7 +89,7 @@ export default function MobileHome() {
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
           <div className="flex items-center gap-3 px-4 py-3">
-            <button onClick={goBack} className="p-2 -ml-2 rounded-xl hover:bg-gray-100">
+            <button onClick={goBack} className="p-2 -ml-2 rounded-xl hover:bg-gray-100" aria-label="Kembali ke halaman sebelumnya">
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
             <div>
@@ -139,7 +139,7 @@ export default function MobileHome() {
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
           <div className="flex items-center gap-3 px-4 py-3">
-            <button onClick={goBack} className="p-2 -ml-2 rounded-xl hover:bg-gray-100">
+            <button onClick={goBack} className="p-2 -ml-2 rounded-xl hover:bg-gray-100" aria-label="Kembali ke halaman sebelumnya">
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
             <div>
