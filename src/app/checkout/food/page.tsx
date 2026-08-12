@@ -80,6 +80,17 @@ export default function FoodCheckoutPage() {
     )
   }
 
+  // Load saved details from localStorage on mount
+  useEffect(() => {
+    const savedName = localStorage.getItem('anterbae_customer_name')
+    const savedPhone = localStorage.getItem('anterbae_customer_phone')
+    const savedAddress = localStorage.getItem('anterbae_customer_address')
+    
+    if (savedName) setCustomerName(savedName)
+    if (savedPhone) setCustomerPhone(savedPhone)
+    if (savedAddress) setDeliveryAddress(savedAddress)
+  }, [])
+
   // Submit order
   const handleSubmit = async () => {
     if (!customerName || !customerPhone || !deliveryAddress) {
@@ -116,6 +127,11 @@ export default function FoodCheckoutPage() {
       const result = await response.json()
 
       if (result.success) {
+        // Save details to localStorage for future use
+        localStorage.setItem('anterbae_customer_name', customerName)
+        localStorage.setItem('anterbae_customer_phone', customerPhone)
+        localStorage.setItem('anterbae_customer_address', deliveryAddress)
+        
         setSubmitted(true)
       } else {
         alert('Gagal membuat pesanan: ' + result.error)
