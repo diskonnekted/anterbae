@@ -8,8 +8,16 @@ import { useCart } from '@/context/CartContext';
 export default function BottomNav() {
   const pathname = usePathname();
 
-  // Hide on studio and kurir portal (they have their own UI)
-  if (pathname.startsWith('/studio') || pathname.startsWith('/kurir')) return null;
+  // Hide on studio, kurir portal, checkout pages, cart, and restaurant detail pages to avoid overlap with checkout/cart actions
+  if (
+    pathname.startsWith('/studio') || 
+    pathname.startsWith('/kurir') || 
+    pathname.startsWith('/checkout') || 
+    pathname.startsWith('/cart') || 
+    (pathname.startsWith('/m/food/') && pathname !== '/m/food')
+  ) {
+    return null;
+  }
 
   const { totalItems } = useCart();
 
