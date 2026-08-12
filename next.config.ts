@@ -16,8 +16,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Optimize for modern browsers (ES6+)
-  transpileDependencies: [],
   async redirects() {
     return [
       { source: '/vendors', destination: '/mitra', permanent: false },
