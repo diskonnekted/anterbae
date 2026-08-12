@@ -60,9 +60,7 @@ export default async function MobileFoodPage() {
                     fill
                     className="object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-6xl">🍛</div>
-                )}
+                ) : null}
                 {/* Status Badge */}
                 <div className={`absolute top-3 left-3 text-[10px] font-black px-2.5 py-1 rounded-full ${
                   merchant.isOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
@@ -103,7 +101,7 @@ export default async function MobileFoodPage() {
                   </span>
                 </div>
               </div>
-            </a>
+            </Link>
           ))
         ) : (
           <div className="text-center py-12">
