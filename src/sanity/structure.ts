@@ -24,6 +24,9 @@ export const structure: StructureResolver = (S) =>
               S.listItem()
                 .title('Semua Pesanan')
                 .child(S.documentTypeList('deliveryOrder').title('Semua Pesanan')),
+              S.listItem()
+                .title('Pesanan Makanan (Resto)')
+                .child(S.documentTypeList('order').title('Pesanan Makanan (Resto)')),
               S.divider(),
               S.listItem()
                 .title('Menunggu Konfirmasi')
