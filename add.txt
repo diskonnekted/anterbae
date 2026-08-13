@@ -1,0 +1,35 @@
+=== CATATAN PERUBAHAN APLIKASI ANTERBAE ===
+
+1. INTEGRASI PESAN WHATSAPP VIA GATEWAY FONNTE
+   - Mengganti tautan redirect WhatsApp manual di Peta Kurir dengan modal input pesan terintegrasi di dalam React.
+   - Admin sekarang bisa mengetikkan pesan secara langsung dan mengirimkannya ke kurir di latar belakang menggunakan server action `sendCourierMessageViaFonnte` (Fonnte API).
+   - Mengintegrasikan pengiriman notifikasi pesan WhatsApp otomatis ke nomor kurir sewaktu akun kurir diaktifkan dari peta.
+
+2. PENERAPAN SHORT LINK REDIRECT (URL PENDEK WHATSAPP)
+   - Konfigurasi routing redirect Next.js di `next.config.ts` untuk memendekkan tautan di WhatsApp:
+     * /k -> mengarah ke /kurir (Portal Kurir)
+     * /c/:order -> mengarah ke /m/antar-jemput/confirm?order=:order (Konfirmasi Selesai Pengantaran)
+   - Mengubah seluruh format link notifikasi WhatsApp untuk memakai domain ringkas tanpa protokol `https://` (seperti `anterbae.vercel.app/k` dan `anterbae.vercel.app/c/AB-xxxx`) agar terlihat lebih rapi.
+
+3. RESOLUSI BUG HALAMAN MOBILE ONLINE (VERCEL PRODUCTION)
+   - Menemukan penyebab produk dan merchant tidak muncul di halaman production Vercel karena API route `/api/promo-products`, `/api/top-merchants`, dan `/api/search-products` menggunakan write-token yang tidak dideklarasikan di Vercel.
+   - Memigrasikan inisialisasi client API routes tersebut untuk menggunakan shared client read-only (`@/sanity/lib/client`) yang aman dan bebas token, sehingga data terdorong lancar di localhost maupun Vercel.
+
+4. PERBAIKAN STICKY IMAGE PADA DETAIL PRODUK
+   - Mengubah class `sticky` pada wrapper foto detail produk menjadi `lg:sticky lg:top-32` agar efek menempel di layar hanya berlaku pada desktop. Pada perangkat mobile, foto produk akan ter-scroll ke atas secara normal tanpa menutupi deskripsi produk di bawahnya.
+
+5. PENAMBAHAN TOMBOL NAVIGASI DI KERANJANG
+   - Menambahkan tombol "Kembali ke Pasar" di halaman `/cart` dengan layout dan visual transisi yang konsisten dengan halaman produk demi kenyamanan berbelanja pelanggan.
+
+6. PEMBARUAN HALAMAN UTAMA MOBILE & BAHASA LAYANAN
+   - Mengubah nama layanan "Antar Jemput" menjadi "Pengantaran" di seluruh antarmuka mobile (label menu, header detail, dan tombol pesan).
+   - Memperbaiki broken image link pada detail menu paket dengan mengarahkan ke file ikon yang tepat `/icon/antar-paket.jpg`.
+   - Mengubah aspek rasio banner Jastip di beranda mobile menjadi kotak 1:1 (`aspect-square`).
+   - Memasang banner peringatan "Dalam Proses Pengembangan" serta menonaktifkan tombol pemesanan (menjadi "Belum Tersedia") untuk layanan Paket, Jastip, Express, dan Layanan Lainnya.
+
+7. PENANGANAN ERROR & VALIDASI TIPE DATA (TYPESCRIPT BUILD)
+   - Memperbaiki syntax pemanggilan patch Sanity dari `.execute()` menjadi `.commit()`.
+   - Memperbaiki casing event Leaflet dari `e.latLng` menjadi `e.latlng` di dasbor merchant.
+   - Menambahkan import `L` dari leaflet secara eksplisit pada dasbor merchant.
+   - Mengatasi implisit any error pada helper `generateStaticParams`.
+   - Validasi penuh dengan hasil kompilasi `npx tsc --noEmit` bersih 100% tanpa error (Exit code 0).
