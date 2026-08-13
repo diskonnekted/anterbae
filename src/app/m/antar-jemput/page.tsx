@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, MapPin, Clock, Phone, User, CheckCircle, Loader2, X, Navigation } from 'lucide-react'
+import { ArrowLeft, MapPin, Clock, Phone, User, CheckCircle, Loader2, X, Navigation, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useCallback } from 'react'
 
@@ -130,6 +130,10 @@ export default function AntarJemputPage() {
 
   const handleSubmit = async () => {
     if (!pickup || !dropoff || !time) return
+    if (!isRegistered && (!regName.trim() || !phone.trim() || !regAddress.trim())) {
+      alert('Silakan lengkapi nama dan alamat lengkap Anda terlebih dahulu.')
+      return
+    }
 
     setSubmitting(true)
     try {
@@ -190,62 +194,73 @@ export default function AntarJemputPage() {
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        {/* Phone Input */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-            No. WhatsApp
-          </label>
-          <div className="relative">
-            <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-            <input
-              type="tel"
-              value={phone}
-              onChange={e => handlePhoneChange(e.target.value)}
-              placeholder="08xxxxxxxxxx"
-              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-            {checkingPhone && (
-              <Loader2 className="w-4 h-4 text-red-500 absolute right-3 top-3 animate-spin" />
+        {/* Personal Data Section (Phone and Name/Address if unregistered) */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-4">
+          {showRegister && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                  Nama Lengkap
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    value={regName}
+                    onChange={e => setRegName(e.target.value)}
+                    placeholder="Masukkan nama lengkap Anda"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              No. WhatsApp
+            </label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => handlePhoneChange(e.target.value)}
+                placeholder="08xxxxxxxxxx"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+              {checkingPhone && (
+                <Loader2 className="w-4 h-4 text-red-500 absolute right-3 top-3 animate-spin" />
+              )}
+            </div>
+            {isRegistered && customer && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-green-600 font-bold">
+                <CheckCircle className="w-3 h-3" />
+                Akun terdaftar: {customer.name}
+              </div>
             )}
           </div>
-          {isRegistered && customer && (
-            <div className="mt-2 flex items-center gap-2 text-xs text-green-600 font-bold">
-              <CheckCircle className="w-3 h-3" />
-              Akun terdaftar: {customer.name}
+
+          {showRegister && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                  Alamat Lengkap
+                </label>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    value={regAddress}
+                    onChange={e => setRegAddress(e.target.value)}
+                    placeholder="Masukkan alamat lengkap Anda"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Registration Form (if new user) */}
-        {showRegister && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-4">
-            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-3">
-              Data Diri
-            </label>
-            <div className="space-y-3">
-              <div className="relative">
-                <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  value={regName}
-                  onChange={e => setRegName(e.target.value)}
-                  placeholder="Nama lengkap"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  value={regAddress}
-                  onChange={e => setRegAddress(e.target.value)}
-                  placeholder="Alamat lengkap"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Pickup Location */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
@@ -258,7 +273,7 @@ export default function AntarJemputPage() {
               type="text"
               value={pickup}
               onChange={e => setPickup(e.target.value)}
-              placeholder="Masukkan lokasi jemput"
+              placeholder="Lokasi jemput"
               className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
             <button
@@ -322,43 +337,37 @@ export default function AntarJemputPage() {
           </div>
         </div>
 
-        {/* Quick Locations */}
+        {/* Quick Locations Dropdown */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <h3 className="text-sm font-black text-gray-900 mb-3">Lokasi Cepat</h3>
-          <div className="space-y-2">
-            {pickupLocations.map(loc => (
-              <button
-                key={loc.id}
-                onClick={() => {
+          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+            Lokasi Cepat Penjemputan
+          </label>
+          <div className="relative">
+            <select
+              onChange={(e) => {
+                const val = e.target.value
+                if (!val) return
+                const loc = pickupLocations.find(l => l.id.toString() === val)
+                if (loc) {
                   if (loc.lat != null && loc.lng != null) {
                     setPickup(`${loc.name} - GPS: ${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`)
                   } else {
                     setPickup(loc.name)
                   }
-                }}
-                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all text-left"
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-black ${
-                  loc.type === 'Kampus' ? 'bg-blue-500' :
-                  loc.type === 'Transportasi' ? 'bg-purple-500' :
-                  loc.type === 'Rumah Sakit' ? 'bg-red-500' :
-                  loc.type === 'Pasar' ? 'bg-orange-500' :
-                  loc.type === 'Keamanan' ? 'bg-indigo-500' :
-                  loc.type === 'Pemerintahan' ? 'bg-yellow-500' :
-                  loc.type === 'Rekreasi' ? 'bg-cyan-500' :
-                  loc.type === 'Ibadah' ? 'bg-emerald-500' :
-                  loc.type === 'Hiburan' ? 'bg-pink-500' :
-                  loc.type === 'Perbankan' ? 'bg-teal-500' :
-                  'bg-gray-500'
-                }`}>
-                  {loc.type.charAt(0)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black text-gray-900 truncate">{loc.name}</p>
-                  <p className="text-xs text-gray-400 truncate">{loc.address}</p>
-                </div>
-              </button>
-            ))}
+                }
+              }}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none"
+            >
+              <option value="">-- Pilih Lokasi Cepat Penjemputan --</option>
+              {pickupLocations.map(loc => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.name} ({loc.address})
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+              <ChevronDown className="w-4 h-4" />
+            </div>
           </div>
         </div>
 
