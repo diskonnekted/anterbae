@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Truck, Package, ShoppingBag, Phone, MapPin, FileText, ChevronRight, Loader2, CheckCircle, Crosshair } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Truck, Package, ShoppingBag, Phone, MapPin, FileText, ChevronRight, Loader2, CheckCircle, Crosshair, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import AddressPicker from '@/components/AddressPicker'
 import PetaInteraktif from '@/components/PetaInteraktifDynamic'
+import { client } from '@/sanity/lib/client'
 
 const ORDER_TYPES = [
   { value: 'food', icon: '🍔', label: 'Pesan Antar Makanan', desc: 'Antar dari warung/resto ke lokasi Anda' },
@@ -28,6 +29,54 @@ export default function PesanPage() {
   })
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [merchants, setMerchants] = useState<any[]>([])
+  const [selectedMerchantId, setSelectedMerchantId] = useState('')
+  const [merchantProducts, setMerchantProducts] = useState<any[]>([])
+  const [quantities, setQuantities] = useState<Record<string, number>>({})
+
+  // Fetch food merchants
+  useEffect(() => {
+    const fetchMerchants = async () => {
+      try {
+        const data = await client.fetch(`*[_type == "merchant" && category == "food"] { _id, name } | order(name asc)`)
+        setMerchants(data)
+      } catch (err) {
+        console.error('Error fetching merchants:', err)
+      }
+    }
+    fetchMerchants()
+  }, [])
+
+  // Fetch products when selected merchant changes
+  useEffect(() => {
+    if (!selectedMerchantId) {
+      setMerchantProducts([])
+      return
+    }
+    const fetchProducts = async () => {
+      try {
+        const data = await client.fetch(`*[_type == "product" && merchant._ref == $merchantId] { _id, name, price } | order(name asc)`, { merchantId: selectedMerchantId })
+        setMerchantProducts(data)
+      } catch (err) {
+        console.error('Error fetching products:', err)
+      }
+    }
+    fetchProducts()
+  }, [selectedMerchantId])
+
+  // Helper to format selection into items text area
+  const updateItemsFromQuantities = (newQuantities: Record<string, number>, productsList: any[]) => {
+    const itemsList = Object.entries(newQuantities)
+      .filter(([_, qty]) => qty > 0)
+      .map(([prodId, qty]) => {
+        const prod = productsList.find(p => p._id === prodId)
+        return prod ? `${qty}x ${prod.name}` : ''
+      })
+      .filter(Boolean)
+      .join('\n')
+    
+    setFormData(prev => ({ ...prev, items: itemsList }))
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -149,14 +198,98 @@ export default function PesanPage() {
               </div>
             </div>
 
-            {/* Merchant (if food/jastip) */}
-            {(orderType === 'food' || orderType === 'jastip') && (
+            {/* Merchant Selection */}
+            {orderType === 'food' && (
+              <div className="mb-4 space-y-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Nama Warung/Resto *
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="merchantSelect"
+                      className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900 appearance-none cursor-pointer"
+                      value={selectedMerchantId}
+                      onChange={(e) => {
+                        const mId = e.target.value
+                        setSelectedMerchantId(mId)
+                        const merch = merchants.find(m => m._id === mId)
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          merchantName: merch ? merch.name : '',
+                          items: ''
+                        }))
+                        setQuantities({})
+                      }}
+                    >
+                      <option value="">-- Pilih Warung/Resto --</option>
+                      {merchants.map(m => (
+                        <option key={m._id} value={m._id}>{m.name}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-5 flex items-center text-slate-400">
+                      <ChevronDown className="w-5 h-5" />
+                    </div>
+                  </div>
+                </div>
+
+                {selectedMerchantId && merchantProducts.length > 0 && (
+                  <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 space-y-3">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      Pilih Menu Makanan/Minuman
+                    </label>
+                    <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
+                      {merchantProducts.map(prod => {
+                        const qty = quantities[prod._id] || 0
+                        return (
+                          <div key={prod._id} className="flex items-center justify-between bg-white p-3 rounded-2xl border border-slate-100">
+                            <div className="flex-1 min-w-0 pr-3">
+                              <p className="text-sm font-bold text-slate-900 truncate">{prod.name}</p>
+                              {prod.price && <p className="text-xs text-red-600 font-bold">Rp {prod.price.toLocaleString('id-ID')}</p>}
+                            </div>
+                            <div className="flex-1 max-w-[120px] flex items-center justify-end gap-3">
+                              {qty > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newQ = { ...quantities, [prod._id]: qty - 1 }
+                                    setQuantities(newQ)
+                                    updateItemsFromQuantities(newQ, merchantProducts)
+                                  }}
+                                  className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center transition-all active:scale-90"
+                                >
+                                  -
+                                </button>
+                              )}
+                              {qty > 0 && <span className="text-sm font-black text-slate-900 w-4 text-center">{qty}</span>}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newQ = { ...quantities, [prod._id]: qty + 1 }
+                                  setQuantities(newQ)
+                                  updateItemsFromQuantities(newQ, merchantProducts)
+                                }}
+                                className="w-8 h-8 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black flex items-center justify-center transition-all active:scale-90"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {orderType === 'jastip' && (
               <div className="mb-4">
                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
-                  {orderType === 'food' ? 'Nama Warung/Resto' : 'Toko Tujuan Belanja'}
+                  Toko Tujuan Belanja
                 </label>
                 <input name="merchantName" type="text"
-                  placeholder={orderType === 'food' ? 'Warung Bu Sari, Bakso Pak Joko...' : 'Pasar Banjarnegara, Alfamart...'}
+                  placeholder="Pasar Banjarnegara, Alfamart..."
                   className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900"
                   value={formData.merchantName} onChange={handleChange} />
               </div>
