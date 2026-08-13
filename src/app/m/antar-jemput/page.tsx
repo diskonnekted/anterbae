@@ -39,7 +39,7 @@ export default function AntarJemputPage() {
   const [isRegistered, setIsRegistered] = useState(false)
   const [regName, setRegName] = useState('')
   const [regAddress, setRegAddress] = useState('')
-  const [showRegister, setShowRegister] = useState(false)
+  const [showRegister, setShowRegister] = useState(true)
 
   // Step 3: Order form
   const [pickup, setPickup] = useState('')
@@ -87,6 +87,13 @@ export default function AntarJemputPage() {
 
   const handlePhoneChange = (value: string) => {
     setPhone(value)
+    const phoneOnly = value.replace(/[^0-9]/g, '')
+    if (phoneOnly.length < 10) {
+      setIsRegistered(false)
+      setShowRegister(true)
+      setCustomer(null)
+      return
+    }
     const timeout = setTimeout(() => checkPhone(value), 500)
     return () => clearTimeout(timeout)
   }
