@@ -3,6 +3,6 @@ import { client } from './client'
 
 export const { sanityFetch, SanityLive } = defineLive({
   client: client.withConfig({
-    apiVersion: '2026-02-01'
+    apiVersion: '2024-01-01'
   }),
 })
