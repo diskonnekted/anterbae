@@ -73,6 +73,7 @@ export default function PetaInteraktif({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
+    let isMounted = true
     const map = L.map(mapRef.current).setView(center, 12)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -92,6 +93,7 @@ export default function PetaInteraktif({
     fetch('/peta_kecamatan.geojson')
       .then(res => res.json())
       .then(geoJsonData => {
+        if (!isMounted || !mapInstanceRef.current) return
         L.geoJSON(geoJsonData, {
           style: {
             color: '#ef4444',
@@ -187,6 +189,7 @@ export default function PetaInteraktif({
     })
 
     return () => {
+      isMounted = false
       map.remove()
       mapInstanceRef.current = null
     }
