@@ -595,12 +595,11 @@ export default function MobileHome() {
       {!homeSearchQuery && (
       <div className="px-4 py-3">
         <a href="/m/jastip" className="block rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform">
-          <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center">
-            <Image
+          <div className="relative w-full aspect-[16/9] bg-gray-100 flex items-center justify-center overflow-hidden">
+            <img
               src="/media/jastip2.jpg"
               alt="Jastip — Titip Beli ke Mana Saja"
-              fill
-              className="object-contain"
+              className="w-full h-full object-cover"
             />
           </div>
         </a>
