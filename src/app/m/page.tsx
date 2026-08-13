@@ -292,6 +292,7 @@ export default function MobileHome() {
           <h2 className="text-xl font-black text-center mb-2">{servicePage.title}</h2>
           <p className="text-white/80 text-sm text-center">{servicePage.desc}</p>
         </div>
+        <div className="px-4 py-6 space-y-4">
           {['paket', 'jastip', 'express', 'layanan-lainnya'].includes(currentView) && (
             <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-xs font-black text-center leading-relaxed">
               ⚠️ Layanan ini sedang dalam proses pengembangan.
