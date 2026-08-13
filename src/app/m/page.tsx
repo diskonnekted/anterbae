@@ -110,6 +110,24 @@ export default function MobileHome() {
   const [searchMerchants, setSearchMerchants] = useState<Merchant[]>([])
   const [searchLoading, setSearchLoading] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
+  const [showPromoModal, setShowPromoModal] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoAlreadyClaimed, setPromoAlreadyClaimed] = useState(false)
+
+  const handleClaimPromo = () => {
+    const existingCode = localStorage.getItem('anterbae_promo_code')
+    if (existingCode) {
+      setPromoCode(existingCode)
+      setPromoAlreadyClaimed(true)
+    } else {
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase()
+      const randomCode = `AB-FREE-${randomSuffix}`
+      localStorage.setItem('anterbae_promo_code', randomCode)
+      setPromoCode(randomCode)
+      setPromoAlreadyClaimed(false)
+    }
+    setShowPromoModal(true)
+  }
 
   // Hide splash screen after max 3 seconds or when page is loaded (whichever comes first)
   useEffect(() => {
@@ -559,7 +577,12 @@ export default function MobileHome() {
           <p className="text-xs font-bold text-orange-100 uppercase tracking-wider mb-1">Promo Spesial</p>
           <p className="text-xl font-black mb-1">Gratis Ongkir!</p>
           <p className="text-sm text-orange-50 mb-4">Untuk pengguna baru di Banjarnegara</p>
-          <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className="bg-white text-orange-600 font-black text-sm px-5 py-2.5 rounded-xl active:scale-95 transition-transform inline-block shadow-md">Klaim Sekarang</a>
+          <button 
+            onClick={handleClaimPromo} 
+            className="bg-white text-orange-600 font-black text-sm px-5 py-2.5 rounded-xl active:scale-95 transition-transform inline-block shadow-md cursor-pointer"
+          >
+            Klaim Sekarang
+          </button>
         </div>
       </div>
       )}
@@ -691,6 +714,53 @@ export default function MobileHome() {
           </Link>
         </div>
       </div>
+      {/* Promo Code Modal */}
+      {showPromoModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-sm w-full border border-slate-100 space-y-5 text-center relative">
+            <button 
+              onClick={() => setShowPromoModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 bg-orange-50 text-orange-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-orange-100">
+              <Sparkles className="w-8 h-8 animate-pulse" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Voucher Gratis Ongkir</h3>
+              <p className="text-xs text-slate-500 font-bold leading-relaxed">
+                {promoAlreadyClaimed 
+                  ? "Anda sudah mengklaim voucher ini sebelumnya. Gunakan kode di bawah untuk klaim ke Admin." 
+                  : "Selamat! Anda mendapatkan kode voucher khusus pengguna baru."}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 border-2 border-dashed border-slate-200 p-4 rounded-2xl">
+              <span className="text-2xl font-black text-slate-900 tracking-wider font-mono select-all">
+                {promoCode}
+              </span>
+              <p className="text-[10px] text-slate-400 font-bold mt-1.5 uppercase tracking-wider">Tap/Klik untuk menyalin kode</p>
+            </div>
+
+            <p className="text-xs text-slate-400 font-bold leading-relaxed bg-orange-50/50 p-3 rounded-xl border border-orange-100/50">
+              Silakan kirimkan kode voucher di atas ke Admin CS via WhatsApp untuk mengklaim pengiriman gratis Anda.
+            </p>
+
+            <a
+              href={`https://wa.me/6281328128315?text=${encodeURIComponent(`Halo Admin Anterbae, saya ingin mengklaim Voucher Gratis Ongkir Baru saya: ${promoCode}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowPromoModal(false)}
+              className="block w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95 text-center shadow-lg shadow-orange-100 flex items-center justify-center gap-2"
+            >
+              <MessageSquare className="w-4 h-4" /> Kirim Kode ke Admin WA
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
