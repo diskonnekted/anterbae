@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import Image from 'next/image'
 import Link from 'next/link'
 import { urlFor } from '@/sanity/lib/image'
@@ -763,7 +765,7 @@ function LocationMap({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    const center = [initialLat ?? -7.4097, initialLng ?? 109.5250]
+    const center: [number, number] = [initialLat ?? -7.4097, initialLng ?? 109.5250]
     const map = L.map(mapRef.current).setView(center, initialLat ? 16 : 13)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -799,8 +801,8 @@ function LocationMap({
     })
 
     // Click to set marker
-    map.on('click', async (e: L.LeafletMouseEvent) => {
-      const { lat: newLat, lng: newLng } = e.latLng
+    map.on('click', async (e: any) => {
+      const { lat: newLat, lng: newLng } = e.latlng
       setLat(newLat)
       setLng(newLng)
 

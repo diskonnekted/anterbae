@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const productData: Record<string, unknown> = {
+    const productData: any = {
       _type: 'product',
       name,
       price,

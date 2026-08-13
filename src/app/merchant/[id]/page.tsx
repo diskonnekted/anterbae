@@ -26,7 +26,7 @@ export async function generateStaticParams() {
     }
   `)
 
-  return merchants?.map(m => ({ id: m._id })) || []
+  return merchants?.map((m: any) => ({ id: m._id })) || []
 }
 
 export default async function MerchantPage({ params }: { params: Promise<{ id: string }> }) {

@@ -43,7 +43,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'At least latitude or longitude is required' }, { status: 400 })
     }
 
-    const updated = await sanity.patch(merchantId).set(updateData).execute()
+    const updated = await sanity.patch(merchantId).set(updateData).commit()
 
     return NextResponse.json({ merchant: updated })
   } catch (error: any) {

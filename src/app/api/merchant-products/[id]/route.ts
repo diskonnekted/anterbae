@@ -31,7 +31,7 @@ export async function PATCH(
     if (isPromo !== undefined) updateData.isPromo = isPromo
     if (promoDiscount !== undefined) updateData.promoDiscount = promoDiscount
 
-    const updated = await sanity.patch(id).set(updateData).execute()
+    const updated = await sanity.patch(id).set(updateData).commit()
 
     return NextResponse.json({ product: updated })
   } catch (error: any) {

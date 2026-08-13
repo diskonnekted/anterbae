@@ -1,22 +1,21 @@
-## Error Type
-Runtime ReferenceError
-
-## Error Message
-ChevronDown is not defined
-
-
-    at eval (src/app/admin/page.tsx:932:97)
-    at Array.map (<anonymous>:null:null)
-    at AdminDashboardPage (src/app/admin/page.tsx:870:29)
-
-## Code Frame
-  930 | ...font-black text-slate-900 hover:text-red-600 transition-colors inline-flex items-cente...
-  931 | ...LocaleString('id-ID')}
-> 932 | ...p className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-5...
-      |                                               ^
-  933 | ...
-  934 | ...
-  935 | ...
-
-Next.js version: 16.2.6 (Turbopack)
-
+10:43:18.995 
+Type error: Property 'execute' does not exist on type 'Patch'.
+10:43:18.995 
+10:43:18.995 
+  44 |     }
+10:43:18.995 
+  45 |
+10:43:18.996 
+> 46 |     const updated = await sanity.patch(merchantId).set(updateData).execute()
+10:43:18.996 
+     |                                                                    ^
+10:43:18.996 
+  47 |
+10:43:18.996 
+  48 |     return NextResponse.json({ merchant: updated })
+10:43:18.996 
+  49 |   } catch (error: any) {
+10:43:19.074 
+Next.js build worker exited with code: 1 and signal: null
+10:43:19.161 
+Error: Command "npm run build" exited with 1
