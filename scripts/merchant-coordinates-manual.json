@@ -1,0 +1,35 @@
+{
+  "instructions": {
+    "title": "Cara Update Koordinat Merchant",
+    "steps": [
+      "1. Buka Sanity Dashboard: https://manage.sanity.io/projects/mri94xpo",
+      "2. Pilih dataset 'production'",
+      "3. Buka 'Content' section",
+      "4. Cari dokumen dengan _type = 'merchant'",
+      "5. Update field latitude dan longitude untuk setiap merchant"
+    ]
+  },
+  "merchants": [
+    {
+      "name": "Toko Kelontong Bima",
+      "area": "Banjarnegara",
+      "latitude": -7.4087,
+      "longitude": 109.5260,
+      "notes": "Dummy koordinat untuk area Banjarnegara"
+    },
+    {
+      "name": "Dawet Ayu Asli Banjarnegara",
+      "area": "Banjarnegara",
+      "latitude": -7.4107,
+      "longitude": 109.5240,
+      "notes": "Dummy koordinat untuk area Banjarnegara"
+    },
+    {
+      "name": "Soto Krandegan",
+      "area": "Banjarnegara",
+      "latitude": -7.4077,
+      "longitude": 109.5270,
+      "notes": "Dummy koordinat untuk area Banjarnegara"
+    }
+  ]
+}

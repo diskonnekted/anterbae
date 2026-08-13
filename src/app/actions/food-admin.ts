@@ -2,6 +2,7 @@
 
 import { createClient } from '@sanity/client'
 import { sendWhatsAppNotification } from '@/sanity/lib/whatsapp'
+import { createActivityLog } from '@/app/actions/activity-log'
 
 const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -32,7 +33,8 @@ export async function fetchFoodOrders() {
         foodOrderStatus,
         foodItems[],
         paymentFlow,
-        customerLocation
+        customerLocation,
+        "courier": courier->{ _id, name, phone }
       }`
     )
 
@@ -88,6 +90,14 @@ export async function confirmPaymentAndNotify(orderId: string, orderNumber: stri
       'paymentFlow.confirmedAt': new Date().toISOString(),
     }).commit()
 
+    // Log payment confirmation
+    await createActivityLog({
+      orderId: orderId,
+      actor: 'admin',
+      action: 'Konfirmasi Pembayaran',
+      notes: `Admin mengonfirmasi pembayaran untuk order ${orderNumber} sebesar Rp ${totalAmount.toLocaleString('id-ID')}.`
+    }).catch(err => console.error('Failed to log payment confirmation:', err))
+
     // Notify Restaurant
     const restoMessage = `*🍔 PESANAN BARU - SIAPKAN ORDER*\n\n` +
       `*Order:* ${orderNumber}\n` +
@@ -122,6 +132,15 @@ export async function confirmPaymentAndNotify(orderId: string, orderNumber: stri
         foodOrderStatus: 'resto_ready_waiting_courier',
       }).commit()
 
+      // Log courier assignment
+      await createActivityLog({
+        orderId: orderId,
+        courierId: courier._id,
+        actor: 'system',
+        action: 'Tunjuk Kurir',
+        notes: `Sistem secara otomatis menugaskan Kurir ${courier.name} ke pesanan makanan ${orderNumber}.`
+      }).catch(err => console.error('Failed to log auto courier assignment:', err))
+
       // Notify courier
       const courierMessage = `*🛵 PESANAN MAKANAN BARU*\n\n` +
         `*Order:* ${orderNumber}\n` +
@@ -133,7 +152,7 @@ export async function confirmPaymentAndNotify(orderId: string, orderNumber: stri
         `*Total COD:* Rp ${totalAmount.toLocaleString('id-ID')}\n\n` +
         `*Alamat Pengiriman:*\n${order.deliveryAddress}\n\n` +
         `Pelanggan: ${order.customerPhone}\n\n` +
-        `Klik link berikut untuk update status:\nhttps://anterbae.id/kurir`
+        `Klik link berikut untuk update status:\nanterbae.vercel.app/k`
 
       await sendWhatsAppNotification(
         courier.phone,

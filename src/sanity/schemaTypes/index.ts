@@ -13,6 +13,7 @@ import { categoryType } from './categoryType'
 import { orderType } from './orderType'
 import { serviceType } from './serviceType'
 import { vendorType } from './vendorType'
+import { activityLogType } from './activityLogType'
 
 export const schemaTypes = [
   // Core business
@@ -25,6 +26,7 @@ export const schemaTypes = [
   productType,
   categoryType,
   courierApplicationType,
+  activityLogType,
   // Supporting
   customerType,
   articleType,

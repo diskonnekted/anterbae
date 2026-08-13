@@ -1,0 +1,22 @@
+{
+  "merchants": [
+    {
+      "name": "Toko Kelontong Bima",
+      "area": "Banjarnegara",
+      "latitude": -7.4087,
+      "longitude": 109.5260
+    },
+    {
+      "name": "Dawet Ayu Asli Banjarnegara",
+      "area": "Banjarnegara",
+      "latitude": -7.4107,
+      "longitude": 109.5240
+    },
+    {
+      "name": "Soto Krandegan",
+      "area": "Banjarnegara",
+      "latitude": -7.4077,
+      "longitude": 109.5270
+    }
+  ]
+}

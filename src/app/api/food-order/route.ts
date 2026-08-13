@@ -3,6 +3,7 @@ import { createClient } from '@sanity/client'
 import { sendWhatsAppNotification } from '@/sanity/lib/whatsapp'
 import { upsertCustomer, updateBuyerLevel } from '@/app/actions/buyer-level'
 import { getBuyerLevel } from '@/lib/buyer-level-utils'
+import { createActivityLog } from '@/app/actions/activity-log'
 
 const sanity = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -114,6 +115,14 @@ export async function POST(req: NextRequest) {
       restaurantName,
       createdAt: new Date().toISOString(),
     })
+
+    // Create activity log
+    await createActivityLog({
+      orderId: order._id,
+      actor: 'customer',
+      action: 'Buat Pesanan Makanan',
+      notes: `Pesanan Baru ${orderNumber} berhasil dibuat oleh Pelanggan ${customerName}. Metode Pembayaran: ${paymentMethod === 'cod_on_delivery' ? 'COD (Bayar di Tempat)' : 'Transfer'}.`
+    }).catch(err => console.error('Failed to create activity log:', err))
 
     const host = req.headers.get('host') || 'localhost:3000'
     const protocol = req.headers.get('x-forwarded-proto') || 'http'

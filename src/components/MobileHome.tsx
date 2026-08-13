@@ -2,12 +2,31 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Search, QrCode, LayoutGrid, UtensilsCrossed, Truck, ShoppingBasket, Gift, Package, Coins, ShoppingCart, Sparkles, ChevronDown, Bell, ShoppingBag, MapPin, Bike, MessageSquare as MessageIcon, ShoppingCart as CartIcon, User } from 'lucide-react'
-import ServiceIcon from './ServiceIcon'
+import { Search, QrCode, LayoutGrid, ChevronDown, Bell, ShoppingBag, MapPin, Bike, MessageSquare as MessageIcon, ShoppingCart as CartIcon, User } from 'lucide-react'
+import Image from 'next/image'
 
 interface MobileHomeProps {
   waLink: string
   servicesLink: string
+}
+
+const serviceIcons = [
+  { icon: '/icon/food.jpg', label: 'Food', href: '/m/food', color: 'red' },
+  { icon: '/icon/jasa-antar.jpg', label: 'Antar Jemput', href: '/m/antar-jemput', color: 'blue' },
+  { icon: '/icon/antar-paket.jpg', label: 'Antar Paket', href: '/m/paket', color: 'blue' },
+  { icon: '/icon/jastip.jpg', label: 'Jastip', href: '/m/jastip', color: 'green' },
+  { icon: '/icon/express.jpg', label: 'Express', href: '/m/express', color: 'orange' },
+  { icon: '/icon/belanja.jpg', label: 'Belanja', href: '/m/belanja', color: 'emerald' },
+  { icon: '/icon/jasa-khusus.jpg', label: 'Lainnya', href: '/m/layanan-lainnya', color: 'purple' },
+]
+
+const iconColors: Record<string, string> = {
+  red: 'from-red-50 to-red-100',
+  blue: 'from-blue-50 to-blue-100',
+  green: 'from-green-50 to-green-100',
+  orange: 'from-orange-50 to-orange-100',
+  emerald: 'from-emerald-50 to-emerald-100',
+  purple: 'from-purple-50 to-purple-100',
 }
 
 export default function MobileHome({ waLink, servicesLink }: MobileHomeProps) {
@@ -51,27 +70,22 @@ export default function MobileHome({ waLink, servicesLink }: MobileHomeProps) {
 
       {/* ===== MOBILE SERVICE ICONS ===== */}
       <div className="md:hidden bg-white px-4 py-6 border-b border-gray-50">
-        <a href="/m" className="block">
-          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-            {[
-              { icon: <UtensilsCrossed className="w-7 h-7" />, label: 'Food' },
-              { icon: <Truck className="w-7 h-7" />, label: 'Antar Paket' },
-              { icon: <ShoppingBasket className="w-7 h-7" />, label: 'Jastip' },
-              { icon: <Gift className="w-7 h-7" />, label: 'Promo' },
-              { icon: <Package className="w-7 h-7" />, label: 'Express' },
-              { icon: <Coins className="w-7 h-7" />, label: 'Bayar Tagihan' },
-              { icon: <ShoppingCart className="w-7 h-7" />, label: 'Belanja' },
-              { icon: <Sparkles className="w-7 h-7" />, label: 'Lainnya' },
-            ].map((service) => (
-              <div key={service.label} className="flex flex-col items-center gap-2">
-                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-600">
-                  {service.icon}
-                </div>
-                <span className="text-xs font-bold text-gray-700 text-center leading-tight whitespace-nowrap">{service.label}</span>
+        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+          {serviceIcons.map((service) => (
+            <a key={service.label} href={service.href} className="flex flex-col items-center gap-2 active:opacity-70">
+              <div className={`w-14 h-14 rounded-2xl overflow-hidden bg-gradient-to-br ${iconColors[service.color] || 'from-gray-50 to-gray-100'} flex items-center justify-center shadow-sm`}>
+                <Image
+                  src={service.icon}
+                  alt={service.label}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            ))}
-          </div>
-        </a>
+              <span className="text-xs font-bold text-gray-700 text-center leading-tight whitespace-nowrap">{service.label}</span>
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* ===== MOBILE PROMO BANNER ===== */}

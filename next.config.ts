@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
       { source: '/inkubator/:path*', destination: '/register-courier', permanent: false },
       { source: '/lapak', destination: '/mitra', permanent: false },
       { source: '/lapak/:path*', destination: '/mitra', permanent: false },
+      { source: '/k', destination: '/kurir', permanent: false },
+      { source: '/c/:order', destination: '/m/antar-jemput/confirm?order=:order', permanent: false },
     ]
   },
 };

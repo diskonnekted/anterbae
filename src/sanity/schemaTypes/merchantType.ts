@@ -14,6 +14,18 @@ export const merchantType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'merchantCode',
+      title: 'Kode Merchant',
+      type: 'string',
+      description: 'Kode unik untuk login dashboard (misal: BEE01, CON01). Hanya 4-6 karakter.',
+      validation: (rule) => rule.required().min(4).max(6),
+    }),
+    defineField({
+      name: 'ownerName',
+      title: 'Nama Pemilik Toko',
+      type: 'string',
+    }),
+    defineField({
       name: 'slug',
       type: 'slug',
       options: { source: 'name' },
@@ -94,6 +106,22 @@ export const merchantType = defineType({
       title: 'Minimum Pesanan (Rp)',
       type: 'number',
       initialValue: 0,
+    }),
+    defineField({
+      name: 'latitude',
+      title: 'Latitude',
+      type: 'number',
+    }),
+    defineField({
+      name: 'longitude',
+      title: 'Longitude',
+      type: 'number',
+    }),
+    defineField({
+      name: 'dashboardPin',
+      title: 'PIN Dashboard',
+      type: 'string',
+      description: 'PIN 4 digit untuk akses dashboard merchant. Kosongkan jika tidak pakai PIN.',
     }),
   ],
   preview: {

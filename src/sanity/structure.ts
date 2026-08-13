@@ -189,6 +189,14 @@ export const structure: StructureResolver = (S) =>
 
       S.divider(),
 
+      // ======= ACTIVITY LOGS =======
+      S.listItem()
+        .title('Log Aktivitas')
+        .icon(InfoOutlineIcon)
+        .child(S.documentTypeList('activityLog').title('Log Aktivitas Transaksi')),
+
+      S.divider(),
+
       // ======= SETTINGS =======
       S.listItem()
         .title('Pengaturan Aplikasi')

@@ -1,0 +1,22 @@
+## Error Type
+Runtime ReferenceError
+
+## Error Message
+ChevronDown is not defined
+
+
+    at eval (src/app/admin/page.tsx:932:97)
+    at Array.map (<anonymous>:null:null)
+    at AdminDashboardPage (src/app/admin/page.tsx:870:29)
+
+## Code Frame
+  930 | ...font-black text-slate-900 hover:text-red-600 transition-colors inline-flex items-cente...
+  931 | ...LocaleString('id-ID')}
+> 932 | ...p className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-5...
+      |                                               ^
+  933 | ...
+  934 | ...
+  935 | ...
+
+Next.js version: 16.2.6 (Turbopack)
+

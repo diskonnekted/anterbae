@@ -19,6 +19,7 @@ export interface Courier {
 export interface Merchant {
   _id: string;
   name: string;
+  merchantCode: string;
   slug: string;
   category: 'food' | 'grocery' | 'health' | 'other';
   logo?: Image;
@@ -32,6 +33,9 @@ export interface Merchant {
   openHours?: string;
   minOrder?: number;
   isVerified: boolean;
+  latitude?: number;
+  longitude?: number;
+  dashboardPin?: string;
 }
 
 export type OrderType = 'food' | 'parcel' | 'jastip';

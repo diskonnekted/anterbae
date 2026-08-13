@@ -61,7 +61,9 @@ export const MERCHANTS_QUERY = defineQuery(`
     closingMessage,
     openHours,
     minOrder,
-    isVerified
+    isVerified,
+    latitude,
+    longitude
   }
 `)
 
@@ -95,7 +97,9 @@ export const MERCHANT_BY_SLUG_QUERY = defineQuery(`
     isOpen,
     closingMessage,
     openHours,
-    minOrder
+    minOrder,
+    latitude,
+    longitude
   }
 `)
 

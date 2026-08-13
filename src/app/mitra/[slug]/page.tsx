@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin, Phone, Info, ShoppingBag, Store } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import PetaMiniMerchant from "@/components/PetaMiniMerchantDynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -136,6 +137,27 @@ export default async function MerchantPage({ params }: Props) {
             <p className="text-slate-400 text-sm">Merchant ini belum menambahkan produk ke dalam katalog.</p>
           </div>
         )}
+      </div>
+
+      {/* Location Map */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+          <MapPin className="w-6 h-6 text-red-600" />
+          Lokasi Merchant
+        </h2>
+        <div className="bg-white rounded-2xl border border-slate-100 p-4">
+          <PetaMiniMerchant
+            latitude={merchant.latitude}
+            longitude={merchant.longitude}
+            merchantName={merchant.name}
+          />
+          {merchant.address && (
+            <p className="mt-3 text-sm text-slate-600 font-medium flex items-start gap-2">
+              <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+              {merchant.address}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

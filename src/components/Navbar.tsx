@@ -29,6 +29,7 @@ export default function Navbar() {
           <Link href="/products" className="hover:text-red-600 transition-colors">Produk</Link>
           <Link href="/layanan" className="hover:text-red-600 transition-colors">Layanan</Link>
           <Link href="/mitra" className="hover:text-red-600 transition-colors">Mitra</Link>
+          <Link href="/merchantlogin" className="hover:text-red-600 transition-colors">Dashboard</Link>
           <Link href="/track" className="hover:text-red-600 transition-colors">Lacak</Link>
           <Link href="/info" className="hover:text-red-600 transition-colors">Info</Link>
         </div>
@@ -83,6 +84,9 @@ export default function Navbar() {
           </Link>
           <Link href="/mitra" onClick={() => setMenuOpen(false)} className="block font-bold text-slate-700 py-2 border-b border-slate-100">
             🏪 Mitra Merchant
+          </Link>
+          <Link href="/merchantlogin" onClick={() => setMenuOpen(false)} className="block font-bold text-slate-700 py-2 border-b border-slate-100">
+            ⚙️ Dashboard Merchant
           </Link>
           <Link href="/products" onClick={() => setMenuOpen(false)} className="block font-bold text-slate-700 py-2 border-b border-slate-100">
             🛍️ Semua Produk

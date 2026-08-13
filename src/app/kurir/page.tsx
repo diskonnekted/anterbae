@@ -51,6 +51,29 @@ const ORDER_ICONS: Record<string, string> = {
   jastip: '🛍️',
 }
 
+const getCourierProfilePic = (name: string): string => {
+  const normalized = name.toLowerCase()
+  if (normalized.includes('dummy 1') || normalized === 'adi') return '/kurir/adi.JPG'
+  if (normalized.includes('dummy 2') || normalized.includes('budiarto') || normalized === 'budi') return '/kurir/budi.JPG'
+  if (normalized.includes('dummy 3') || normalized === 'candra') return '/kurir/candra.JPG'
+  if (normalized.includes('dummy 4') || normalized === 'deni') return '/kurir/deni.JPG'
+  if (normalized.includes('dummy 5') || normalized === 'edi') return '/kurir/edi.JPG'
+  if (normalized.includes('dummy 6') || normalized === 'farid') return '/kurir/farid.JPG'
+  if (normalized.includes('dummy 7') || normalized === 'gozi') return '/kurir/gozi.JPG'
+  if (normalized.includes('dummy 8') || normalized === 'heri') return '/kurir/heri.JPG'
+  if (normalized.includes('dummy 9') || normalized === 'imam') return '/kurir/imam.JPG'
+  if (normalized.includes('dummy 10') || normalized === 'joni') return '/kurir/joni.JPG'
+  if (normalized.includes('kardi')) return '/kurir/kardi.JPG'
+
+  const names = ['adi', 'budi', 'candra', 'deni', 'edi', 'farid', 'gozi', 'heri', 'imam', 'joni', 'kardi']
+  for (const n of names) {
+    if (normalized.includes(n)) {
+      return `/kurir/${n}.JPG`
+    }
+  }
+  return '/kurir/adi.JPG'
+}
+
 export default function KurirPortalPage() {
   const [phone, setPhone] = useState('')
   const [pin, setPin] = useState('')
@@ -161,8 +184,12 @@ export default function KurirPortalPage() {
             {/* Header Toolbar */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-3xl flex items-center justify-center text-3xl shadow-xl shadow-red-500/20 border border-white/10 active:scale-95 transition-transform duration-200">
-                  🛵
+                <div className="w-16 h-16 rounded-3xl overflow-hidden border border-white/10 shadow-xl shadow-red-500/20 active:scale-95 transition-transform duration-200 bg-slate-800 flex items-center justify-center">
+                  <img 
+                    src={getCourierProfilePic(courierData.name)} 
+                    alt={courierData.name} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <h1 className="text-xl font-black tracking-tight leading-tight">{courierData.name}</h1>
@@ -285,6 +312,24 @@ export default function KurirPortalPage() {
                         {order.items}
                       </p>
                     </div>
+
+                    {/* Riwayat Aktivitas / Log */}
+                    {order.logs && order.logs.length > 0 && (
+                      <div className="bg-slate-50/70 rounded-[2rem] p-5 border border-slate-100 space-y-3">
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block">Riwayat Pengantaran</span>
+                        <div className="space-y-3 max-h-32 overflow-y-auto pr-1">
+                          {order.logs.map((log: any) => (
+                            <div key={log._id} className="text-xs border-l-2 border-slate-200 pl-2.5 py-0.5 space-y-0.5">
+                              <div className="flex justify-between items-center text-[9px] font-bold text-slate-400">
+                                <span className="uppercase text-slate-500">{log.action}</span>
+                                <span>{new Date(log.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
+                              <p className="font-bold text-slate-700">{log.notes}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Elegant Pickup & Delivery Timeline */}
                     <div className="relative pl-8 space-y-6 py-2">
