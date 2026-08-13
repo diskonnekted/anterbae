@@ -6,7 +6,7 @@
   "scope": "/m",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f9fafb",
+  "background_color": "#ffffff",
   "theme_color": "#dc2626",
   "categories": ["delivery", "food", "shopping"],
   "icons": [
@@ -22,5 +22,8 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "splash_pages": {
+    "src": "/anterbae.png"
+  }
 }
