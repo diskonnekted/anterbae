@@ -498,11 +498,13 @@ export default async function Home() {
             <div className="flex flex-wrap justify-center gap-4">
               {couriers.slice(0, 8).map((courier: any) => (
                 <div key={courier._id} className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 border border-slate-100 shadow-sm">
-                  <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-red-50 flex-shrink-0 border border-slate-100">
                     {courier.photo ? (
                       <Image src={urlFor(courier.photo).width(40).height(40).url()} alt={courier.name} fill className="object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400"><Bike className="w-5 h-5" /></div>
+                      <div className="w-full h-full flex items-center justify-center bg-red-50 text-red-600 font-black text-sm uppercase">
+                        {courier.name.charAt(0)}
+                      </div>
                     )}
                   </div>
                   <div>
