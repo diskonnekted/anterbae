@@ -31,6 +31,7 @@ export default function PesanPage() {
   const [loading, setLoading] = useState(false)
   const [merchants, setMerchants] = useState<any[]>([])
   const [selectedMerchantId, setSelectedMerchantId] = useState('')
+  const [selectedMerchantCoords, setSelectedMerchantCoords] = useState<{ lat?: number; lng?: number } | null>(null)
   const [merchantProducts, setMerchantProducts] = useState<any[]>([])
   const [quantities, setQuantities] = useState<Record<string, number>>({})
 
@@ -38,7 +39,7 @@ export default function PesanPage() {
   useEffect(() => {
     const fetchMerchants = async () => {
       try {
-        const data = await client.fetch(`*[_type == "merchant" && category == "food"] { _id, name } | order(name asc)`)
+        const data = await client.fetch(`*[_type == "merchant" && category == "food"] { _id, name, latitude, longitude } | order(name asc)`)
         setMerchants(data)
       } catch (err) {
         console.error('Error fetching merchants:', err)
@@ -209,7 +210,6 @@ export default function PesanPage() {
                     <select
                       name="merchantSelect"
                       className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none font-bold text-slate-900 appearance-none cursor-pointer"
-                      value={selectedMerchantId}
                       onChange={(e) => {
                         const mId = e.target.value
                         setSelectedMerchantId(mId)
@@ -220,6 +220,7 @@ export default function PesanPage() {
                           items: ''
                         }))
                         setQuantities({})
+                        setSelectedMerchantCoords(merch ? { lat: merch.latitude, lng: merch.longitude } : null)
                       }}
                     >
                       <option value="">-- Pilih Warung/Resto --</option>
@@ -326,6 +327,8 @@ export default function PesanPage() {
               <div className="mt-3">
                 <PetaInteraktif
                   height="200px"
+                  focusLat={selectedMerchantCoords?.lat}
+                  focusLng={selectedMerchantCoords?.lng}
                   onClick={(kecamatan) => {
                     if (kecamatan) {
                       setFormData(prev => ({ ...prev, pickupAddress: prev.pickupAddress ? prev.pickupAddress + ', ' + kecamatan : kecamatan }))

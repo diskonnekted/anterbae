@@ -23,6 +23,8 @@ interface PetaInteraktifProps {
     longitude?: number
     isOpen: boolean
   }>
+  focusLat?: number
+  focusLng?: number
 }
 
 export default function PetaInteraktif({
@@ -30,6 +32,8 @@ export default function PetaInteraktif({
   height = '180px',
   onClick,
   merchants = [],
+  focusLat,
+  focusLng,
 }: PetaInteraktifProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
@@ -187,6 +191,12 @@ export default function PetaInteraktif({
       mapInstanceRef.current = null
     }
   }, [center, onClick, kecamatanInfo, merchants, selectedArea])
+
+  useEffect(() => {
+    if (mapInstanceRef.current && focusLat != null && focusLng != null) {
+      mapInstanceRef.current.flyTo([focusLat, focusLng], 14)
+    }
+  }, [focusLat, focusLng])
 
   // Get unique areas from merchants
   const areas = useMemo(() => {
