@@ -87,11 +87,15 @@ export default function MobileHome({ waLink, servicesLink }: MobileHomeProps) {
       </div>
 
       {/* ===== MOBILE SERVICE ICONS ===== */}
-      <div className="md:hidden bg-white px-4 py-6 border-b border-gray-50">
-        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+      <div className="md:hidden bg-white px-4 py-6 border-b border-gray-100">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-5">
           {serviceIcons.map((service) => (
-            <a key={service.label} href={service.href} className="flex flex-col items-center gap-2 active:opacity-70">
-              <div className={`w-14 h-14 rounded-2xl overflow-hidden bg-gradient-to-br ${iconColors[service.color] || 'from-gray-50 to-gray-100'} flex items-center justify-center shadow-sm`}>
+            <a
+              key={service.label}
+              href={service.href}
+              className="flex flex-col items-center gap-2 active:opacity-70 w-16"
+            >
+              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-50 flex items-center justify-center">
                 <Image
                   src={service.icon}
                   alt={service.label}
@@ -100,7 +104,7 @@ export default function MobileHome({ waLink, servicesLink }: MobileHomeProps) {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-xs font-bold text-gray-700 text-center leading-tight whitespace-nowrap">{service.label}</span>
+              <span className="text-xs font-bold text-gray-700 text-center leading-tight">{service.label}</span>
             </a>
           ))}
         </div>

@@ -447,13 +447,13 @@ export default function MobileHome() {
 
       {/* Service Icons */}
       <div className="bg-white px-4 py-6 border-b border-gray-50">
-        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-5">
           {filteredServices.map((service) => (
             <button
               key={service.id}
               onClick={() => handleServiceClick(service.href)}
               type="button"
-              className="flex flex-col items-center gap-2 active:opacity-70"
+              className="flex flex-col items-center gap-2 active:opacity-70 w-16"
             >
               <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-50 flex items-center justify-center">
                 <Image
@@ -464,7 +464,7 @@ export default function MobileHome() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-xs font-bold text-gray-700 text-center leading-tight whitespace-nowrap">{service.label}</span>
+              <span className="text-xs font-bold text-gray-700 text-center leading-tight">{service.label}</span>
             </button>
           ))}
         </div>
