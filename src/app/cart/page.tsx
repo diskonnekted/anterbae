@@ -27,6 +27,13 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-6xl mx-auto">
+        <Link href="/" className="inline-flex items-center gap-2 text-slate-400 font-bold mb-8 hover:text-green-700 transition-colors group">
+          <div className="p-2 rounded-lg bg-white border border-slate-100 group-hover:border-green-100 group-hover:bg-green-50 transition-all">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"></path></svg>
+          </div>
+          Kembali ke Pasar
+        </Link>
+
         <div className="flex items-end gap-3 mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter">Keranjang Saya</h1>
           <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-black mb-2">
