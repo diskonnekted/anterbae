@@ -282,13 +282,23 @@ export default function MobileHome() {
         <div className={`bg-gradient-to-br ${colors.gradient} text-white px-4 py-8`}>
           <div className="flex justify-center mb-4">
             <div className={`w-16 h-16 rounded-2xl ${colors.bg} flex items-center justify-center ${colors.text}`}>
-              <img src={`/icon/${currentView === 'layanan-lainnya' ? 'jasa-khusus' : currentView}.jpg`} alt={servicePage.title} className="w-12 h-12 rounded-xl object-cover" />
+              <img 
+                src={`/icon/${currentView === 'layanan-lainnya' ? 'jasa-khusus' : currentView === 'paket' ? 'antar-paket' : currentView}.jpg`} 
+                alt={servicePage.title} 
+                className="w-12 h-12 rounded-xl object-cover" 
+              />
             </div>
           </div>
           <h2 className="text-xl font-black text-center mb-2">{servicePage.title}</h2>
           <p className="text-white/80 text-sm text-center">{servicePage.desc}</p>
         </div>
-        <div className="px-4 py-6 space-y-3">
+        <div className="px-4 py-6 space-y-4">
+          {currentView === 'paket' && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-xs font-black text-center leading-relaxed">
+              ⚠️ Layanan ini sedang dalam proses pengembangan.
+            </div>
+          )}
+
           <div className="grid grid-cols-3 gap-3">
             {servicePage.features.map((f) => (
               <div key={f.title} className={`bg-white rounded-2xl p-3 text-center border ${colors.border}`}>
@@ -298,9 +308,16 @@ export default function MobileHome() {
               </div>
             ))}
           </div>
-          <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className={`block w-full ${colors.gradient} text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg`}>
-            <Phone className="w-5 h-5" />Pesan Sekarang
-          </a>
+
+          {currentView === 'paket' ? (
+            <div className="block w-full bg-slate-100 text-slate-400 border border-slate-200 font-black py-4 rounded-2xl text-center cursor-not-allowed flex items-center justify-center gap-2">
+              <Phone className="w-5 h-5" /> Belum Tersedia
+            </div>
+          ) : (
+            <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className={`block w-full ${colors.gradient} text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg`}>
+              <Phone className="w-5 h-5" />Pesan Sekarang
+            </a>
+          )}
         </div>
       </div>
     )
