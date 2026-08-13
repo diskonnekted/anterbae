@@ -30,7 +30,7 @@ interface Merchant {
 
 const services = [
   { id: 'food', icon: '/icon/food.jpg', label: 'Food', href: '/m/food', color: 'red' },
-  { id: 'antar-jemput', icon: '/icon/jasa-antar.jpg', label: 'Antar Jemput', href: '/m/antar-jemput', color: 'blue' },
+  { id: 'antar-jemput', icon: '/icon/jasa-antar.jpg', label: 'Pengantaran', href: '/m/antar-jemput', color: 'blue' },
   { id: 'paket', icon: '/icon/antar-paket.jpg', label: 'Antar Paket', href: '/m/paket', color: 'blue' },
   { id: 'jastip', icon: '/icon/jastip.jpg', label: 'Jastip', href: '/m/jastip', color: 'green' },
   { id: 'express', icon: '/icon/express.jpg', label: 'Express', href: '/m/express', color: 'orange' },
@@ -292,8 +292,7 @@ export default function MobileHome() {
           <h2 className="text-xl font-black text-center mb-2">{servicePage.title}</h2>
           <p className="text-white/80 text-sm text-center">{servicePage.desc}</p>
         </div>
-        <div className="px-4 py-6 space-y-4">
-          {currentView === 'paket' && (
+          {['paket', 'jastip', 'express', 'layanan-lainnya'].includes(currentView) && (
             <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-xs font-black text-center leading-relaxed">
               ⚠️ Layanan ini sedang dalam proses pengembangan.
             </div>
@@ -309,7 +308,7 @@ export default function MobileHome() {
             ))}
           </div>
 
-          {currentView === 'paket' ? (
+          {['paket', 'jastip', 'express', 'layanan-lainnya'].includes(currentView) ? (
             <div className="block w-full bg-slate-100 text-slate-400 border border-slate-200 font-black py-4 rounded-2xl text-center cursor-not-allowed flex items-center justify-center gap-2">
               <Phone className="w-5 h-5" /> Belum Tersedia
             </div>

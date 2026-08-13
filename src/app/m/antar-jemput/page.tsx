@@ -183,7 +183,7 @@ export default function AntarJemputPage() {
             <ArrowLeft className="w-5 h-5 text-gray-700" />
           </Link>
           <div>
-            <h1 className="text-lg font-black text-gray-900">Antar Jemput</h1>
+            <h1 className="text-lg font-black text-gray-900">Pengantaran</h1>
             <p className="text-xs text-gray-400 font-medium">Isi form, driver akan menghubungi Anda</p>
           </div>
         </div>
@@ -376,7 +376,7 @@ export default function AntarJemputPage() {
           ) : (
             <>
               <Phone className="w-5 h-5" />
-              Pesan Antar Jemput
+              Pesan Pengantaran
             </>
           )}
         </button>
