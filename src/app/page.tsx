@@ -306,7 +306,7 @@ export default async function Home() {
 
         {/* Categories */}
         {categories && categories.length > 0 && (
-          <div className="flex overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 gap-4 mb-12 hide-scrollbar">
+          <div className="flex flex-wrap justify-center gap-6 mb-12 max-w-5xl mx-auto">
             {categories.map((cat: any) => (
               <Link
                 key={cat._id}

@@ -105,7 +105,7 @@ export const MERCHANT_BY_SLUG_QUERY = defineQuery(`
 
 // ===== PRODUCTS & CATEGORIES =====
 export const CATEGORIES_QUERY = defineQuery(
-  '*[_type == "category" && defined(parentCategory._ref) == false] | order(name asc) ' +
+  '*[_type == "category"] | order(name asc) ' +
   '{' +
   '  _id,' +
   '  name,' +
