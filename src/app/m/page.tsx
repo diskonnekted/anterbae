@@ -597,7 +597,7 @@ export default function MobileHome() {
         <a href="/m/jastip" className="block rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform">
           <div className="relative w-full aspect-[16/9] bg-gray-100 flex items-center justify-center overflow-hidden">
             <img
-              src="/media/jastip2.jpg"
+              src="/media/jastip2.JPG"
               alt="Jastip — Titip Beli ke Mana Saja"
               className="w-full h-full object-cover"
             />
