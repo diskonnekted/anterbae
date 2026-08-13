@@ -129,11 +129,17 @@ export default function MobileHome() {
     setShowPromoModal(true)
   }
 
-  // Hide splash screen after max 3 seconds or when page is loaded (whichever comes first)
+  // Hide splash screen when data loading is finished or after 800ms max
+  useEffect(() => {
+    if (!loading) {
+      setShowSplash(false)
+    }
+  }, [loading])
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false)
-    }, 3000)
+    }, 800)
     return () => clearTimeout(timer)
   }, [])
 
