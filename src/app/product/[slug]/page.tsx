@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
         {/* Left: Image */}
-        <div className="lg:col-span-7 sticky top-32">
+        <div className="lg:col-span-7 lg:sticky lg:top-32">
           <div className="relative aspect-square rounded-[3rem] overflow-hidden bg-white shadow-2xl shadow-slate-200 border border-slate-100">
             {product.image && (
               <Image
