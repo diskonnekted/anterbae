@@ -23,7 +23,7 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'Beranda', icon: Home, href: '/' },
-    { name: 'Pesan', icon: Truck, href: '/pesan' },
+    { name: 'Antar', icon: Truck, href: '/m/antar-jemput' },
     { name: 'Lacak', icon: MapPin, href: '/track' },
     { name: 'Mitra', icon: Package, href: '/mitra' },
     { name: 'Cart', icon: ShoppingCart, href: '/cart' },

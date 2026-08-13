@@ -157,15 +157,13 @@ export default function MobileHome({ waLink, servicesLink }: MobileHomeProps) {
             <ShoppingBag className="w-5 h-5" />
             <span className="text-[10px] font-bold">Produk</span>
           </Link>
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/m/antar-jemput"
             className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400"
           >
-            <MessageIcon className="w-5 h-5" />
-            <span className="text-[10px] font-bold">Chat</span>
-          </a>
+            <Bike className="w-5 h-5" />
+            <span className="text-[10px] font-bold">Antar</span>
+          </Link>
           <Link href="/cart" className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400 relative">
             <CartIcon className="w-5 h-5" />
             <span className="text-[10px] font-bold">Keranjang</span>

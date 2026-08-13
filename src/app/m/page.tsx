@@ -703,9 +703,9 @@ export default function MobileHome() {
           <Link href="/products" className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400">
             <ShoppingBag className="w-5 h-5" /><span className="text-[10px] font-bold">Produk</span>
           </Link>
-          <a href="https://wa.me/6281328128315" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 px-3 py-1 text-red-600">
-            <MessageSquare className="w-5 h-5" /><span className="text-[10px] font-black">Pesan</span>
-          </a>
+          <Link href="/m/antar-jemput" className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400">
+            <Bike className="w-5 h-5" /><span className="text-[10px] font-bold">Antar</span>
+          </Link>
           <Link href="/cart" className="flex flex-col items-center gap-1 px-3 py-1 text-gray-400 relative">
             <CartIcon className="w-5 h-5" /><span className="text-[10px] font-bold">Keranjang</span>
           </Link>
