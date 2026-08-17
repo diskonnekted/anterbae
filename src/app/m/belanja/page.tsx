@@ -1,30 +1,223 @@
-import { sanityFetch } from "@/sanity/lib/live"
-import { MERCHANTS_QUERY } from "@/sanity/lib/queries"
-import { urlFor } from "@/sanity/lib/image"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft, Search, Phone, Star, MapPin as MapPinIcon, Hammer, Sprout, Shirt, Package } from "lucide-react"
+'use client'
 
-export const revalidate = 60
+import { ArrowLeft, MapPin, Clock, Phone, User, CheckCircle, Loader2, X, Navigation, ChevronDown, ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
+import { client } from '@/sanity/lib/client'
+import locationsData from '../../../../banjarnegara_locations.json'
 
-export const metadata = {
-  title: 'Jasa Belanja - Anterbae',
-  description: 'Titip belanja ke toko kelontong, bangunan, pertanian, dan lainnya',
+interface LocationItem {
+  name: string
+  address: string
+  latitude?: string
+  longitude?: string
+  category?: string
 }
 
-export default async function MobileBelanjaPage() {
-  const result = await sanityFetch({ query: MERCHANTS_QUERY }) as { data: any[] }
-  const { data: allMerchants } = result
+export default function MobileBelanjaPage() {
+  const router = useRouter()
+  
+  // App state
+  const [adminPhone, setAdminPhone] = useState('6281328128315')
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [verifiedMerchants, setVerifiedMerchants] = useState<LocationItem[]>([])
 
-  // Filter merchants that are grocery/kelontong type (category == 'grocery' or 'other' with relevant items)
-  const merchants = (allMerchants || []).filter((m: any) => m.category === 'grocery' || m.category === 'other').filter((m: any) => m.isVerified)
+  // Form states
+  const [phone, setPhone] = useState('')
+  const [regName, setRegName] = useState('')
+  const [regAddress, setRegAddress] = useState('')
+  
+  // Store Selection states
+  const [storeQuery, setStoreQuery] = useState('')
+  const [selectedStore, setSelectedStore] = useState<LocationItem | null>(null)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const categories = [
-    { icon: <Package className="w-8 h-8" />, title: 'Kelontong', filter: 'grocery', desc: 'Sembako, kebutuhan harian' },
-    { icon: <Hammer className="w-8 h-8" />, title: 'Bangunan', filter: 'other', desc: 'Semen, cat, besi' },
-    { icon: <Sprout className="w-8 h-8" />, title: 'Pertanian', filter: 'other', desc: 'Pupuk, benih' },
-    { icon: <Shirt className="w-8 h-8" />, title: 'Pakaian', filter: 'other', desc: 'Baju, sepatu' },
-  ]
+  // Shopping list details
+  const [shoppingList, setShoppingList] = useState('')
+
+  // Submit state
+  const [submitting, setSubmitting] = useState(false)
+  const [orderNumber, setOrderNumber] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  // Load saved details from localStorage on mount and fetch settings/merchants
+  useEffect(() => {
+    const savedName = localStorage.getItem('anterbae_customer_name')
+    const savedPhone = localStorage.getItem('anterbae_customer_phone')
+    const savedAddress = localStorage.getItem('anterbae_customer_address')
+    const savedStoreName = localStorage.getItem('anterbae_belanja_store_name')
+    const savedStoreAddress = localStorage.getItem('anterbae_belanja_store_address')
+    const savedList = localStorage.getItem('anterbae_belanja_list')
+    
+    if (savedName) setRegName(savedName)
+    if (savedPhone) setPhone(savedPhone)
+    if (savedAddress) setRegAddress(savedAddress)
+    if (savedList) setShoppingList(savedList)
+    if (savedStoreName && savedStoreAddress) {
+      setSelectedStore({ name: savedStoreName, address: savedStoreAddress })
+      setStoreQuery(savedStoreName)
+    }
+
+    // Fetch settings from Sanity
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings && data.settings.adminPhone) {
+          setAdminPhone(data.settings.adminPhone)
+        }
+      })
+      .catch((err) => console.error('Failed to load settings:', err))
+
+    // Fetch verified merchants from Sanity
+    client.fetch(`*[_type == "merchant" && isVerified == true]{name, address}`)
+      .then((res: any[]) => {
+        const items = res.map(m => ({
+          name: m.name,
+          address: m.address || 'Alamat Toko Terdaftar',
+          category: 'merchant'
+        }))
+        setVerifiedMerchants(items)
+      })
+      .catch(err => console.error('Failed to load merchants:', err))
+
+    setIsLoaded(true)
+  }, [])
+
+  // Auto-save changes to localStorage
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_name', regName)
+    }
+  }, [regName, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_phone', phone)
+    }
+  }, [phone, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_address', regAddress)
+    }
+  }, [regAddress, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_belanja_list', shoppingList)
+    }
+  }, [shoppingList, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded && selectedStore) {
+      localStorage.setItem('anterbae_belanja_store_name', selectedStore.name)
+      localStorage.setItem('anterbae_belanja_store_address', selectedStore.address)
+    }
+  }, [selectedStore, isLoaded])
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Filter locations based on query
+  const filteredSuggestions = () => {
+    if (!storeQuery.trim()) return []
+    const q = storeQuery.toLowerCase()
+    
+    // 1. Search verified merchants first
+    const merchantsMatch = verifiedMerchants.filter(
+      m => m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
+    )
+
+    // 2. Search scraped locations (maximum 15 suggestions to prevent performance issues)
+    const scrapedMatch = (locationsData as LocationItem[]).filter(
+      l => l.name.toLowerCase().includes(q) || l.address.toLowerCase().includes(q)
+    ).slice(0, 15)
+
+    // Combine both, showing verified merchants at the top
+    return [...merchantsMatch, ...scrapedMatch]
+  }
+
+  const getWhatsAppLink = (ordNum: string) => {
+    const storeInfo = selectedStore 
+      ? `${selectedStore.name} (${selectedStore.address})`
+      : storeQuery
+
+    const waMessage = `*🛒 PESANAN JASTIP BELANJA (ANTERBAE)*\n\n` +
+      `*Kode Pesanan:* ${ordNum}\n\n` +
+      `*Detail Pemesan:*\n` +
+      `👤 Nama: ${regName}\n` +
+      `📞 WA: ${phone}\n` +
+      `🏠 Alamat Pemesan: ${regAddress}\n\n` +
+      `*Rincian Belanjaan:*\n` +
+      `🏬 Toko/Tempat Belanja: ${storeInfo}\n` +
+      `📝 Daftar Belanjaan:\n${shoppingList}\n\n` +
+      `Terima kasih! Silakan belanjakan pesanan saya.`
+
+    const targetAdminPhone = adminPhone.replace(/\D/g, '') || '6281328128315'
+    return `https://wa.me/${targetAdminPhone}?text=${encodeURIComponent(waMessage)}`
+  }
+
+  const handleSubmit = async () => {
+    if (!storeQuery.trim() || !shoppingList.trim() || !regName.trim() || !phone.trim() || !regAddress.trim()) {
+      alert('Silakan lengkapi seluruh data dan daftar belanjaan Anda terlebih dahulu.')
+      return
+    }
+
+    setSubmitting(true)
+    
+    // Generate order number
+    const rand = Math.floor(100 + Math.random() * 900)
+    const generatedOrderNumber = `ANTB-${Date.now().toString().slice(-6)}${rand}`
+    setOrderNumber(generatedOrderNumber)
+
+    try {
+      const cleanPhone = phone.replace(/[^0-9]/g, '')
+      const finalPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone
+
+      // Open WhatsApp immediately to avoid browser popup blockers
+      const waLink = getWhatsAppLink(generatedOrderNumber)
+      window.open(waLink, '_blank')
+      setShowSuccess(true)
+
+      const storeName = selectedStore ? selectedStore.name : storeQuery
+      const storeAddress = selectedStore ? selectedStore.address : 'Diisi manual oleh pelanggan'
+
+      // Send POST request to backend API in the background to store the order in Sanity as deliveryOrder
+      fetch('/api/antar-jemput', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: regName,
+          customerPhone: finalPhone,
+          pickupAddress: `${storeName} (${storeAddress})`,
+          dropoffAddress: regAddress,
+          pickupTime: new Date().toISOString(),
+          isRegistered: false,
+          address: regAddress,
+          orderType: 'jastip', // explicitly saving as jastip
+        }),
+      }).catch(err => {
+        console.error('Error saving order to database in background:', err)
+      })
+
+    } catch (err) {
+      console.error('Error submitting order:', err)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const suggestions = filteredSuggestions()
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -35,113 +228,187 @@ export default async function MobileBelanjaPage() {
             <ArrowLeft className="w-5 h-5 text-gray-700" />
           </Link>
           <div>
-            <h1 className="text-lg font-black text-gray-900">Jasa Belanja</h1>
-            <p className="text-xs text-gray-400 font-medium">Titip belanja ke toko pilihan</p>
-          </div>
-        </div>
-        <div className="px-4 pb-3">
-          <div className="flex items-center gap-3 bg-gray-100 rounded-xl px-4 py-2.5">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input type="text" placeholder="Cari toko" className="bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none flex-1" defaultValue="" />
+            <h1 className="text-lg font-black text-gray-900">Jasa Belanja (Jastip)</h1>
+            <p className="text-xs text-gray-400 font-medium">Titip belanja harian, bulanan, atau toko khusus</p>
           </div>
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="px-4 py-4">
-        <div className="grid grid-cols-2 gap-3">
-          {categories.map((cat) => (
-            <div key={cat.title} className="bg-white rounded-2xl p-4 border border-gray-100">
-              <div className="text-indigo-600 flex justify-center mb-3">{cat.icon}</div>
-              <p className="text-sm font-black text-gray-900 text-center mb-1">{cat.title}</p>
-              <p className="text-[10px] text-gray-400 text-center">{cat.desc}</p>
+      <div className="px-4 py-4 space-y-4">
+        {/* Personal Data Section (Name, Phone, Address always visible) */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-4">
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Nama Lengkap
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                value={regName}
+                onChange={e => setRegName(e.target.value)}
+                placeholder="Masukkan nama lengkap Anda"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
             </div>
-          ))}
+          </div>
+
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              No. WhatsApp
+            </label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="08xxxxxxxxxx"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Alamat Lengkap Pemesan
+            </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                value={regAddress}
+                onChange={e => setRegAddress(e.target.value)}
+                placeholder="Masukkan alamat lengkap Anda"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+          </div>
         </div>
+
+        {/* Store / Location Autocomplete Search */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 relative" ref={dropdownRef}>
+          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+            Pilih Toko / Lokasi Belanja
+          </label>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-indigo-500 absolute left-3 top-3" />
+            <input
+              type="text"
+              value={storeQuery}
+              onChange={e => {
+                setStoreQuery(e.target.value)
+                setSelectedStore(null)
+                setShowDropdown(true)
+              }}
+              onFocus={() => setShowDropdown(true)}
+              placeholder="Ketik nama toko (Contoh: Alfa, Pasar, Toko A)"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Autocomplete Dropdown List */}
+          {showDropdown && suggestions.length > 0 && (
+            <div className="absolute left-4 right-4 mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto">
+              {suggestions.map((item, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setSelectedStore(item)
+                    setStoreQuery(item.name)
+                    setShowDropdown(false)
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-50 last:border-0 transition-colors flex flex-col gap-0.5"
+                >
+                  <span className="text-xs font-black text-gray-900 flex items-center gap-1.5">
+                    {item.category === 'merchant' ? '⭐ ' : '📍 '}
+                    {item.name}
+                  </span>
+                  <span className="text-[10px] text-gray-500 truncate">{item.address}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {selectedStore && (
+            <p className="text-[10px] text-indigo-600 font-bold mt-2 flex items-center gap-1">
+              ✓ Toko terpilih: <span className="underline">{selectedStore.name} ({selectedStore.address})</span>
+            </p>
+          )}
+        </div>
+
+        {/* Shopping List Input */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4">
+          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+            Daftar Belanjaan / Barang Titipan
+          </label>
+          <textarea
+            value={shoppingList}
+            onChange={e => setShoppingList(e.target.value)}
+            placeholder="Tulis belanjaan Anda disini secara detail. Contoh:&#10;- Beras cianjur 5kg&#10;- Minyak goreng bimoli 2L&#10;- Telur ayam 1kg"
+            rows={5}
+            className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+          />
+        </div>
+
+        {/* Order Button */}
+        <button
+          onClick={handleSubmit}
+          disabled={submitting || !storeQuery || !shoppingList}
+          className="block w-full bg-red-600 text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {submitting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Memproses...
+            </>
+          ) : (
+            <>
+              <ShoppingBag className="w-5 h-5" />
+              Pesan Jastip Belanja
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Stores List */}
-      <div className="px-4 py-2">
-        <h2 className="text-sm font-black text-gray-900 mb-3 px-1">Toko Tersedia</h2>
-        {merchants.length > 0 ? (
-          <div className="space-y-3">
-            {merchants.map((merchant: any) => (
+      {/* Success Modal / Redirect Info */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-lg font-black text-gray-900 mb-2">Pesanan Dialihkan ke WA</h2>
+            <p className="text-sm text-gray-500 mb-1">Nomor Pesanan:</p>
+            <p className="text-xl font-black text-red-600 mb-4">{orderNumber}</p>
+            <p className="text-xs text-gray-400 mb-6 leading-relaxed">
+              Detail jastip belanja Anda sedang dialihkan ke WhatsApp. Driver/Admin akan segera mencarikan barang Anda.
+            </p>
+
+            <div className="space-y-2">
               <a
-                key={merchant._id}
-                href="https://wa.me/6281328128315"
+                href={getWhatsAppLink(orderNumber)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block bg-white rounded-2xl overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform"
+                className="block w-full bg-green-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform text-center"
               >
-                {/* Cover Image */}
-                <div className="h-28 bg-gradient-to-br from-indigo-50 to-indigo-100 relative">
-                  {merchant.coverImage ? (
-                    <Image
-                      src={urlFor(merchant.coverImage).width(400).height(200).url()}
-                      alt={merchant.name}
-                      fill
-                      className="object-cover"
-                      loading="eager"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-indigo-400">
-                      <Package className="w-12 h-12" />
-                    </div>
-                  )}
-                  <div className={`absolute top-3 left-3 text-[10px] font-black px-2.5 py-1 rounded-full ${
-                    merchant.isOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                  }`}>
-                    {merchant.isOpen ? '● Buka' : '● Tutup'}
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="p-4">
-                  <h3 className="font-black text-gray-900 mb-1">{merchant.name}</h3>
-                  <p className="text-xs text-gray-500 mb-3">{merchant.area || 'Banjarnegara'}</p>
-                  
-                  <div className="flex items-center gap-4 text-xs text-gray-400 font-bold mb-3">
-                    {merchant.address && (
-                      <span className="flex items-center gap-1">
-                        <MapPinIcon className="w-3 h-3" />
-                        {merchant.address}
-                      </span>
-                    )}
-                    {merchant.openHours && (
-                      <span className="flex items-center gap-1">
-                        <span className="w-3 h-3 inline-block">🕐</span>
-                        {merchant.openHours}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs font-bold text-gray-600">Min. order Rp {merchant.minOrder ? merchant.minOrder.toLocaleString('id-ID') : '10.000'}</span>
-                    <span className="flex items-center gap-1 text-xs font-black text-indigo-600">
-                      Titip Belanja <Phone className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
+                Kirim Ulang via WhatsApp
               </a>
-            ))}
+              <button
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.close();
+                    router.push('/m');
+                  }
+                }}
+                className="block w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl text-center text-sm"
+              >
+                Tutup Halaman
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-5xl mb-4">🛍️</div>
-            <p className="text-gray-500 font-bold mb-2">Toko sedang disiapkan</p>
-            <p className="text-xs text-gray-400">Hubungi admin via WhatsApp untuk daftar toko</p>
-            <a
-              href="https://wa.me/6281328128315"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-4 bg-indigo-600 text-white font-black px-6 py-3 rounded-2xl active:scale-95 transition-transform"
-            >
-              <Phone className="w-4 h-4" />
-              Hubungi Admin
-            </a>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

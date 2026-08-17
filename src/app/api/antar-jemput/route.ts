@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       orderNumber,
       customerName,
       customerPhone,
-      orderType: 'parcel',
+      orderType: body.orderType || 'parcel',
       pickupAddress,
       deliveryAddress: dropoffAddress,
       customerNotes: `Waktu jemput: ${pickupTime}`,
