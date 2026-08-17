@@ -176,7 +176,8 @@ export default function FoodCheckoutPage() {
     const gpsPart = location ? `\n🗺️ GPS: https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}` : ''
     const isCOD = paymentMethod === 'cod_on_delivery'
 
-    const waMessage = `*🛵 PESANAN ANTERBAE FOOD (KIRIM ULANG - ADMIN 2)*\n\n` +
+    const waMessage = `⚠️ *KIRIM ULANG PESANAN (ADMIN 2)*\n` +
+      `_Halo Admin 2 Anterbae, ini adalah kirim ulang pesanan dari pembeli karena chat admin utama tidak dibalas dalam 5 menit._\n\n` +
       `*Detail Pelanggan:*\n` +
       `👤 Nama: ${customerName}\n` +
       `📞 WA: ${customerPhone}\n` +
@@ -188,7 +189,7 @@ export default function FoodCheckoutPage() {
       `*TOTAL: Rp ${total.toLocaleString('id-ID')}*\n\n` +
       `*Metode Pembayaran:* ${isCOD ? '💵 Bayar di Tempat (COD)' : '🏦 Transfer Dulu'}\n` +
       (customerNotes ? `*Catatan Tambahan:* ${customerNotes}\n` : '') +
-      `\nTerima kasih! Silakan proses pesanan saya (dialihkan ke Admin 2).`
+      `\nMohon segera diproses. Terima kasih!`
 
     let targetPhone = adminPhone2
     targetPhone = targetPhone.replace(/\D/g, '')
