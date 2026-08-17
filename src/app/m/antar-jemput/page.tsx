@@ -2,7 +2,8 @@
 
 import { ArrowLeft, MapPin, Clock, Phone, User, CheckCircle, Loader2, X, Navigation, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 interface Customer {
   _id: string
@@ -30,21 +31,18 @@ const pickupLocations = [
 ]
 
 export default function AntarJemputPage() {
-  // Step 1: Phone input
-  const [phone, setPhone] = useState('')
-  const [checkingPhone, setCheckingPhone] = useState(false)
+  const router = useRouter()
+  
+  // App state
+  const [adminPhone, setAdminPhone] = useState('6281328128315')
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  // Step 2: Registration (if new user)
-  const [customer, setCustomer] = useState<Customer | null>(null)
-  const [isRegistered, setIsRegistered] = useState(false)
+  // Form states
+  const [phone, setPhone] = useState('')
   const [regName, setRegName] = useState('')
   const [regAddress, setRegAddress] = useState('')
-  const [showRegister, setShowRegister] = useState(true)
-
-  // Step 3: Order form
   const [pickup, setPickup] = useState('')
   const [dropoff, setDropoff] = useState('')
-  const [time, setTime] = useState('')
 
   // Submit state
   const [submitting, setSubmitting] = useState(false)
@@ -56,47 +54,63 @@ export default function AntarJemputPage() {
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [showGpsConfirm, setShowGpsConfirm] = useState(false)
 
-  // Check phone on change
-  const checkPhone = useCallback(async (value: string) => {
-    const phoneOnly = value.replace(/[^0-9]/g, '')
-    if (phoneOnly.length < 10) return
+  // Load saved details from localStorage on mount and fetch settings
+  useEffect(() => {
+    const savedName = localStorage.getItem('anterbae_customer_name')
+    const savedPhone = localStorage.getItem('anterbae_customer_phone')
+    const savedAddress = localStorage.getItem('anterbae_customer_address')
+    const savedPickup = localStorage.getItem('anterbae_delivery_pickup')
+    const savedDropoff = localStorage.getItem('anterbae_delivery_dropoff')
+    
+    if (savedName) setRegName(savedName)
+    if (savedPhone) setPhone(savedPhone)
+    if (savedAddress) setRegAddress(savedAddress)
+    if (savedPickup) setPickup(savedPickup)
+    if (savedDropoff) setDropoff(savedDropoff)
 
-    setCheckingPhone(true)
-    try {
-      const formattedPhone = phoneOnly.startsWith('0') ? '62' + phoneOnly.slice(1) : phoneOnly
-      const res = await fetch(`/api/antar-jemput/check-phone?phone=${formattedPhone}`)
-      const data = await res.json()
+    // Fetch settings from Sanity
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings && data.settings.adminPhone) {
+          setAdminPhone(data.settings.adminPhone)
+        }
+      })
+      .catch((err) => console.error('Failed to load settings:', err))
 
-      if (data.registered && data.customer) {
-        setIsRegistered(true)
-        setCustomer(data.customer)
-        setRegName(data.customer.name)
-        setRegAddress(data.customer.address)
-        setPickup(data.customer.address || '')
-        setShowRegister(false)
-      } else {
-        setIsRegistered(false)
-        setShowRegister(true)
-      }
-    } catch (err) {
-      console.error('Error checking phone:', err)
-    } finally {
-      setCheckingPhone(false)
-    }
+    setIsLoaded(true)
   }, [])
 
-  const handlePhoneChange = (value: string) => {
-    setPhone(value)
-    const phoneOnly = value.replace(/[^0-9]/g, '')
-    if (phoneOnly.length < 10) {
-      setIsRegistered(false)
-      setShowRegister(true)
-      setCustomer(null)
-      return
+  // Auto-save changes to localStorage
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_name', regName)
     }
-    const timeout = setTimeout(() => checkPhone(value), 500)
-    return () => clearTimeout(timeout)
-  }
+  }, [regName, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_phone', phone)
+    }
+  }, [phone, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_address', regAddress)
+    }
+  }, [regAddress, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_delivery_pickup', pickup)
+    }
+  }, [pickup, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_delivery_dropoff', dropoff)
+    }
+  }, [dropoff, isLoaded])
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -135,19 +149,46 @@ export default function AntarJemputPage() {
     }
   }
 
+  const getWhatsAppLink = (ordNum: string) => {
+    const waMessage = `*🛵 PESANAN PENGANTARAN (ANTERBAE)*\n\n` +
+      `*Kode Pesanan:* ${ordNum}\n\n` +
+      `*Detail Pemesan:*\n` +
+      `👤 Nama: ${regName}\n` +
+      `📞 WA: ${phone}\n` +
+      `🏠 Alamat Pemesan: ${regAddress}\n\n` +
+      `*Rincian Pengantaran:*\n` +
+      `📍 Lokasi Jemput: ${pickup}\n` +
+      `🏁 Lokasi Tujuan: ${dropoff}\n\n` +
+      `Terima kasih! Silakan proses pengantaran saya.`
+
+    const targetAdminPhone = adminPhone.replace(/\D/g, '') || '6281328128315'
+    return `https://wa.me/${targetAdminPhone}?text=${encodeURIComponent(waMessage)}`
+  }
+
   const handleSubmit = async () => {
-    if (!pickup || !dropoff || !time) return
-    if (!isRegistered && (!regName.trim() || !phone.trim() || !regAddress.trim())) {
-      alert('Silakan lengkapi nama dan alamat lengkap Anda terlebih dahulu.')
+    if (!pickup.trim() || !dropoff.trim() || !regName.trim() || !phone.trim() || !regAddress.trim()) {
+      alert('Silakan lengkapi seluruh data Anda terlebih dahulu.')
       return
     }
 
     setSubmitting(true)
-    try {
-      const formattedPhone = phone.replace(/[^0-9]/g, '')
-      const finalPhone = formattedPhone.startsWith('0') ? '62' + formattedPhone.slice(1) : formattedPhone
+    
+    // Generate order number
+    const rand = Math.floor(100 + Math.random() * 900)
+    const generatedOrderNumber = `ANTJ-${Date.now().toString().slice(-6)}${rand}`
+    setOrderNumber(generatedOrderNumber)
 
-      const res = await fetch('/api/antar-jemput', {
+    try {
+      const cleanPhone = phone.replace(/[^0-9]/g, '')
+      const finalPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone
+
+      // Open WhatsApp immediately to avoid browser popup blockers
+      const waLink = getWhatsAppLink(generatedOrderNumber)
+      window.open(waLink, '_blank')
+      setShowSuccess(true)
+
+      // Send POST request to backend API in the background to store the order in Sanity
+      fetch('/api/antar-jemput', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -155,34 +196,19 @@ export default function AntarJemputPage() {
           customerPhone: finalPhone,
           pickupAddress: pickup,
           dropoffAddress: dropoff,
-          pickupTime: time,
-          isRegistered,
+          pickupTime: new Date().toISOString(), // Defaulting pickup time to now since date is removed from UI
+          isRegistered: false,
           address: regAddress,
         }),
+      }).catch(err => {
+        console.error('Error saving order to database in background:', err)
       })
 
-      const data = await res.json()
-      if (data.success) {
-        setOrderNumber(data.orderNumber)
-        setShowSuccess(true)
-      }
     } catch (err) {
       console.error('Error submitting order:', err)
     } finally {
       setSubmitting(false)
     }
-  }
-
-  const formatTimeForDisplay = (isoString: string) => {
-    if (!isoString) return ''
-    const d = new Date(isoString)
-    return d.toLocaleString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
   }
 
   return (
@@ -201,27 +227,23 @@ export default function AntarJemputPage() {
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        {/* Personal Data Section (Phone and Name/Address if unregistered) */}
+        {/* Personal Data Section (Name, Phone, Address always visible) */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-4">
-          {showRegister && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-                  Nama Lengkap
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    value={regName}
-                    onChange={e => setRegName(e.target.value)}
-                    placeholder="Masukkan nama lengkap Anda"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Nama Lengkap
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                value={regName}
+                onChange={e => setRegName(e.target.value)}
+                placeholder="Masukkan nama lengkap Anda"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
             </div>
-          )}
+          </div>
 
           <div>
             <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
@@ -232,41 +254,28 @@ export default function AntarJemputPage() {
               <input
                 type="tel"
                 value={phone}
-                onChange={e => handlePhoneChange(e.target.value)}
+                onChange={e => setPhone(e.target.value)}
                 placeholder="08xxxxxxxxxx"
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
-              {checkingPhone && (
-                <Loader2 className="w-4 h-4 text-red-500 absolute right-3 top-3 animate-spin" />
-              )}
             </div>
-            {isRegistered && customer && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-green-600 font-bold">
-                <CheckCircle className="w-3 h-3" />
-                Akun terdaftar: {customer.name}
-              </div>
-            )}
           </div>
 
-          {showRegister && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-                  Alamat Lengkap
-                </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    value={regAddress}
-                    onChange={e => setRegAddress(e.target.value)}
-                    placeholder="Masukkan alamat lengkap Anda"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Alamat Lengkap Pemesan
+            </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                value={regAddress}
+                onChange={e => setRegAddress(e.target.value)}
+                placeholder="Masukkan alamat lengkap Anda"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
             </div>
-          )}
+          </div>
         </div>
 
         {/* Pickup Location */}
@@ -316,34 +325,6 @@ export default function AntarJemputPage() {
           </div>
         </div>
 
-        {/* Pickup Time */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-            Waktu Jemput
-          </label>
-          <div className="relative">
-            <Clock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-            <input
-              type="datetime-local"
-              value={time}
-              onChange={e => setTime(e.target.value)}
-              className="w-full pl-10 pr-28 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                const now = new Date()
-                const offset = now.getTimezoneOffset()
-                const local = new Date(now.getTime() - offset * 60000)
-                setTime(local.toISOString().slice(0, 16))
-              }}
-              className="absolute right-2 top-1.5 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-lg active:scale-95 transition-transform"
-            >
-              Sekarang
-            </button>
-          </div>
-        </div>
-
         {/* Quick Locations Dropdown */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
           <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
@@ -381,7 +362,7 @@ export default function AntarJemputPage() {
         {/* Order Button */}
         <button
           onClick={handleSubmit}
-          disabled={submitting || !pickup || !dropoff || !time}
+          disabled={submitting || !pickup || !dropoff}
           className="block w-full bg-red-600 text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {submitting ? (
@@ -398,35 +379,40 @@ export default function AntarJemputPage() {
         </button>
       </div>
 
-      {/* Success Modal */}
+      {/* Success Modal / Redirect Info */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-              <h2 className="text-lg font-black text-gray-900 mb-2">Pesanan Berhasil!</h2>
-              <p className="text-sm text-gray-500 mb-1">Nomor Pesanan:</p>
-              <p className="text-xl font-black text-red-600 mb-4">{orderNumber}</p>
-              <p className="text-xs text-gray-400 mb-6 leading-relaxed">
-                Pesanan Anda sudah masuk. Driver akan menghubungi Anda via WhatsApp untuk konfirmasi.
-              </p>
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-lg font-black text-gray-900 mb-2">Pesanan Dialihkan ke WA</h2>
+            <p className="text-sm text-gray-500 mb-1">Nomor Pesanan:</p>
+            <p className="text-xl font-black text-red-600 mb-4">{orderNumber}</p>
+            <p className="text-xs text-gray-400 mb-6 leading-relaxed">
+              Detail pesanan Anda sedang dikirimkan melalui WhatsApp. Driver/Admin akan segera menghubungi Anda.
+            </p>
 
-              <div className="space-y-2">
-                <Link
-                  href={`/m/antar-jemput/confirm?order=${orderNumber}`}
-                  className="block w-full bg-red-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform"
-                >
-                  Konfirmasi Pengantaran
-                </Link>
-                <Link
-                  href="/m"
-                  className="block w-full text-gray-400 font-bold py-3 rounded-xl text-center text-sm"
-                >
-                  Kembali ke Beranda
-                </Link>
-              </div>
+            <div className="space-y-2">
+              <a
+                href={getWhatsAppLink(orderNumber)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-green-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform text-center"
+              >
+                Kirim Ulang via WhatsApp
+              </a>
+              <button
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.close();
+                    router.push('/m');
+                  }
+                }}
+                className="block w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl text-center text-sm"
+              >
+                Tutup Halaman
+              </button>
             </div>
           </div>
         </div>
