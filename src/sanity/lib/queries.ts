@@ -4,6 +4,7 @@ import { defineQuery } from 'next-sanity'
 export const APP_SETTINGS_QUERY = defineQuery(`
   *[_type == "appSettings"][0] {
     adminPhone,
+    adminPhone2,
     baseDeliveryFee,
     feePerKm,
     operationalHours,

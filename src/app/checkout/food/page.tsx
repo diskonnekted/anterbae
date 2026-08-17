@@ -22,6 +22,8 @@ export default function FoodCheckoutPage() {
   const [merchantPhone, setMerchantPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [adminPhone, setAdminPhone] = useState('6281328128315')
+  const [adminPhone2, setAdminPhone2] = useState('6289999999999')
   
   // Form fields
   const [customerName, setCustomerName] = useState('')
@@ -87,7 +89,7 @@ export default function FoodCheckoutPage() {
 
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load saved details from localStorage on mount
+  // Load saved details from localStorage on mount and fetch settings
   useEffect(() => {
     const savedName = localStorage.getItem('anterbae_customer_name')
     const savedPhone = localStorage.getItem('anterbae_customer_phone')
@@ -96,6 +98,18 @@ export default function FoodCheckoutPage() {
     if (savedName) setCustomerName(savedName)
     if (savedPhone) setCustomerPhone(savedPhone)
     if (savedAddress) setDeliveryAddress(savedAddress)
+    
+    // Fetch settings from Sanity
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          if (data.settings.adminPhone) setAdminPhone(data.settings.adminPhone)
+          if (data.settings.adminPhone2) setAdminPhone2(data.settings.adminPhone2)
+        }
+      })
+      .catch((err) => console.error('Failed to load app settings:', err))
+
     setIsLoaded(true)
   }, [])
 
@@ -141,13 +155,13 @@ export default function FoodCheckoutPage() {
       (customerNotes ? `*Catatan Tambahan:* ${customerNotes}\n` : '') +
       `\nTerima kasih! Silakan proses pesanan saya.`
 
-    let targetPhone = merchantPhone || '6281328128315'
+    let targetPhone = merchantPhone || adminPhone
     targetPhone = targetPhone.replace(/\D/g, '')
     if (targetPhone.startsWith('0')) {
       targetPhone = '62' + targetPhone.slice(1)
     }
     if (!targetPhone) {
-      targetPhone = '6281328128315'
+      targetPhone = adminPhone
     }
 
     return `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}`
@@ -176,7 +190,15 @@ export default function FoodCheckoutPage() {
       (customerNotes ? `*Catatan Tambahan:* ${customerNotes}\n` : '') +
       `\nTerima kasih! Silakan proses pesanan saya (dialihkan ke Admin 2).`
 
-    const targetPhone = '6289999999999' // Temporary dummy number for Admin 2 Anterbae
+    let targetPhone = adminPhone2
+    targetPhone = targetPhone.replace(/\D/g, '')
+    if (targetPhone.startsWith('0')) {
+      targetPhone = '62' + targetPhone.slice(1)
+    }
+    if (!targetPhone) {
+      targetPhone = '6289999999999' // fallback fallback
+    }
+
     return `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}`
   }
 

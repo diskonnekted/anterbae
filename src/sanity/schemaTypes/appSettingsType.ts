@@ -20,6 +20,12 @@ export const appSettingsType = defineType({
       description: 'Nomor WA untuk menerima notifikasi dan CS pelanggan.',
     }),
     defineField({
+      name: 'adminPhone2',
+      title: 'WhatsApp Admin 2 (Cadangan)',
+      type: 'string',
+      description: 'Nomor WA admin cadangan (Admin 2) jika chat admin utama tidak dibalas.',
+    }),
+    defineField({
       name: 'baseDeliveryFee',
       title: 'Ongkos Kirim Dasar (Rp)',
       type: 'number',
