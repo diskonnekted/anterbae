@@ -295,7 +295,7 @@ export default function FoodDetailPage() {
             }))
           )
         );
-        const checkoutUrl = `/checkout/food?cart=${cartParams}&restaurant=${encodeURIComponent(merchant.name)}`;
+        const checkoutUrl = `/checkout/food?cart=${cartParams}&restaurant=${encodeURIComponent(merchant.name)}&phone=${encodeURIComponent(merchant.phone || '')}`;
         
         return (
           <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 p-4 z-40 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] max-w-md mx-auto rounded-t-[2.5rem]">

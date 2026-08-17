@@ -19,6 +19,7 @@ export default function FoodCheckoutPage() {
   
   const [cart, setCart] = useState<FoodCartItem[]>([])
   const [restaurantName, setRestaurantName] = useState('')
+  const [merchantPhone, setMerchantPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   
@@ -38,6 +39,7 @@ export default function FoodCheckoutPage() {
   useEffect(() => {
     const cartJson = searchParams.get('cart')
     const restaurant = searchParams.get('restaurant')
+    const phone = searchParams.get('phone')
     
     if (cartJson) {
       try {
@@ -48,6 +50,9 @@ export default function FoodCheckoutPage() {
     }
     if (restaurant) {
       setRestaurantName(decodeURIComponent(restaurant))
+    }
+    if (phone) {
+      setMerchantPhone(decodeURIComponent(phone))
     }
   }, [searchParams])
 
@@ -80,6 +85,8 @@ export default function FoodCheckoutPage() {
     )
   }
 
+  const [isLoaded, setIsLoaded] = useState(false)
+
   // Load saved details from localStorage on mount
   useEffect(() => {
     const savedName = localStorage.getItem('anterbae_customer_name')
@@ -89,7 +96,62 @@ export default function FoodCheckoutPage() {
     if (savedName) setCustomerName(savedName)
     if (savedPhone) setCustomerPhone(savedPhone)
     if (savedAddress) setDeliveryAddress(savedAddress)
+    setIsLoaded(true)
   }, [])
+
+  // Auto-save customer details to localStorage on change
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_name', customerName)
+    }
+  }, [customerName, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_phone', customerPhone)
+    }
+  }, [customerPhone, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('anterbae_customer_address', deliveryAddress)
+    }
+  }, [deliveryAddress, isLoaded])
+
+  // Helper to generate the WhatsApp link with all order details
+  const getWhatsAppLink = () => {
+    const itemsList = cart.map((item) =>
+      `- ${item.name} x${item.quantity} = Rp ${(item.price * item.quantity).toLocaleString('id-ID')}${item.notes ? ` (${item.notes})` : ''}`
+    ).join('\n')
+
+    const gpsPart = location ? `\n🗺️ GPS: https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}` : ''
+    const isCOD = paymentMethod === 'cod_on_delivery'
+
+    const waMessage = `*🛵 PESANAN ANTERBAE FOOD*\n\n` +
+      `*Detail Pelanggan:*\n` +
+      `👤 Nama: ${customerName}\n` +
+      `📞 WA: ${customerPhone}\n` +
+      `📍 Alamat: ${deliveryAddress}${gpsPart}\n\n` +
+      `*Restoran:* ${restaurantName}\n\n` +
+      `*Daftar Menu:*\n${itemsList}\n\n` +
+      `Subtotal: Rp ${subtotal.toLocaleString('id-ID')}\n` +
+      `Ongkir: Rp ${deliveryFee.toLocaleString('id-ID')}\n` +
+      `*TOTAL: Rp ${total.toLocaleString('id-ID')}*\n\n` +
+      `*Metode Pembayaran:* ${isCOD ? '💵 Bayar di Tempat (COD)' : '🏦 Transfer Dulu'}\n` +
+      (customerNotes ? `*Catatan Tambahan:* ${customerNotes}\n` : '') +
+      `\nTerima kasih! Silakan proses pesanan saya.`
+
+    let targetPhone = merchantPhone || '6281328128315'
+    targetPhone = targetPhone.replace(/\D/g, '')
+    if (targetPhone.startsWith('0')) {
+      targetPhone = '62' + targetPhone.slice(1)
+    }
+    if (!targetPhone) {
+      targetPhone = '6281328128315'
+    }
+
+    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}`
+  }
 
   // Submit order
   const handleSubmit = async () => {
@@ -106,7 +168,18 @@ export default function FoodCheckoutPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/food-order', {
+      // Save details to localStorage for future use
+      localStorage.setItem('anterbae_customer_name', customerName)
+      localStorage.setItem('anterbae_customer_phone', customerPhone)
+      localStorage.setItem('anterbae_customer_address', deliveryAddress)
+      
+      const waLink = getWhatsAppLink()
+      // Open WhatsApp window/tab immediately to prevent popup blockers
+      window.open(waLink, '_blank')
+      setSubmitted(true)
+
+      // Save to Sanity database in the background
+      fetch('/api/food-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,20 +195,10 @@ export default function FoodCheckoutPage() {
           total,
           paymentMethod,
         }),
+      }).catch((err) => {
+        console.error('Failed to save order to Sanity database:', err)
       })
 
-      const result = await response.json()
-
-      if (result.success) {
-        // Save details to localStorage for future use
-        localStorage.setItem('anterbae_customer_name', customerName)
-        localStorage.setItem('anterbae_customer_phone', customerPhone)
-        localStorage.setItem('anterbae_customer_address', deliveryAddress)
-        
-        setSubmitted(true)
-      } else {
-        alert('Gagal membuat pesanan: ' + result.error)
-      }
     } catch (error) {
       console.error('Order error:', error)
       alert('Terjadi kesalahan saat membuat pesanan')
@@ -146,6 +209,7 @@ export default function FoodCheckoutPage() {
 
   if (submitted) {
     const isCod = paymentMethod === 'cod_on_delivery'
+    const waLink = getWhatsAppLink()
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -153,54 +217,37 @@ export default function FoodCheckoutPage() {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-2xl font-black text-gray-900 mb-2">Pesanan Berhasil!</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-2">Pesanan Dialihkan ke WA</h2>
           <p className="text-gray-600 mb-6">
-            {isCod 
-              ? 'Pesanan Anda telah diterima. Silakan tunggu kurir kami mengantarkan pesanan Anda.'
-              : 'Nomor pesanan Anda telah dibuat. Silakan lakukan pembayaran transfer sesuai instruksi berikut:'
-            }
+            Detail pesanan Anda sedang dikirimkan melalui WhatsApp.
           </p>
 
-          {isCod ? (
-            <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left border border-gray-100">
-              <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block mb-1">Metode Pembayaran</span>
-              <p className="text-base font-black text-gray-900 mb-3">💵 Bayar di Tempat (COD)</p>
-              
-              <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block mb-1">Total Tunai ke Kurir</span>
-              <p className="text-2xl font-black text-orange-600">Rp {total.toLocaleString('id-ID')}</p>
-            </div>
-          ) : (
-            <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left border border-gray-100">
-              <p className="text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Transfer ke:</p>
-              <p className="text-lg font-black text-gray-900 mb-1">BCA: 1234567890</p>
-              <p className="text-xs text-gray-500 font-bold mb-3">a.n. Anterbae Banjarnegara</p>
-              
-              <p className="text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Total yang harus dibayar:</p>
-              <p className="text-2xl font-black text-orange-600">Rp {total.toLocaleString('id-ID')}</p>
-            </div>
-          )}
+          <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left border border-gray-100">
+            <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block mb-1">Tujuan WhatsApp</span>
+            <p className="text-base font-black text-gray-900 mb-3">💬 {merchantPhone ? `Merchant (${merchantPhone})` : 'Admin Anterbae'}</p>
+            
+            <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block mb-1">Total Pembayaran</span>
+            <p className="text-2xl font-black text-orange-600">Rp {total.toLocaleString('id-ID')}</p>
+          </div>
 
           <p className="text-sm text-gray-600 mb-6">
-            {isCod 
-              ? 'Siapkan uang tunai pas untuk memudahkan kurir saat penyerahan barang.'
-              : 'Setelah transfer, kirim bukti pembayaran via WhatsApp ke nomor admin agar pesanan segera diproses.'
-            }
+            Jika chat WhatsApp tidak terbuka otomatis, silakan klik tombol di bawah untuk mengirim pesan manual.
           </p>
 
           <a
-            href="https://wa.me/6281328128315"
+            href={waLink}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-black text-center transition-all active:scale-95 mb-3"
           >
-            {isCod ? 'Hubungi WhatsApp Admin' : 'Kirim Bukti Pembayaran'}
+            Kirim Ulang via WhatsApp
           </a>
 
           <Link
-            href="/"
+            href="/m"
             className="block w-full bg-gray-100 text-gray-700 py-4 rounded-2xl font-black text-center hover:bg-gray-200 transition-colors"
           >
-            Kembali ke Beranda
+            Kembali ke Beranda Mobile
           </Link>
         </div>
       </div>
