@@ -191,7 +191,7 @@ export default function MobileHome() {
   const handleServiceClick = (href: string) => {
     if (href === '#') return
     // Navigate to separate pages
-    if (href === '/m/food' || href === '/m/belanja' || href === '/m/antar-jemput' || href === '/m/paket') {
+    if (href === '/m/food' || href === '/m/belanja' || href === '/m/antar-jemput' || href === '/m/paket' || href === '/m/express') {
       window.location.href = href
       return
     }
