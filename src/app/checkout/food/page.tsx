@@ -153,6 +153,33 @@ export default function FoodCheckoutPage() {
     return `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}`
   }
 
+  // Helper to generate the WhatsApp link for Admin 2 Anterbae (Dummy phone)
+  const getAdmin2WhatsAppLink = () => {
+    const itemsList = cart.map((item) =>
+      `- ${item.name} x${item.quantity} = Rp ${(item.price * item.quantity).toLocaleString('id-ID')}${item.notes ? ` (${item.notes})` : ''}`
+    ).join('\n')
+
+    const gpsPart = location ? `\n🗺️ GPS: https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}` : ''
+    const isCOD = paymentMethod === 'cod_on_delivery'
+
+    const waMessage = `*🛵 PESANAN ANTERBAE FOOD (KIRIM ULANG - ADMIN 2)*\n\n` +
+      `*Detail Pelanggan:*\n` +
+      `👤 Nama: ${customerName}\n` +
+      `📞 WA: ${customerPhone}\n` +
+      `📍 Alamat: ${deliveryAddress}${gpsPart}\n\n` +
+      `*Restoran:* ${restaurantName}\n\n` +
+      `*Daftar Menu:*\n${itemsList}\n\n` +
+      `Subtotal: Rp ${subtotal.toLocaleString('id-ID')}\n` +
+      `Ongkir: Rp ${deliveryFee.toLocaleString('id-ID')}\n` +
+      `*TOTAL: Rp ${total.toLocaleString('id-ID')}*\n\n` +
+      `*Metode Pembayaran:* ${isCOD ? '💵 Bayar di Tempat (COD)' : '🏦 Transfer Dulu'}\n` +
+      (customerNotes ? `*Catatan Tambahan:* ${customerNotes}\n` : '') +
+      `\nTerima kasih! Silakan proses pesanan saya (dialihkan ke Admin 2).`
+
+    const targetPhone = '6289999999999' // Temporary dummy number for Admin 2 Anterbae
+    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}`
+  }
+
   // Submit order
   const handleSubmit = async () => {
     if (!customerName || !customerPhone || !deliveryAddress) {
@@ -209,7 +236,7 @@ export default function FoodCheckoutPage() {
 
   if (submitted) {
     const isCod = paymentMethod === 'cod_on_delivery'
-    const waLink = getWhatsAppLink()
+    const admin2WaLink = getAdmin2WhatsAppLink()
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -231,24 +258,30 @@ export default function FoodCheckoutPage() {
           </div>
 
           <p className="text-sm text-gray-600 mb-6">
-            Jika chat WhatsApp tidak terbuka otomatis, silakan klik tombol di bawah untuk mengirim pesan manual.
+            Jika chat tidak dibalas dalam 5 menit maka silakan kirim ulang pesanan ke admin 2 anterbae dengan klik tombol di bawah ini.
           </p>
 
           <a
-            href={waLink}
+            href={admin2WaLink}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-black text-center transition-all active:scale-95 mb-3"
           >
-            Kirim Ulang via WhatsApp
+            Kirim ke Admin 2 Anterbae
           </a>
 
-          <Link
-            href="/m"
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.close();
+                // fallback if window.close is blocked by browser popup/security
+                router.push('/m');
+              }
+            }}
             className="block w-full bg-gray-100 text-gray-700 py-4 rounded-2xl font-black text-center hover:bg-gray-200 transition-colors"
           >
-            Kembali ke Beranda Mobile
-          </Link>
+            Tutup Halaman
+          </button>
         </div>
       </div>
     )
