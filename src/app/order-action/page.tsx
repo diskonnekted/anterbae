@@ -8,8 +8,8 @@ import Link from 'next/link'
 
 export default function OrderActionPage() {
   const searchParams = useSearchParams()
-  const orderNumber = searchParams.get('orderNumber')
-  const action = searchParams.get('action')
+  const orderNumber = searchParams.get('orderNumber') || searchParams.get('o')
+  const action = searchParams.get('action') || searchParams.get('a')
 
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState(false)

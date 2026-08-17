@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
       { source: '/lapak/:path*', destination: '/mitra', permanent: false },
       { source: '/k', destination: '/kurir', permanent: false },
       { source: '/c/:order', destination: '/m/antar-jemput/confirm?order=:order', permanent: false },
+      { source: '/aoa', destination: '/admin-order-action', permanent: false },
+      { source: '/oa', destination: '/order-action', permanent: false },
     ]
   },
 };

@@ -159,9 +159,9 @@ export async function POST(req: NextRequest) {
     if (isCOD) {
       customerMessage += `\n\n*Aksi Penerimaan Barang (Klik Link):*\n` +
         `1. Klik jika sudah terima barang:\n` +
-        `👉 ${baseUrl}/order-action?orderNumber=${orderNumber}&action=received\n\n` +
+        `👉 ${baseUrl}/oa?o=${orderNumber}&a=received\n\n` +
         `2. Klik jika barang bermasalah:\n` +
-        `👉 ${baseUrl}/order-action?orderNumber=${orderNumber}&action=problem`
+        `👉 ${baseUrl}/oa?o=${orderNumber}&a=problem`
     }
 
     // Send WhatsApp to customer
@@ -183,11 +183,11 @@ export async function POST(req: NextRequest) {
       (isCOD ? `✅ Langsung diproses - Kurir ambil uang di tempat` : `Menunggu pembayaran...`) +
       `\n\n*Aksi Cepat Admin (Klik Link):*\n` +
       `1. Terima Pesanan:\n` +
-      `👉 ${baseUrl}/admin-order-action?orderNumber=${orderNumber}&action=accept\n\n` +
+      `👉 ${baseUrl}/aoa?o=${orderNumber}&a=accept\n\n` +
       `2. Hubungi/Tunjuk Kurir Bertugas:\n` +
-      `👉 ${baseUrl}/admin-order-action?orderNumber=${orderNumber}&action=courier-wa\n\n` +
+      `👉 ${baseUrl}/aoa?o=${orderNumber}&a=courier-wa\n\n` +
       `3. Tolak Pesanan (dengan alasan):\n` +
-      `👉 ${baseUrl}/admin-order-action?orderNumber=${orderNumber}&action=reject`
+      `👉 ${baseUrl}/aoa?o=${orderNumber}&a=reject`
 
     await sendWhatsAppNotification(
       '6281328128315',
