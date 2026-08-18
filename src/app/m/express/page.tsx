@@ -156,7 +156,7 @@ export default function AntarExpressPage() {
 
   const getWhatsAppLink = (ordNum: string) => {
     const finalPickup = getCombinedPickup()
-    const waMessage = `*⚡ PESANAN EXPRESS DELIVERY (ANTERBAE)*\n\n` +
+    const waMessage = `⚡ *PESANAN EXPRESS DELIVERY (ANTERBAE)*\n\n` +
       `*Kode Pesanan:* ${ordNum}\n\n` +
       `*Detail Pemesan:*\n` +
       `👤 Nama: ${regName}\n` +

@@ -83,7 +83,7 @@ export default function MobileLayananLainnyaPage() {
   }, [requestDetail, isLoaded])
 
   const getWhatsAppLink = (ordNum: string) => {
-    const waMessage = `*🛠️ PESANAN LAYANAN LAINNYA (ANTERBAE)*\n\n` +
+    const waMessage = `🛠️ *PESANAN LAYANAN LAINNYA (ANTERBAE)*\n\n` +
       `*Kode Pesanan:* ${ordNum}\n\n` +
       `*Detail Pemesan:*\n` +
       `👤 Nama: ${regName}\n` +

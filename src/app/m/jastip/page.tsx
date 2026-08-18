@@ -152,7 +152,7 @@ export default function MobileJastipPage() {
       ? `${selectedStore.name} (${selectedStore.address})`
       : storeQuery
 
-    const waMessage = `*🛒 PESANAN JASA TITIP (JASTIP - ANTERBAE)*\n\n` +
+    const waMessage = `🛒 *PESANAN JASA TITIP (JASTIP - ANTERBAE)*\n\n` +
       `*Kode Pesanan:* ${ordNum}\n\n` +
       `*Detail Pemesan:*\n` +
       `👤 Nama: ${regName}\n` +

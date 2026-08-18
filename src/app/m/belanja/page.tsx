@@ -152,7 +152,7 @@ export default function MobileBelanjaPage() {
       ? `${selectedStore.name} (${selectedStore.address})`
       : storeQuery
 
-    const waMessage = `*🛒 PESANAN JASTIP BELANJA (ANTERBAE)*\n\n` +
+    const waMessage = `🛒 *PESANAN JASTIP BELANJA (ANTERBAE)*\n\n` +
       `*Kode Pesanan:* ${ordNum}\n\n` +
       `*Detail Pemesan:*\n` +
       `👤 Nama: ${regName}\n` +
