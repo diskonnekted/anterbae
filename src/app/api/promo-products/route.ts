@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '6')
 
   try {
-    const products = await sanity.fetch(
+    let products = await sanity.fetch(
       `*[_type == "product" && isPromo == true] | order(_createdAt desc)[0...$limit] {
         _id,
         name,
@@ -24,6 +24,28 @@ export async function GET(req: NextRequest) {
       }`,
       { limit }
     )
+
+    if (products.length < limit) {
+      const remainingLimit = limit - products.length
+      const extraProducts = await sanity.fetch(
+        `*[_type == "product" && isPromo != true] | order(_createdAt desc)[0...$remainingLimit] {
+          _id,
+          name,
+          "slug": slug.current,
+          price,
+          image,
+          isPromo,
+          promoDiscount,
+          "merchant": merchant->{
+            _id,
+            name,
+            "slug": slug.current
+          }
+        }`,
+        { remainingLimit }
+      )
+      products = [...products, ...extraProducts]
+    }
 
     return NextResponse.json({ products })
   } catch (error: any) {
