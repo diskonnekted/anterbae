@@ -6,7 +6,15 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import rawLocations from '../../../../banjarnegara_locations.json'
 
-const pickupLocations = (rawLocations as any[]).map((item, index) => {
+interface LocationItem {
+  id: number
+  name: string
+  address: string
+  lat: number | null
+  lng: number | null
+}
+
+const pickupLocations: LocationItem[] = (rawLocations as any[]).map((item, index) => {
   const cleanAddr = item.address
     ? item.address.replace(/[^\x20-\x7E]/g, '').replace(/^\s+/, '').trim()
     : ''
@@ -31,8 +39,13 @@ export default function AntarExpressPage() {
   const [regName, setRegName] = useState('')
   const [quickPickup, setQuickPickup] = useState('')
   const [pickup, setPickup] = useState('')
+  const [quickDropoff, setQuickDropoff] = useState('')
   const [dropoff, setDropoff] = useState('')
   const [packageDetail, setPackageDetail] = useState('')
+
+  // Coordinates states
+  const [pickupCoords, setPickupCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [dropoffCoords, setDropoffCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   // Submit state
   const [submitting, setSubmitting] = useState(false)
@@ -41,6 +54,7 @@ export default function AntarExpressPage() {
 
   // GPS location state
   const [gpsLoading, setGpsLoading] = useState(false)
+  const [gpsTarget, setGpsTarget] = useState<'pickup' | 'dropoff' | null>(null)
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [showGpsConfirm, setShowGpsConfirm] = useState(false)
 
@@ -50,6 +64,7 @@ export default function AntarExpressPage() {
     const savedPhone = localStorage.getItem('anterbae_customer_phone')
     const savedQuickPickup = localStorage.getItem('anterbae_delivery_quick_pickup')
     const savedPickup = localStorage.getItem('anterbae_delivery_pickup')
+    const savedQuickDropoff = localStorage.getItem('anterbae_delivery_quick_dropoff')
     const savedDropoff = localStorage.getItem('anterbae_delivery_dropoff')
     const savedPackage = localStorage.getItem('anterbae_express_package_detail')
     
@@ -57,8 +72,23 @@ export default function AntarExpressPage() {
     if (savedPhone) setPhone(savedPhone)
     if (savedQuickPickup) setQuickPickup(savedQuickPickup)
     if (savedPickup) setPickup(savedPickup)
+    if (savedQuickDropoff) setQuickDropoff(savedQuickDropoff)
     if (savedDropoff) setDropoff(savedDropoff)
     if (savedPackage) setPackageDetail(savedPackage)
+
+    // Attempt to recover coordinates
+    if (savedQuickPickup) {
+      const match = pickupLocations.find(l => l.name === savedQuickPickup)
+      if (match && match.lat !== null && match.lng !== null) {
+        setPickupCoords({ lat: match.lat, lng: match.lng })
+      }
+    }
+    if (savedQuickDropoff) {
+      const match = pickupLocations.find(l => l.name === savedQuickDropoff)
+      if (match && match.lat !== null && match.lng !== null) {
+        setDropoffCoords({ lat: match.lat, lng: match.lng })
+      }
+    }
 
     // Fetch settings from Sanity
     fetch('/api/settings')
@@ -100,6 +130,12 @@ export default function AntarExpressPage() {
 
   useEffect(() => {
     if (isLoaded) {
+      localStorage.setItem('anterbae_delivery_quick_dropoff', quickDropoff)
+    }
+  }, [quickDropoff, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
       localStorage.setItem('anterbae_delivery_dropoff', dropoff)
     }
   }, [dropoff, isLoaded])
@@ -110,13 +146,14 @@ export default function AntarExpressPage() {
     }
   }, [packageDetail, isLoaded])
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = (target: 'pickup' | 'dropoff') => {
     if (!navigator.geolocation) {
       alert('Browser tidak mendukung Geolocation')
       return
     }
 
     setGpsLoading(true)
+    setGpsTarget(target)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const lat = position.coords.latitude
@@ -127,6 +164,7 @@ export default function AntarExpressPage() {
       },
       (error) => {
         setGpsLoading(false)
+        setGpsTarget(null)
         const messages = {
           1: 'Izin lokasi ditolak. Aktifkan izin lokasi di pengaturan browser.',
           2: 'Lokasi tidak ditemukan. Pastikan GPS aktif.',
@@ -139,12 +177,39 @@ export default function AntarExpressPage() {
   }
 
   const useGpsLocation = () => {
-    if (gpsCoords) {
+    if (gpsCoords && gpsTarget) {
       const address = `GPS: ${gpsCoords.lat.toFixed(6)}, ${gpsCoords.lng.toFixed(6)}`
-      setPickup(address)
+      if (gpsTarget === 'pickup') {
+        setPickup(address)
+        setPickupCoords({ lat: gpsCoords.lat, lng: gpsCoords.lng })
+      } else {
+        setDropoff(address)
+        setDropoffCoords({ lat: gpsCoords.lat, lng: gpsCoords.lng })
+      }
       setShowGpsConfirm(false)
       setGpsCoords(null)
+      setGpsTarget(null)
     }
+  }
+
+  const getDistance = () => {
+    if (!pickupCoords || !dropoffCoords) return null
+    const R = 6371 // Earth radius in km
+    const dLat = (dropoffCoords.lat - pickupCoords.lat) * Math.PI / 180
+    const dLon = (dropoffCoords.lng - pickupCoords.lng) * Math.PI / 180
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(pickupCoords.lat * Math.PI / 180) * Math.cos(dropoffCoords.lat * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c
+  }
+
+  const getShippingFee = (dist: number | null) => {
+    if (dist === null) return 0
+    if (dist <= 5) return 9000
+    const extraKm = Math.ceil(dist - 5)
+    return 9000 + extraKm * 2000
   }
 
   const getCombinedPickup = () => {
@@ -154,8 +219,23 @@ export default function AntarExpressPage() {
     return quickPickup || pickup
   }
 
+  const getCombinedDropoff = () => {
+    if (quickDropoff && dropoff.trim()) {
+      return `${quickDropoff} (Detail: ${dropoff})`
+    }
+    return quickDropoff || dropoff
+  }
+
+  const distance = getDistance()
+  const shippingFee = getShippingFee(distance)
+
   const getWhatsAppLink = (ordNum: string) => {
     const finalPickup = getCombinedPickup()
+    const finalDropoff = getCombinedDropoff()
+    const feeText = distance !== null 
+      ? `Rp ${shippingFee.toLocaleString('id-ID')} (Jarak: ${distance.toFixed(2)} km)`
+      : `Dihitung manual oleh admin`
+
     const waMessage = `⚡ *PESANAN EXPRESS DELIVERY (ANTERBAE)*\n\n` +
       `*Kode Pesanan:* ${ordNum}\n\n` +
       `*Detail Pemesan:*\n` +
@@ -163,8 +243,9 @@ export default function AntarExpressPage() {
       `📞 WA: ${phone}\n\n` +
       `*Rincian Pengiriman (Instan/Express):*\n` +
       `📍 Lokasi Jemput: ${finalPickup}\n` +
-      `🏁 Lokasi Tujuan: ${dropoff}\n` +
-      `📦 Detail Barang: ${packageDetail || 'Barang/Paket'}\n\n` +
+      `🏁 Lokasi Tujuan: ${finalDropoff}\n` +
+      `📦 Detail Barang: ${packageDetail || 'Barang/Paket'}\n` +
+      `💵 Ongkos Kirim: ${feeText}\n\n` +
       `Terima kasih! Mohon segera dikirimkan secepatnya.`
 
     const targetAdminPhone = adminPhone.replace(/\D/g, '') || '6281328128315'
@@ -173,7 +254,8 @@ export default function AntarExpressPage() {
 
   const handleSubmit = async () => {
     const finalPickup = getCombinedPickup()
-    if (!finalPickup.trim() || !dropoff.trim() || !regName.trim() || !phone.trim() || !packageDetail.trim()) {
+    const finalDropoff = getCombinedDropoff()
+    if (!finalPickup.trim() || !finalDropoff.trim() || !regName.trim() || !phone.trim() || !packageDetail.trim()) {
       alert('Silakan lengkapi seluruh data dan detail barang Anda terlebih dahulu.')
       return
     }
@@ -202,10 +284,10 @@ export default function AntarExpressPage() {
           customerName: regName,
           customerPhone: finalPhone,
           pickupAddress: `[EXPRESS] ${finalPickup}`,
-          dropoffAddress: dropoff,
+          dropoffAddress: finalDropoff,
           pickupTime: new Date().toISOString(),
           isRegistered: false,
-          address: dropoff,
+          shippingFee: shippingFee,
         }),
       }).catch(err => {
         console.error('Error saving order to database in background:', err)
@@ -280,14 +362,16 @@ export default function AntarExpressPage() {
                   const val = e.target.value
                   if (!val) {
                     setQuickPickup('')
+                    setPickupCoords(null)
                     return
                   }
                   const loc = pickupLocations.find(l => l.id.toString() === val)
                   if (loc) {
-                    if (loc.lat != null && loc.lng != null) {
-                      setQuickPickup(`${loc.name} - GPS: ${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`)
+                    setQuickPickup(loc.name)
+                    if (loc.lat !== null && loc.lng !== null) {
+                      setPickupCoords({ lat: loc.lat, lng: loc.lng })
                     } else {
-                      setQuickPickup(loc.name)
+                      setPickupCoords(null)
                     }
                   }
                 }}
@@ -322,11 +406,83 @@ export default function AntarExpressPage() {
               />
               <button
                 type="button"
-                onClick={getCurrentLocation}
+                onClick={() => getCurrentLocation('pickup')}
                 disabled={gpsLoading}
                 className="absolute right-2 top-1.5 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-lg active:scale-95 transition-transform disabled:opacity-50 flex items-center gap-1"
               >
-                {gpsLoading ? (
+                {gpsLoading && gpsTarget === 'pickup' ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Navigation className="w-3 h-3" />
+                )}
+                Pin Saya
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Dropoff Location Section */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-4">
+          {/* Quick Dropoff Dropdown */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Lokasi Cepat Tujuan (Dropoff)
+            </label>
+            <div className="relative">
+              <select
+                value={quickDropoff}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (!val) {
+                    setQuickDropoff('')
+                    setDropoffCoords(null)
+                    return
+                  }
+                  const loc = pickupLocations.find(l => l.id.toString() === val)
+                  if (loc) {
+                    setQuickDropoff(loc.name)
+                    if (loc.lat !== null && loc.lng !== null) {
+                      setDropoffCoords({ lat: loc.lat, lng: loc.lng })
+                    } else {
+                      setDropoffCoords(null)
+                    }
+                  }
+                }}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none"
+              >
+                <option value="">-- Pilih Lokasi Cepat Tujuan --</option>
+                {pickupLocations.map(loc => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name} ({loc.address})
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                <ChevronDown className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Lokasi Tujuan Pengiriman
+            </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-green-500 absolute left-3 top-3" />
+              <input
+                type="text"
+                value={dropoff}
+                onChange={e => setDropoff(e.target.value)}
+                placeholder="Lokasi pengiriman paket"
+                className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => getCurrentLocation('dropoff')}
+                disabled={gpsLoading}
+                className="absolute right-2 top-1.5 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-lg active:scale-95 transition-transform disabled:opacity-50 flex items-center gap-1"
+              >
+                {gpsLoading && gpsTarget === 'dropoff' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
                   <Navigation className="w-3 h-3" />
@@ -354,27 +510,22 @@ export default function AntarExpressPage() {
           </div>
         </div>
 
-        {/* Dropoff Location Section */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-            Lokasi Tujuan Pengiriman
-          </label>
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-green-500 absolute left-3 top-3" />
-            <input
-              type="text"
-              value={dropoff}
-              onChange={e => setDropoff(e.target.value)}
-              placeholder="Lokasi pengiriman paket"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
+        {/* Live Shipping Fee Indicator */}
+        {distance !== null ? (
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-green-800 text-xs font-black flex justify-between items-center">
+            <span>Estimasi Jarak: {distance.toFixed(2)} km</span>
+            <span>Ongkir: Rp {shippingFee.toLocaleString('id-ID')}</span>
           </div>
-        </div>
+        ) : (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs font-black leading-relaxed">
+            ℹ️ Ongkir akan dikonfirmasi/dihitung manual oleh admin (Default: Rp 9.000 untuk 5km pertama, tambahan Rp 2.000/km). Pilih lokasi dari peta/dropdown untuk memicu estimasi ongkir otomatis.
+          </div>
+        )}
 
         {/* Order Button */}
         <button
           onClick={handleSubmit}
-          disabled={submitting || (!quickPickup && !pickup) || !dropoff || !packageDetail}
+          disabled={submitting || (!quickPickup && !pickup) || (!quickDropoff && !dropoff) || !packageDetail}
           className="block w-full bg-red-600 text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {submitting ? (
@@ -447,7 +598,7 @@ export default function AntarExpressPage() {
                 {gpsCoords.lng.toFixed(6)}
               </p>
               <p className="text-xs text-gray-400 mb-6">
-                Apakah ini lokasi jemput yang benar?
+                Apakah ini lokasi yang benar?
               </p>
 
               <div className="space-y-2">
@@ -458,7 +609,7 @@ export default function AntarExpressPage() {
                   Pakai Lokasi Saya
                 </button>
                 <button
-                  onClick={() => { setShowGpsConfirm(false); setGpsCoords(null) }}
+                  onClick={() => { setShowGpsConfirm(false); setGpsCoords(null); setGpsTarget(null); }}
                   className="block w-full text-gray-400 font-bold py-3 rounded-xl text-center text-sm flex items-center justify-center gap-1"
                 >
                   <X className="w-4 h-4" /> Batal

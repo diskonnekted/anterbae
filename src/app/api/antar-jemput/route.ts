@@ -99,8 +99,8 @@ export async function POST(req: NextRequest) {
       pickupAddress,
       deliveryAddress: dropoffAddress,
       customerNotes: `Waktu jemput: ${pickupTime}`,
-      totalAmount: 0, // Will be set by admin
-      shippingFee: 0, // Will be set by admin
+      totalAmount: body.shippingFee || 0, // total amount is shipping fee for courier orders
+      shippingFee: body.shippingFee || 0,
       paymentMethod: 'cod',
       paymentStatus: 'unpaid',
       status: 'pending',
