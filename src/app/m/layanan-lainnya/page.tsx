@@ -273,7 +273,7 @@ export default function MobileLayananLainnyaPage() {
             <p className="text-sm text-gray-500 mb-1">Nomor Pesanan:</p>
             <p className="text-xl font-black text-red-600 mb-4">{orderNumber}</p>
             <p className="text-xs text-gray-400 mb-6 leading-relaxed">
-              Detail permintaan kustom Anda sedang dialihkan ke WhatsApp. Admin akan segera menanggapi.
+              Detail permintaan kustom Anda sedang dialihkan ke WhatsApp. Admin akan segera menanggapi. Jika dalam 5 menit belum ada notifikasi dari kami, silakan gunakan tombol di bawah untuk mengirim ulang.
             </p>
 
             <div className="space-y-2">

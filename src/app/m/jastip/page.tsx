@@ -382,7 +382,7 @@ export default function MobileJastipPage() {
             <p className="text-sm text-gray-500 mb-1">Nomor Pesanan:</p>
             <p className="text-xl font-black text-red-600 mb-4">{orderNumber}</p>
             <p className="text-xs text-gray-400 mb-6 leading-relaxed">
-              Detail jastip Anda sedang dialihkan ke WhatsApp. Driver/Admin akan segera menghubungi Anda.
+              Detail jastip Anda sedang dialihkan ke WhatsApp. Driver/Admin akan segera menghubungi Anda. Jika dalam 5 menit belum ada notifikasi dari kami, silakan gunakan tombol di bawah untuk mengirim ulang.
             </p>
 
             <div className="space-y-2">

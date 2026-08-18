@@ -553,7 +553,7 @@ export default function AntarExpressPage() {
             <p className="text-sm text-gray-500 mb-1">Nomor Pesanan:</p>
             <p className="text-xl font-black text-red-600 mb-4">{orderNumber}</p>
             <p className="text-xs text-gray-400 mb-6 leading-relaxed">
-              Detail pengantaran express Anda sedang dialihkan ke WhatsApp. Driver/Admin akan segera meluncur.
+              Detail pengantaran express Anda sedang dialihkan ke WhatsApp. Driver/Admin akan segera meluncur. Jika dalam 5 menit belum ada notifikasi dari kami, silakan gunakan tombol di bawah untuk mengirim ulang.
             </p>
 
             <div className="space-y-2">
