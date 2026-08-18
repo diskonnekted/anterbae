@@ -4,14 +4,6 @@ import { ArrowLeft, MapPin, Clock, Phone, User, CheckCircle, Loader2, X, Navigat
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-
-interface Customer {
-  _id: string
-  name: string
-  phone: string
-  address: string
-}
-
 import rawLocations from '../../../../banjarnegara_locations.json'
 
 const pickupLocations = (rawLocations as any[]).map((item, index) => {
@@ -37,7 +29,7 @@ export default function AntarJemputPage() {
   // Form states
   const [phone, setPhone] = useState('')
   const [regName, setRegName] = useState('')
-  const [regAddress, setRegAddress] = useState('')
+  const [quickPickup, setQuickPickup] = useState('')
   const [pickup, setPickup] = useState('')
   const [dropoff, setDropoff] = useState('')
 
@@ -55,13 +47,13 @@ export default function AntarJemputPage() {
   useEffect(() => {
     const savedName = localStorage.getItem('anterbae_customer_name')
     const savedPhone = localStorage.getItem('anterbae_customer_phone')
-    const savedAddress = localStorage.getItem('anterbae_customer_address')
+    const savedQuickPickup = localStorage.getItem('anterbae_delivery_quick_pickup')
     const savedPickup = localStorage.getItem('anterbae_delivery_pickup')
     const savedDropoff = localStorage.getItem('anterbae_delivery_dropoff')
     
     if (savedName) setRegName(savedName)
     if (savedPhone) setPhone(savedPhone)
-    if (savedAddress) setRegAddress(savedAddress)
+    if (savedQuickPickup) setQuickPickup(savedQuickPickup)
     if (savedPickup) setPickup(savedPickup)
     if (savedDropoff) setDropoff(savedDropoff)
 
@@ -93,9 +85,9 @@ export default function AntarJemputPage() {
 
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('anterbae_customer_address', regAddress)
+      localStorage.setItem('anterbae_delivery_quick_pickup', quickPickup)
     }
-  }, [regAddress, isLoaded])
+  }, [quickPickup, isLoaded])
 
   useEffect(() => {
     if (isLoaded) {
@@ -146,15 +138,22 @@ export default function AntarJemputPage() {
     }
   }
 
+  const getCombinedPickup = () => {
+    if (quickPickup && pickup.trim()) {
+      return `${quickPickup} (Detail: ${pickup})`
+    }
+    return quickPickup || pickup
+  }
+
   const getWhatsAppLink = (ordNum: string) => {
+    const finalPickup = getCombinedPickup()
     const waMessage = `*🛵 PESANAN PENGANTARAN (ANTERBAE)*\n\n` +
       `*Kode Pesanan:* ${ordNum}\n\n` +
       `*Detail Pemesan:*\n` +
       `👤 Nama: ${regName}\n` +
-      `📞 WA: ${phone}\n` +
-      `🏠 Alamat Pemesan: ${regAddress}\n\n` +
+      `📞 WA: ${phone}\n\n` +
       `*Rincian Pengantaran:*\n` +
-      `📍 Lokasi Jemput: ${pickup}\n` +
+      `📍 Lokasi Jemput: ${finalPickup}\n` +
       `🏁 Lokasi Tujuan: ${dropoff}\n\n` +
       `Terima kasih! Silakan proses pengantaran saya.`
 
@@ -163,7 +162,8 @@ export default function AntarJemputPage() {
   }
 
   const handleSubmit = async () => {
-    if (!pickup.trim() || !dropoff.trim() || !regName.trim() || !phone.trim() || !regAddress.trim()) {
+    const finalPickup = getCombinedPickup()
+    if (!finalPickup.trim() || !dropoff.trim() || !regName.trim() || !phone.trim()) {
       alert('Silakan lengkapi seluruh data Anda terlebih dahulu.')
       return
     }
@@ -191,11 +191,11 @@ export default function AntarJemputPage() {
         body: JSON.stringify({
           customerName: regName,
           customerPhone: finalPhone,
-          pickupAddress: pickup,
+          pickupAddress: finalPickup,
           dropoffAddress: dropoff,
           pickupTime: new Date().toISOString(), // Defaulting pickup time to now since date is removed from UI
           isRegistered: false,
-          address: regAddress,
+          address: dropoff, // using destination as fallback address
         }),
       }).catch(err => {
         console.error('Error saving order to database in background:', err)
@@ -265,15 +265,19 @@ export default function AntarJemputPage() {
             </label>
             <div className="relative">
               <select
+                value={quickPickup}
                 onChange={(e) => {
                   const val = e.target.value
-                  if (!val) return
+                  if (!val) {
+                    setQuickPickup('')
+                    return
+                  }
                   const loc = pickupLocations.find(l => l.id.toString() === val)
                   if (loc) {
                     if (loc.lat != null && loc.lng != null) {
-                      setPickup(`${loc.name} - GPS: ${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`)
+                      setQuickPickup(`${loc.name} - GPS: ${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`)
                     } else {
-                      setPickup(loc.name)
+                      setQuickPickup(loc.name)
                     }
                   }
                 }}
@@ -323,23 +327,6 @@ export default function AntarJemputPage() {
           </div>
         </div>
 
-        {/* Alamat Lengkap Pemesan Section */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-            Alamat Lengkap Pemesan
-          </label>
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-            <input
-              type="text"
-              value={regAddress}
-              onChange={e => setRegAddress(e.target.value)}
-              placeholder="Masukkan alamat lengkap Anda"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
         {/* Dropoff Location Section */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
           <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
@@ -360,7 +347,7 @@ export default function AntarJemputPage() {
         {/* Order Button */}
         <button
           onClick={handleSubmit}
-          disabled={submitting || !pickup || !dropoff}
+          disabled={submitting || (!quickPickup && !pickup) || !dropoff}
           className="block w-full bg-red-600 text-white font-black py-4 rounded-2xl text-center active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {submitting ? (
