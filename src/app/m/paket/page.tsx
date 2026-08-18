@@ -5,23 +5,20 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-const pickupLocations = [
-  { id: 1, name: 'Pasar Banjarnegara', address: 'Jl. Ahmad Yani', type: 'Pasar', lat: -7.3940, lng: 109.7008 },
-  { id: 2, name: 'Polres Banjarnegara', address: 'Jl. Jend. Sudirman', type: 'Keamanan', lat: -7.3962, lng: 109.6943 },
-  { id: 3, name: 'RSUD Banjarnegara', address: 'Jl. Dr. Moestopo', type: 'Rumah Sakit', lat: -7.3929, lng: 109.6928 },
-  { id: 4, name: 'Stasiun Banjarnegara', address: 'Jl. Stasiun No. 1', type: 'Transportasi', lat: -7.3979, lng: 109.6541 },
-  { id: 5, name: 'Mal Pelayanan Publik (MPP)', address: 'Jl. Dipayuda No. 15C', type: 'Pemerintahan', lat: -7.3962, lng: 109.6943 },
-  { id: 6, name: 'Kantor Bupati / Setda', address: 'Jl. Dipayuda', type: 'Pemerintahan', lat: -7.3962, lng: 109.6943 },
-  { id: 7, name: 'Alun-Alun Banjarnegara', address: 'Jl. Jend. Sudirman', type: 'Pemerintahan', lat: -7.3972, lng: 109.6964 },
-  { id: 8, name: 'Taman Rekreasi Margasatwa Serulingmas', address: 'Jl. Letjen Supriyo', type: 'Rekreasi', lat: -7.3884, lng: 109.6910 },
-  { id: 9, name: 'Surya Yudha Waterpark', address: 'Jl. Raya Banjarnegara', type: 'Rekreasi', lat: -7.3884, lng: 109.6910 },
-  { id: 10, name: 'Masjid Agung An-Nuur Kauman', address: 'Jl. K.H. Ahmad Dahlan No.8', type: 'Ibadah', lat: -7.3963, lng: 109.6943 },
-  { id: 11, name: 'BCA KCP Banjarnegara', address: 'Jl. Pemuda No.72', type: 'Perbankan', lat: -7.3971, lng: 109.6965 },
-  { id: 12, name: 'SMAN 1 Banjarnegara', address: 'Jl. Dr. Soetomo', type: 'Kampus', lat: -7.3998, lng: 109.6847 },
-  { id: 13, name: 'Alfamart Alun Alun', address: 'Jl. Pemuda', type: 'Perbankan', lat: -7.3972, lng: 109.6964 },
-  { id: 14, name: 'APOTEK AEESHA FARMA', address: 'Jl. Ps. Manis, Punggelan', type: 'Rumah Sakit', lat: -7.3516, lng: 109.5813 },
-  { id: 15, name: 'PUSKESMAS Lengkong', address: 'Depok, Lengkong, Rakit', type: 'Kampus', lat: -7.3949, lng: 109.5735 },
-]
+import rawLocations from '../../../../banjarnegara_locations.json'
+
+const pickupLocations = (rawLocations as any[]).map((item, index) => {
+  const cleanAddr = item.address
+    ? item.address.replace(/[^\x20-\x7E]/g, '').replace(/^\s+/, '').trim()
+    : ''
+  return {
+    id: index + 1,
+    name: item.name,
+    address: cleanAddr,
+    lat: item.latitude ? parseFloat(item.latitude) : null,
+    lng: item.longitude ? parseFloat(item.longitude) : null,
+  }
+})
 
 export default function AntarPaketPage() {
   const router = useRouter()
