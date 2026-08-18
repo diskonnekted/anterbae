@@ -498,7 +498,7 @@ export default function MobileHome() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {merchant.logo ? (
                             <Image
-                              src={urlFor(merchant.logo).width(100).height(100).url()}
+                              src={urlFor(merchant.logo).width(300).height(300).url()}
                               alt={merchant.name}
                               width={48}
                               height={48}
@@ -669,7 +669,7 @@ export default function MobileHome() {
                 <div className="relative h-20 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
                   {merchant.logo ? (
                     <Image
-                      src={urlFor(merchant.logo).width(100).height(100).url()}
+                      src={urlFor(merchant.logo).width(300).height(300).url()}
                       alt={merchant.name}
                       fill
                       className="object-cover"
