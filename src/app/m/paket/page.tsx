@@ -227,7 +227,7 @@ export default function AntarPaketPage() {
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        {/* Personal Data Section (Name, Phone, Address always visible) */}
+        {/* Personal Data Section & Pickup */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-4">
           <div>
             <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
@@ -261,20 +261,85 @@ export default function AntarPaketPage() {
             </div>
           </div>
 
+          {/* Quick Locations Dropdown */}
           <div>
             <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-              Alamat Lengkap Pemesan
+              Lokasi Cepat Penjemputan
             </label>
             <div className="relative">
-              <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <select
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (!val) return
+                  const loc = pickupLocations.find(l => l.id.toString() === val)
+                  if (loc) {
+                    if (loc.lat != null && loc.lng != null) {
+                      setPickup(`${loc.name} - GPS: ${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`)
+                    } else {
+                      setPickup(loc.name)
+                    }
+                  }
+                }}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none"
+              >
+                <option value="">-- Pilih Lokasi Cepat Penjemputan --</option>
+                {pickupLocations.map(loc => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name} ({loc.address})
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                <ChevronDown className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+
+          {/* Pickup Location Detail (manual isian) */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+              Detail Penjemputan
+            </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-red-500 absolute left-3 top-3" />
               <input
                 type="text"
-                value={regAddress}
-                onChange={e => setRegAddress(e.target.value)}
-                placeholder="Masukkan alamat lengkap Anda"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                value={pickup}
+                onChange={e => setPickup(e.target.value)}
+                placeholder="Masukkan detail lokasi jemput secara manual"
+                className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
+              <button
+                type="button"
+                onClick={getCurrentLocation}
+                disabled={gpsLoading}
+                className="absolute right-2 top-1.5 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-lg active:scale-95 transition-transform disabled:opacity-50 flex items-center gap-1"
+              >
+                {gpsLoading ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Navigation className="w-3 h-3" />
+                )}
+                Pin Saya
+              </button>
             </div>
+          </div>
+        </div>
+
+        {/* Alamat Lengkap Pemesan Section */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4">
+          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+            Alamat Lengkap Pemesan
+          </label>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+            <input
+              type="text"
+              value={regAddress}
+              onChange={e => setRegAddress(e.target.value)}
+              placeholder="Masukkan alamat lengkap Anda"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
           </div>
         </div>
 
@@ -295,37 +360,7 @@ export default function AntarPaketPage() {
           </div>
         </div>
 
-        {/* Pickup Location */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-            Lokasi Jemput Paket
-          </label>
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-red-500 absolute left-3 top-3" />
-            <input
-              type="text"
-              value={pickup}
-              onChange={e => setPickup(e.target.value)}
-              placeholder="Lokasi penjemputan barang"
-              className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-            <button
-              type="button"
-              onClick={getCurrentLocation}
-              disabled={gpsLoading}
-              className="absolute right-2 top-1.5 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-lg active:scale-95 transition-transform disabled:opacity-50 flex items-center gap-1"
-            >
-              {gpsLoading ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <Navigation className="w-3 h-3" />
-              )}
-              Pin Saya
-            </button>
-          </div>
-        </div>
-
-        {/* Dropoff Location */}
+        {/* Dropoff Location Section */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
           <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
             Lokasi Tujuan Pengiriman
@@ -339,40 +374,6 @@ export default function AntarPaketPage() {
               placeholder="Lokasi pengiriman paket"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
-          </div>
-        </div>
-
-        {/* Quick Locations Dropdown */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-            Lokasi Cepat Penjemputan
-          </label>
-          <div className="relative">
-            <select
-              onChange={(e) => {
-                const val = e.target.value
-                if (!val) return
-                const loc = pickupLocations.find(l => l.id.toString() === val)
-                if (loc) {
-                  if (loc.lat != null && loc.lng != null) {
-                    setPickup(`${loc.name} - GPS: ${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`)
-                  } else {
-                    setPickup(loc.name)
-                  }
-                }
-              }}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none"
-            >
-              <option value="">-- Pilih Lokasi Cepat Penjemputan --</option>
-              {pickupLocations.map(loc => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name} ({loc.address})
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-              <ChevronDown className="w-4 h-4" />
-            </div>
           </div>
         </div>
 
